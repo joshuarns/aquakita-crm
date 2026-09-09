@@ -13,7 +13,12 @@ Basado en la *Especificación funcional del sistema de gestión de leads* (Etapa
 - `spatie/laravel-permission` — roles y permisos (§2)
 - `owen-it/laravel-auditing` — auditoría de cambios (§10)
 
-## Cómo correr
+## Despliegue a producción
+
+Ver **[DESPLIEGUE.md](DESPLIEGUE.md)** (MySQL, SMTP, cron, colas, respaldos) y la
+plantilla **[.env.production.example](.env.production.example)**.
+
+## Cómo correr (desarrollo)
 
 ```bash
 php artisan serve --port=8000
