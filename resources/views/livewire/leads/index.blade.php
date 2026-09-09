@@ -1,9 +1,9 @@
 <?php
 
 use App\Models\Lead;
-use App\Models\LeadNotification;
 use App\Models\Status;
 use App\Models\User;
+use App\Support\LeadNotifier;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
@@ -106,26 +106,19 @@ new #[Layout('layouts.app')] class extends Component
 
         $lead->save();
 
-        $vendor = User::find($vendorId);
+        $vendor = User::findOrFail($vendorId);
         $type = $previousVendorId ? 'reasignacion' : 'nuevo_lead';
 
         $lead->recordTimeline('assigned', 'Lead asignado', [
             'administrador' => Auth::user()->name,
-            'vendedor' => $vendor?->name,
+            'vendedor' => $vendor->name,
             'reasignacion' => (bool) $previousVendorId,
         ]);
 
-        LeadNotification::create([
-            'lead_id' => $lead->id,
-            'vendor_id' => $vendorId,
-            'type' => $type,
-            'message' => $type === 'reasignacion'
-                ? "El lead {$lead->full_name} fue reasignado a tu cuenta."
-                : "Se te asignó el lead {$lead->full_name}.",
-            'sent_at' => now(),
-        ]);
+        // Campanita interna + aviso por correo (§4.3).
+        app(LeadNotifier::class)->notify($lead, $vendor, $type);
 
-        session()->flash('status', "Lead «{$lead->full_name}» asignado a {$vendor?->name}.");
+        session()->flash('status', "Lead «{$lead->full_name}» asignado a {$vendor->name}.");
     }
 }; ?>
 
