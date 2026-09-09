@@ -20,6 +20,8 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('leads/create', 'leads.create')
         ->middleware('permission:leads.capture')
         ->name('leads.create');
+
+    Volt::route('leads/{lead}', 'leads.show')->name('leads.show');
 });
 
 require __DIR__.'/auth.php';

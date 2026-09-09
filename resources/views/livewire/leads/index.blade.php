@@ -179,7 +179,9 @@ new #[Layout('layouts.app')] class extends Component
                     @forelse ($this->leads as $lead)
                         <tr class="hover:bg-gray-50">
                             <td class="px-4 py-3">
-                                <div class="font-medium text-gray-900">{{ $lead->full_name }}</div>
+                                <a href="{{ route('leads.show', $lead) }}" wire:navigate class="font-medium text-indigo-600 hover:text-indigo-800">
+                                    {{ $lead->full_name }}
+                                </a>
                                 <div class="text-xs text-gray-500">{{ $lead->email ?: $lead->phone }}</div>
                             </td>
                             <td class="px-4 py-3 text-gray-700">{{ $lead->company ?: '—' }}</td>
