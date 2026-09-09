@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AttachmentController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
@@ -26,6 +27,9 @@ Route::middleware(['auth'])->group(function () {
     Volt::route('leads/export', 'leads.export')
         ->middleware('permission:leads.export')
         ->name('leads.export');
+
+    Route::get('leads/{lead}/attachments/{attachment}/download', [AttachmentController::class, 'download'])
+        ->name('leads.attachments.download');
 
     Volt::route('leads/{lead}', 'leads.show')->name('leads.show');
 

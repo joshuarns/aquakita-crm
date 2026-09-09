@@ -8,9 +8,12 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
+use Livewire\WithFileUploads;
 
 new #[Layout('layouts.app')] class extends Component
 {
+    use WithFileUploads;
+
     public Lead $lead;
 
     // --- Formulario de actividad (§6) ---
@@ -25,6 +28,9 @@ new #[Layout('layouts.app')] class extends Component
     public string $status_comment = '';
     public ?int $discard_reason_id = null;
     public string $sale_amount = '';
+
+    // --- Archivos adjuntos (§5) ---
+    public $upload = null;
 
     /**
      * Al abrir la ficha se registra la apertura del vendedor asignado (§4.3, §5).
@@ -207,6 +213,56 @@ new #[Layout('layouts.app')] class extends Component
             'usuario' => Auth::user()->name,
         ]);
     }
+
+    /**
+     * Sube un archivo adjunto a la ficha (§5). Guarda en disco privado y
+     * registra el evento en la línea de tiempo.
+     */
+    public function addAttachment(): void
+    {
+        $this->authorize('manage', $this->lead);
+
+        $this->validate([
+            // Tipos y tamaño por confirmar con el cliente; se usan valores razonables.
+            'upload' => ['required', 'file', 'max:10240', 'mimes:pdf,doc,docx,xls,xlsx,png,jpg,jpeg,webp'],
+        ]);
+
+        $path = $this->upload->store('attachments/'.$this->lead->id, 'local');
+
+        $this->lead->attachments()->create([
+            'path' => $path,
+            'original_name' => $this->upload->getClientOriginalName(),
+            'mime_type' => $this->upload->getMimeType(),
+            'size' => $this->upload->getSize(),
+            'uploaded_by' => Auth::id(),
+        ]);
+
+        $this->lead->recordTimeline('attachment', 'Archivo adjuntado', [
+            'archivo' => $this->upload->getClientOriginalName(),
+            'usuario' => Auth::user()->name,
+        ]);
+
+        $this->reset('upload');
+        session()->flash('activity_status', 'Archivo adjuntado.');
+    }
+
+    /** Elimina un adjunto y su archivo físico (§5). */
+    public function deleteAttachment(int $attachmentId): void
+    {
+        $this->authorize('manage', $this->lead);
+
+        $attachment = $this->lead->attachments()->findOrFail($attachmentId);
+        \Illuminate\Support\Facades\Storage::disk('local')->delete($attachment->path);
+        $attachment->delete();
+
+        session()->flash('activity_status', 'Archivo eliminado.');
+    }
+
+    #[Computed]
+    public function attachments()
+    {
+        return $this->lead->attachments()->with('uploadedBy')->latest()->get();
+    }
 }; ?>
 
 <div class="py-8" wire:key="lead-{{ $lead->id }}">
@@ -262,6 +318,40 @@ new #[Layout('layouts.app')] class extends Component
                             <span class="text-gray-900">{{ $lead->next_follow_up_at->format('d/m/Y H:i') }}</span>
                         </div>
                     @endif
+                </div>
+
+                {{-- Archivos adjuntos (§5) --}}
+                <div class="bg-white shadow-sm sm:rounded-lg p-5">
+                    <h3 class="font-semibold text-gray-700 mb-3 text-sm">{{ __('Archivos adjuntos') }}</h3>
+
+                    <ul class="space-y-2 mb-3">
+                        @forelse ($this->attachments as $attachment)
+                            <li class="flex items-center justify-between gap-2 text-sm">
+                                <a href="{{ route('leads.attachments.download', [$lead, $attachment]) }}"
+                                   class="text-indigo-600 hover:text-indigo-800 truncate">
+                                    {{ $attachment->original_name }}
+                                </a>
+                                @can('manage', $lead)
+                                    <button wire:click="deleteAttachment({{ $attachment->id }})"
+                                            wire:confirm="{{ __('¿Eliminar este archivo?') }}"
+                                            class="text-xs text-gray-400 hover:text-red-600 shrink-0">✕</button>
+                                @endcan
+                            </li>
+                        @empty
+                            <li class="text-sm text-gray-500">{{ __('Sin archivos.') }}</li>
+                        @endforelse
+                    </ul>
+
+                    @can('manage', $lead)
+                        <form wire:submit="addAttachment" class="border-t border-gray-100 pt-3">
+                            <input type="file" wire:model="upload" class="block w-full text-xs text-gray-600 file:mr-2 file:rounded file:border-0 file:bg-gray-800 file:px-3 file:py-1 file:text-white" />
+                            <x-input-error :messages="$errors->get('upload')" class="mt-1" />
+                            <div wire:loading wire:target="upload" class="text-xs text-gray-500 mt-1">{{ __('Subiendo…') }}</div>
+                            @if ($upload)
+                                <x-primary-button class="mt-2">{{ __('Adjuntar') }}</x-primary-button>
+                            @endif
+                        </form>
+                    @endcan
                 </div>
 
                 {{-- Cambio de estatus (§7, §10) --}}
