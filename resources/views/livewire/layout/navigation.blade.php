@@ -46,6 +46,11 @@ new class extends Component
                             {{ __('Exportar') }}
                         </x-nav-link>
                     @endcan
+                    @can('reports.view')
+                        <x-nav-link :href="route('reports')" :active="request()->routeIs('reports')" wire:navigate>
+                            {{ __('Reportes') }}
+                        </x-nav-link>
+                    @endcan
                 </div>
             </div>
 
@@ -108,6 +113,11 @@ new class extends Component
             @can('leads.export')
                 <x-responsive-nav-link :href="route('leads.export')" :active="request()->routeIs('leads.export')" wire:navigate>
                     {{ __('Exportar') }}
+                </x-responsive-nav-link>
+            @endcan
+            @can('reports.view')
+                <x-responsive-nav-link :href="route('reports')" :active="request()->routeIs('reports')" wire:navigate>
+                    {{ __('Reportes') }}
                 </x-responsive-nav-link>
             @endcan
         </div>

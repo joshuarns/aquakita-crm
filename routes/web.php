@@ -28,6 +28,11 @@ Route::middleware(['auth'])->group(function () {
         ->name('leads.export');
 
     Volt::route('leads/{lead}', 'leads.show')->name('leads.show');
+
+    // Panel administrativo y reportes (§8).
+    Volt::route('reportes', 'reports')
+        ->middleware('permission:reports.view')
+        ->name('reports');
 });
 
 require __DIR__.'/auth.php';
