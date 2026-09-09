@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Models\City;
+use App\Models\Country;
 use App\Models\EmailTemplate;
 use App\Models\Language;
 use App\Models\Source;
@@ -76,6 +78,43 @@ class CatalogManagementTest extends TestCase
         $user->assignRole('capturista');
 
         $this->actingAs($user)->get(route('catalogs.index'))->assertForbidden();
+    }
+
+    public function test_admin_can_add_a_city_to_a_country(): void
+    {
+        $country = Country::create(['name' => 'México']);
+
+        Volt::actingAs($this->admin())
+            ->test('catalogs.cities')
+            ->set('country_id', $country->id)
+            ->set('name', 'Puebla')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('cities', ['name' => 'Puebla', 'country_id' => $country->id, 'active' => true]);
+    }
+
+    public function test_city_requires_a_country(): void
+    {
+        Volt::actingAs($this->admin())
+            ->test('catalogs.cities')
+            ->set('name', 'Sin País')
+            ->call('save')
+            ->assertHasErrors(['country_id']);
+    }
+
+    public function test_cities_can_be_filtered_by_country(): void
+    {
+        $mx = Country::create(['name' => 'México']);
+        $cl = Country::create(['name' => 'Chile']);
+        City::create(['country_id' => $mx->id, 'name' => 'Toluca']);
+        City::create(['country_id' => $cl->id, 'name' => 'Valparaíso']);
+
+        Volt::actingAs($this->admin())
+            ->test('catalogs.cities')
+            ->set('filterCountry', $mx->id)
+            ->assertSee('Toluca')
+            ->assertDontSee('Valparaíso');
     }
 
     public function test_admin_can_edit_email_template(): void

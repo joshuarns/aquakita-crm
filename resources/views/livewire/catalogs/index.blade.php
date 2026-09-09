@@ -17,6 +17,7 @@ new #[Layout('layouts.app')] class extends Component
             ['route' => 'catalogs.manage', 'param' => ['type' => 'discard_reasons'], 'title' => 'Motivos de descarte', 'desc' => 'Por qué se descarta un lead.'],
             ['route' => 'catalogs.manage', 'param' => ['type' => 'languages'], 'title' => 'Idiomas', 'desc' => 'Idiomas de los prospectos.'],
             ['route' => 'catalogs.manage', 'param' => ['type' => 'countries'], 'title' => 'Países', 'desc' => 'Países de operación.'],
+            ['route' => 'catalogs.cities', 'param' => [], 'title' => 'Ciudades', 'desc' => 'Ciudades por país.'],
             ['route' => 'catalogs.templates', 'param' => [], 'title' => 'Plantillas de correo', 'desc' => 'Textos de los avisos por correo.'],
             ['route' => 'users.index', 'param' => [], 'title' => 'Usuarios', 'desc' => 'Alta, edición y permisos.'],
         ];
