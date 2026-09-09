@@ -33,6 +33,11 @@ new class extends Component
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    @role('vendedor')
+                        <x-nav-link :href="route('panel')" :active="request()->routeIs('panel')" wire:navigate>
+                            {{ __('Mi panel') }}
+                        </x-nav-link>
+                    @endrole
                     <x-nav-link :href="route('leads.index')" :active="request()->routeIs('leads.*')" wire:navigate>
                         {{ __('Leads') }}
                     </x-nav-link>
@@ -87,6 +92,11 @@ new class extends Component
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+            @role('vendedor')
+                <x-responsive-nav-link :href="route('panel')" :active="request()->routeIs('panel')" wire:navigate>
+                    {{ __('Mi panel') }}
+                </x-responsive-nav-link>
+            @endrole
             <x-responsive-nav-link :href="route('leads.index')" :active="request()->routeIs('leads.*')" wire:navigate>
                 {{ __('Leads') }}
             </x-responsive-nav-link>
