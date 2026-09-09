@@ -51,6 +51,11 @@ new class extends Component
                             {{ __('Reportes') }}
                         </x-nav-link>
                     @endcan
+                    @can('catalogs.manage')
+                        <x-nav-link :href="route('catalogs.index')" :active="request()->routeIs('catalogs.*') || request()->routeIs('users.*')" wire:navigate>
+                            {{ __('Configuración') }}
+                        </x-nav-link>
+                    @endcan
                 </div>
             </div>
 
@@ -123,6 +128,11 @@ new class extends Component
             @can('reports.view')
                 <x-responsive-nav-link :href="route('reports')" :active="request()->routeIs('reports')" wire:navigate>
                     {{ __('Reportes') }}
+                </x-responsive-nav-link>
+            @endcan
+            @can('catalogs.manage')
+                <x-responsive-nav-link :href="route('catalogs.index')" :active="request()->routeIs('catalogs.*') || request()->routeIs('users.*')" wire:navigate>
+                    {{ __('Configuración') }}
                 </x-responsive-nav-link>
             @endcan
         </div>
