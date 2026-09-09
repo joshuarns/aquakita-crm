@@ -23,6 +23,10 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:leads.capture')
         ->name('leads.create');
 
+    Volt::route('leads/export', 'leads.export')
+        ->middleware('permission:leads.export')
+        ->name('leads.export');
+
     Volt::route('leads/{lead}', 'leads.show')->name('leads.show');
 });
 

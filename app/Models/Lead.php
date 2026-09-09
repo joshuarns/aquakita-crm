@@ -24,6 +24,8 @@ class Lead extends Model implements Auditable
         return [
             'sale_amount' => 'decimal:2',
             'sale_confirmed' => 'boolean',
+            'no_marketing' => 'boolean',
+            'unsubscribed' => 'boolean',
             'next_follow_up_at' => 'datetime',
             'assigned_at' => 'datetime',
             'first_opened_at' => 'datetime',
@@ -120,6 +122,19 @@ class Lead extends Model implements Auditable
     public function scopeForVendor($query, int $vendorId)
     {
         return $query->where('vendor_id', $vendorId);
+    }
+
+    /**
+     * Contactos aptos para exportar a campañas (§9 reglas de exclusión):
+     * con correo, sin marca "No enviar publicidad" y sin baja solicitada.
+     * Los duplicados por correo se resuelven al construir el archivo.
+     */
+    public function scopeMarketable($query)
+    {
+        return $query->whereNotNull('email')
+            ->where('email', '!=', '')
+            ->where('no_marketing', false)
+            ->where('unsubscribed', false);
     }
 
     /**

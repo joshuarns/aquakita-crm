@@ -38,9 +38,14 @@ new class extends Component
                             {{ __('Mi panel') }}
                         </x-nav-link>
                     @endrole
-                    <x-nav-link :href="route('leads.index')" :active="request()->routeIs('leads.*')" wire:navigate>
+                    <x-nav-link :href="route('leads.index')" :active="request()->routeIs('leads.index') || request()->routeIs('leads.create') || request()->routeIs('leads.show')" wire:navigate>
                         {{ __('Leads') }}
                     </x-nav-link>
+                    @can('leads.export')
+                        <x-nav-link :href="route('leads.export')" :active="request()->routeIs('leads.export')" wire:navigate>
+                            {{ __('Exportar') }}
+                        </x-nav-link>
+                    @endcan
                 </div>
             </div>
 
@@ -97,9 +102,14 @@ new class extends Component
                     {{ __('Mi panel') }}
                 </x-responsive-nav-link>
             @endrole
-            <x-responsive-nav-link :href="route('leads.index')" :active="request()->routeIs('leads.*')" wire:navigate>
+            <x-responsive-nav-link :href="route('leads.index')" :active="request()->routeIs('leads.index') || request()->routeIs('leads.create') || request()->routeIs('leads.show')" wire:navigate>
                 {{ __('Leads') }}
             </x-responsive-nav-link>
+            @can('leads.export')
+                <x-responsive-nav-link :href="route('leads.export')" :active="request()->routeIs('leads.export')" wire:navigate>
+                    {{ __('Exportar') }}
+                </x-responsive-nav-link>
+            @endcan
         </div>
 
         <!-- Responsive Settings Options -->
