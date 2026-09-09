@@ -4,6 +4,7 @@ use App\Models\Campaign;
 use App\Models\Country;
 use App\Models\Language;
 use App\Models\ProjectType;
+use App\Exports\LeadsSheet;
 use App\Models\Source;
 use App\Models\Status;
 use App\Models\User;
@@ -11,6 +12,7 @@ use App\Support\LeadExport;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
+use Maatwebsite\Excel\Facades\Excel;
 
 new #[Layout('layouts.app')] class extends Component
 {
@@ -21,6 +23,8 @@ new #[Layout('layouts.app')] class extends Component
     public ?int $project_type_id = null;
     public ?int $status_id = null;
     public ?int $vendor_id = null;
+
+    public string $format = 'csv';
 
     /**
      * @return array<string, int|null>
@@ -88,13 +92,17 @@ new #[Layout('layouts.app')] class extends Component
     }
 
     /**
-     * Descarga la base limpia en CSV para cargarla en Mailchimp (§9).
+     * Descarga la base limpia en CSV o Excel para cargarla en Mailchimp (§9).
      */
-    public function download(): \Symfony\Component\HttpFoundation\StreamedResponse
+    public function download(): \Symfony\Component\HttpFoundation\Response
     {
         $this->authorize('leads.export'); // permiso del administrador (§2)
 
         $export = new LeadExport($this->filters());
+
+        if ($this->format === 'xlsx') {
+            return Excel::download(new LeadsSheet($export), 'contactos-aquakita-'.now()->format('Y-m-d').'.xlsx');
+        }
 
         return response()->streamDownload(
             fn () => print ($export->toCsv()),
@@ -171,9 +179,16 @@ new #[Layout('layouts.app')] class extends Component
                 </p>
             </div>
 
-            <div class="flex items-center justify-end">
-                <x-primary-button wire:click="download" :disabled="$this->preview === 0">
-                    {{ __('Descargar CSV') }}
+            <div class="flex items-center justify-end gap-3">
+                <div>
+                    <label class="block text-xs text-gray-500">{{ __('Formato') }}</label>
+                    <select wire:model="format" class="mt-1 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
+                        <option value="csv">CSV</option>
+                        <option value="xlsx">Excel (.xlsx)</option>
+                    </select>
+                </div>
+                <x-primary-button wire:click="download" :disabled="$this->preview === 0" class="self-end">
+                    {{ __('Descargar') }}
                 </x-primary-button>
             </div>
         </div>

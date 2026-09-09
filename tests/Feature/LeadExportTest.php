@@ -10,6 +10,7 @@ use Database\Seeders\RolePermissionSeeder;
 use Database\Seeders\StatusSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Volt\Volt;
+use Maatwebsite\Excel\Facades\Excel;
 use Tests\TestCase;
 
 class LeadExportTest extends TestCase
@@ -91,6 +92,19 @@ class LeadExportTest extends TestCase
             ->test('leads.export')
             ->call('download')
             ->assertFileDownloaded('contactos-aquakita-'.now()->format('Y-m-d').'.csv');
+    }
+
+    public function test_admin_can_download_xlsx(): void
+    {
+        Excel::fake();
+        Lead::factory()->create(['email' => 'ana@correo.test']);
+
+        Volt::actingAs($this->admin())
+            ->test('leads.export')
+            ->set('format', 'xlsx')
+            ->call('download');
+
+        Excel::assertDownloaded('contactos-aquakita-'.now()->format('Y-m-d').'.xlsx');
     }
 
     public function test_vendor_cannot_access_export_screen(): void
