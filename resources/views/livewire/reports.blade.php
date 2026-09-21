@@ -89,9 +89,9 @@ new #[Layout('layouts.app')] class extends Component
     {
         $counts = (clone $this->baseQuery())
             ->whereNotNull($column)
-            ->selectRaw("$column as key, count(*) as total")
+            ->selectRaw("$column as grp, count(*) as total")
             ->groupBy($column)
-            ->pluck('total', 'key');
+            ->pluck('total', 'grp');
 
         return $model::whereIn('id', $counts->keys())
             ->get()
@@ -110,9 +110,9 @@ new #[Layout('layouts.app')] class extends Component
     public function byStatus()
     {
         $counts = (clone $this->baseQuery())
-            ->selectRaw('status_id as key, count(*) as total')
+            ->selectRaw('status_id as grp, count(*) as total')
             ->groupBy('status_id')
-            ->pluck('total', 'key');
+            ->pluck('total', 'grp');
 
         return Status::orderBy('order')->get()
             ->map(fn ($s) => (object) ['name' => $s->name, 'total' => (int) ($counts[$s->id] ?? 0)]);
