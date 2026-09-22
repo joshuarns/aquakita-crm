@@ -20,6 +20,7 @@ class RolePermissionSeeder extends Seeder
             // Usuarios y configuración
             'users.manage',        // alta/edición/activar/desactivar (§3.1)
             'catalogs.manage',     // catálogos (§3.2)
+            'forms.manage',        // formularios web embebibles (captación web-to-lead)
             // Leads
             'leads.capture',       // captura (§3.3)
             'leads.view.all',      // bandeja general (§4.1) - admin/supervisor

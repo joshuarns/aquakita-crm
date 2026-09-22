@@ -54,6 +54,11 @@ class Lead extends Model implements Auditable
         return $this->belongsTo(Source::class);
     }
 
+    public function leadForm(): BelongsTo
+    {
+        return $this->belongsTo(LeadForm::class);
+    }
+
     public function campaign(): BelongsTo
     {
         return $this->belongsTo(Campaign::class);

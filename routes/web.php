@@ -1,12 +1,18 @@
 <?php
 
 use App\Http\Controllers\AttachmentController;
+use App\Http\Controllers\Public\LeadFormController;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
 Route::redirect('/', 'dashboard');
 
-Route::view('dashboard', 'dashboard')
+// Formularios web embebibles — endpoints públicos (sin autenticación).
+Route::get('f/{token}.js', [LeadFormController::class, 'script'])->whereAlphaNumeric('token')->name('public.forms.script');
+Route::get('f/{token}', [LeadFormController::class, 'show'])->whereAlphaNumeric('token')->name('public.forms.show');
+Route::post('f/{token}', [LeadFormController::class, 'submit'])->whereAlphaNumeric('token')->name('public.forms.submit');
+
+Volt::route('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
@@ -44,6 +50,12 @@ Route::middleware(['auth'])->group(function () {
         Volt::route('configuracion/ciudades', 'catalogs.cities')->name('catalogs.cities');
         Volt::route('configuracion/plantillas', 'catalogs.templates')->name('catalogs.templates');
         Volt::route('configuracion/catalogo/{type}', 'catalogs.manage')->name('catalogs.manage');
+    });
+
+    // Formularios web embebibles (captación web-to-lead).
+    Route::middleware('permission:forms.manage')->group(function () {
+        Volt::route('configuracion/formularios', 'catalogs.forms')->name('forms.index');
+        Volt::route('configuracion/formularios/{form}', 'catalogs.form-edit')->name('forms.edit');
     });
 
     // Gestión de usuarios (§3.1).

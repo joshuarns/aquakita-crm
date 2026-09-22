@@ -24,13 +24,8 @@
                      class="pointer-events-none absolute -bottom-32 -left-16 h-96 w-96 rounded-full bg-[#0e7490]/20 blur-3xl"></div>
 
                 {{-- Logo --}}
-                <a href="/" wire:navigate class="relative z-10 inline-flex items-center gap-3">
-                    <span class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#12b0c4]">
-                        <svg viewBox="0 0 24 24" class="h-6 w-6 text-white" fill="currentColor">
-                            <path d="M12 2.2s6.6 7.2 6.6 12.1A6.6 6.6 0 0 1 12 20.9a6.6 6.6 0 0 1-6.6-6.6C5.4 9.4 12 2.2 12 2.2Z"/>
-                        </svg>
-                    </span>
-                    <span class="text-2xl font-bold tracking-tight">AQUAKITA</span>
+                <a href="/" wire:navigate class="relative z-10 inline-block">
+                    <img src="{{ asset('img/aquakita-logo.png') }}" alt="Aquakita" class="h-20 w-auto drop-shadow-lg">
                 </a>
 
                 {{-- Tagline --}}
@@ -55,13 +50,8 @@
             <div class="flex min-h-screen items-center justify-center bg-gray-50 p-6 sm:p-10 lg:min-h-0">
                 <div class="w-full max-w-md">
                     {{-- Mobile logo --}}
-                    <a href="/" wire:navigate class="mb-8 inline-flex items-center gap-3 lg:hidden">
-                        <span class="flex h-10 w-10 items-center justify-center rounded-2xl bg-[#12b0c4]">
-                            <svg viewBox="0 0 24 24" class="h-5 w-5 text-white" fill="currentColor">
-                                <path d="M12 2.2s6.6 7.2 6.6 12.1A6.6 6.6 0 0 1 12 20.9a6.6 6.6 0 0 1-6.6-6.6C5.4 9.4 12 2.2 12 2.2Z"/>
-                            </svg>
-                        </span>
-                        <span class="text-xl font-bold tracking-tight text-[#0e2a33]">AQUAKITA</span>
+                    <a href="/" wire:navigate class="mb-8 inline-block lg:hidden">
+                        <img src="{{ asset('img/aquakita-logo.png') }}" alt="Aquakita" class="h-16 w-auto">
                     </a>
 
                     {{ $slot }}
