@@ -38,6 +38,11 @@ new class extends Component
                             {{ __('Mi panel') }}
                         </x-nav-link>
                     @endrole
+                    @can('leads.view.all')
+                        <x-nav-link :href="route('team')" :active="request()->routeIs('team')" wire:navigate>
+                            {{ __('Equipo') }}
+                        </x-nav-link>
+                    @endcan
                     <x-nav-link :href="route('leads.index')" :active="request()->routeIs('leads.index') || request()->routeIs('leads.create') || request()->routeIs('leads.show')" wire:navigate>
                         {{ __('Leads') }}
                     </x-nav-link>
@@ -117,6 +122,11 @@ new class extends Component
                     {{ __('Mi panel') }}
                 </x-responsive-nav-link>
             @endrole
+            @can('leads.view.all')
+                <x-responsive-nav-link :href="route('team')" :active="request()->routeIs('team')" wire:navigate>
+                    {{ __('Equipo') }}
+                </x-responsive-nav-link>
+            @endcan
             <x-responsive-nav-link :href="route('leads.index')" :active="request()->routeIs('leads.index') || request()->routeIs('leads.create') || request()->routeIs('leads.show')" wire:navigate>
                 {{ __('Leads') }}
             </x-responsive-nav-link>

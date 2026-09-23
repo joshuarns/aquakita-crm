@@ -24,6 +24,11 @@ Route::view('profile', 'profile')
 Route::middleware(['auth'])->group(function () {
     Volt::route('panel', 'panel')->name('panel');
 
+    // Panel de supervisión por vendedor (admin/supervisor).
+    Volt::route('equipo', 'team')
+        ->middleware('permission:leads.view.all')
+        ->name('team');
+
     Volt::route('leads', 'leads.index')->name('leads.index');
 
     Volt::route('leads/create', 'leads.create')
