@@ -8,6 +8,7 @@ use App\Models\Lead;
 use App\Models\ProjectType;
 use App\Models\Source;
 use App\Models\Status;
+use App\Support\LeadNotifier;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
@@ -151,6 +152,9 @@ new #[Layout('layouts.app')] class extends Component
         $lead->recordTimeline('captured', 'Lead capturado', [
             'capturista' => auth()->user()->name,
         ]);
+
+        // Aviso de lead nuevo a administradores y supervisores (excepto quien lo capturó).
+        app(LeadNotifier::class)->notifyNewLead($lead, excludeUserId: auth()->id());
 
         session()->flash('status', "Lead «{$lead->full_name}» capturado correctamente.");
 

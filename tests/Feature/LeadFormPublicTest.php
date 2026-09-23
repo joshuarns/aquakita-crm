@@ -2,12 +2,16 @@
 
 namespace Tests\Feature;
 
+use App\Mail\LeadNotificationMail;
 use App\Models\Lead;
 use App\Models\LeadForm;
 use App\Models\Source;
 use App\Models\Status;
+use App\Models\User;
+use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class LeadFormPublicTest extends TestCase
@@ -74,6 +78,34 @@ class LeadFormPublicTest extends TestCase
         $this->assertNull($lead->captured_by);
         $this->assertSame(1, $form->fresh()->submissions_count);
         $this->assertDatabaseHas('timeline_events', ['lead_id' => $lead->id, 'type' => 'captured']);
+    }
+
+    public function test_new_web_lead_notifies_admins_and_supervisors(): void
+    {
+        Mail::fake();
+        $this->seed(RolePermissionSeeder::class);
+
+        $admin = User::factory()->create(['active' => true]);
+        $admin->assignRole('administrador');
+        $vendedor = User::factory()->create(['active' => true]);
+        $vendedor->assignRole('vendedor');
+
+        $form = LeadForm::factory()->create();
+
+        $this->post(route('public.forms.submit', $form->token), [
+            '_nonce' => $this->freshNonce(),
+            'first_name' => 'Ana',
+            'email' => 'ana@example.com',
+        ])->assertOk();
+
+        $lead = Lead::first();
+
+        // El administrador recibe campanita + correo; el vendedor NO (no ve la bandeja general).
+        $this->assertDatabaseHas('lead_notifications', [
+            'lead_id' => $lead->id, 'vendor_id' => $admin->id, 'type' => 'lead_recibido',
+        ]);
+        $this->assertDatabaseMissing('lead_notifications', ['vendor_id' => $vendedor->id]);
+        Mail::assertSent(LeadNotificationMail::class);
     }
 
     public function test_honeypot_blocks_submission(): void

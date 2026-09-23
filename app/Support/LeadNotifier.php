@@ -8,6 +8,7 @@ use App\Models\Lead;
 use App\Models\LeadNotification;
 use App\Models\User;
 use Illuminate\Support\Facades\Mail;
+use Spatie\Permission\Models\Permission;
 
 /**
  * Genera las notificaciones al vendedor (§4.3): registro interno para la
@@ -15,6 +16,28 @@ use Illuminate\Support\Facades\Mail;
  */
 class LeadNotifier
 {
+    /**
+     * Avisa a administradores y supervisores que llegó un lead nuevo a la bandeja.
+     * Se dispara en la captura manual y en los formularios web.
+     */
+    public function notifyNewLead(Lead $lead, ?int $excludeUserId = null): void
+    {
+        if (! Permission::where('name', 'leads.view.all')->exists()) {
+            return;
+        }
+
+        $recipients = User::permission('leads.view.all')
+            ->where('active', true)
+            ->when($excludeUserId, fn ($q) => $q->where('id', '!=', $excludeUserId))
+            ->get();
+
+        $extra = ['origen' => $lead->source?->name ?? 'Sin origen'];
+
+        foreach ($recipients as $recipient) {
+            $this->notify($lead, $recipient, 'lead_recibido', $extra);
+        }
+    }
+
     /**
      * @param  array<string, string>  $extra  valores extra para la plantilla (ej. fecha)
      */
@@ -53,6 +76,7 @@ class LeadNotifier
 
         $replacements = array_merge([
             'vendedor' => $vendor->name,
+            'destinatario' => $vendor->name,
             'lead' => $lead->full_name,
         ], $extra);
 

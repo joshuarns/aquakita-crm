@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Lead;
 use App\Models\LeadForm;
 use App\Models\Status;
+use App\Support\LeadNotifier;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -337,6 +338,9 @@ class LeadFormController extends Controller
             'formulario' => $form->name,
             'ip' => $request->ip(),
         ], userId: null);
+
+        // Aviso de lead nuevo a administradores y supervisores.
+        app(LeadNotifier::class)->notifyNewLead($lead);
 
         $form->increment('submissions_count');
 

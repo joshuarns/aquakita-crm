@@ -51,6 +51,7 @@ class CatalogSeeder extends Seeder
         }
 
         $templates = [
+            ['lead_recibido', 'Nuevo lead recibido: {{lead}}', 'Hola {{destinatario}}, llegó un nuevo lead: {{lead}} (origen: {{origen}}). Ya está en la bandeja general para asignarlo a un vendedor.'],
             ['nuevo_lead', 'Se te asignó un nuevo lead', 'Hola {{vendedor}}, se te asignó el lead {{lead}}. Ingresa al sistema para atenderlo.'],
             ['reasignacion', 'Un lead fue reasignado a ti', 'Hola {{vendedor}}, el lead {{lead}} fue reasignado a tu cuenta.'],
             ['seguimiento_proximo', 'Tienes un seguimiento próximo', 'Recuerda dar seguimiento a {{lead}} el {{fecha}}.'],
