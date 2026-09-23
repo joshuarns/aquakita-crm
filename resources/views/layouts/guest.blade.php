@@ -25,7 +25,7 @@
 
                 {{-- Logo --}}
                 <a href="/" wire:navigate class="relative z-10 inline-block">
-                    <img src="{{ asset('img/aquakita-logo.png') }}" alt="Aquakita" class="h-20 w-auto drop-shadow-lg">
+                    <img src="{{ route('brand.logo') }}" alt="Aquakita" class="h-20 w-auto drop-shadow-lg">
                 </a>
 
                 {{-- Tagline --}}
@@ -51,7 +51,7 @@
                 <div class="w-full max-w-md">
                     {{-- Mobile logo --}}
                     <a href="/" wire:navigate class="mb-8 inline-block lg:hidden">
-                        <img src="{{ asset('img/aquakita-logo.png') }}" alt="Aquakita" class="h-16 w-auto">
+                        <img src="{{ route('brand.logo') }}" alt="Aquakita" class="h-16 w-auto">
                     </a>
 
                     {{ $slot }}

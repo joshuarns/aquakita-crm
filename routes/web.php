@@ -2,10 +2,17 @@
 
 use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\Public\LeadFormController;
+use App\Support\BrandLogo;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
 Route::redirect('/', 'dashboard');
+
+// Logo de marca servido desde el código (evita problemas de archivos estáticos en el hosting).
+Route::get('brand/logo.png', fn () => response(BrandLogo::bytes(), 200, [
+    'Content-Type' => 'image/png',
+    'Cache-Control' => 'public, max-age=31536000, immutable',
+]))->name('brand.logo');
 
 // Formularios web embebibles — endpoints públicos (sin autenticación).
 Route::get('f/{token}.js', [LeadFormController::class, 'script'])->whereAlphaNumeric('token')->name('public.forms.script');
