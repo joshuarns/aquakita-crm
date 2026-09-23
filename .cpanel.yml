@@ -1,0 +1,19 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/aquakita
+    # --- Código de la aplicación ---
+    - /bin/cp -R app config database resources routes $DEPLOYPATH/
+    - /bin/cp bootstrap/app.php $DEPLOYPATH/bootstrap/app.php
+    - /bin/cp bootstrap/providers.php $DEPLOYPATH/bootstrap/providers.php
+    - /bin/cp composer.json composer.lock artisan $DEPLOYPATH/
+    # --- Assets compilados y archivos públicos ---
+    - /bin/rm -rf $DEPLOYPATH/public/build
+    - /bin/cp -R public/build $DEPLOYPATH/public/
+    - /bin/cp public/index.php public/robots.txt public/favicon.ico $DEPLOYPATH/public/ 2>/dev/null || true
+    - /bin/cp public/.htaccess $DEPLOYPATH/public/.htaccess 2>/dev/null || true
+    # --- Limpiar cachés para tomar los cambios ---
+    - /bin/rm -f $DEPLOYPATH/bootstrap/cache/packages.php $DEPLOYPATH/bootstrap/cache/services.php $DEPLOYPATH/bootstrap/cache/config.php
+    - /bin/rm -rf $DEPLOYPATH/storage/framework/views/*.php
+    # --- Migraciones (si el log marca error de versión de PHP, ajusta esta ruta) ---
+    - /opt/cpanel/ea-php83/root/usr/bin/php $DEPLOYPATH/artisan migrate --force
