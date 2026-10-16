@@ -11,7 +11,6 @@ use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
@@ -119,15 +118,8 @@ class LeadFormPublicTest extends TestCase
             ->assertSee($widget->token);
     }
 
-    public function test_whatsapp_sent_when_configured(): void
+    public function test_whatsapp_handoff_link_shown_on_success(): void
     {
-        config([
-            'services.twilio.sid' => 'AC_test',
-            'services.twilio.token' => 'secret',
-            'services.twilio.whatsapp_from' => '+14155238886',
-        ]);
-        Http::fake(['api.twilio.com/*' => Http::response(['sid' => 'SM1'], 201)]);
-
         $widget = LeadForm::factory()->create([
             'display_mode' => 'floating',
             'whatsapp_number' => '+52 55 1234 5678',
@@ -137,27 +129,23 @@ class LeadFormPublicTest extends TestCase
             '_nonce' => $this->freshNonce(),
             'first_name' => 'Ana',
             'email' => 'ana@example.com',
-        ])->assertOk();
-
-        Http::assertSent(function ($request) {
-            return str_contains($request->url(), 'api.twilio.com')
-                && $request['To'] === 'whatsapp:+525512345678'
-                && str_contains($request['Body'], 'Ana');
-        });
+        ])
+            ->assertOk()
+            ->assertSee('Continuar por WhatsApp')
+            ->assertSee('https://wa.me/525512345678', escape: false);
     }
 
-    public function test_whatsapp_skipped_when_not_configured(): void
+    public function test_no_whatsapp_link_without_number(): void
     {
-        Http::fake();
-        $widget = LeadForm::factory()->create(['display_mode' => 'floating', 'whatsapp_number' => '+525512345678']);
+        $form = LeadForm::factory()->create(['whatsapp_number' => null]);
 
-        $this->post(route('public.forms.submit', $widget->token), [
+        $this->post(route('public.forms.submit', $form->token), [
             '_nonce' => $this->freshNonce(),
             'first_name' => 'Ana',
             'email' => 'ana@example.com',
-        ])->assertOk();
-
-        Http::assertNothingSent();
+        ])
+            ->assertOk()
+            ->assertDontSee('wa.me');
     }
 
     public function test_honeypot_blocks_submission(): void

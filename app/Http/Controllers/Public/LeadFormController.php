@@ -7,7 +7,6 @@ use App\Models\Lead;
 use App\Models\LeadForm;
 use App\Models\Status;
 use App\Support\LeadNotifier;
-use App\Support\WhatsAppNotifier;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -183,13 +182,40 @@ class LeadFormController extends Controller
             return $this->renderForm($form, errors: $e->errors(), old: $request->all(), status: 422);
         }
 
-        $this->createLead($form, $data, $request);
+        $lead = $this->createLead($form, $data, $request);
+
+        $whatsapp = $this->whatsAppHandoffUrl($form, $lead);
 
         if (filled($form->redirect_url)) {
-            return $this->renderForm($form, success: true, redirect: $form->redirect_url);
+            return $this->renderForm($form, success: true, redirect: $form->redirect_url, whatsapp: $whatsapp);
         }
 
-        return $this->renderForm($form, success: true);
+        return $this->renderForm($form, success: true, whatsapp: $whatsapp);
+    }
+
+    /**
+     * Arma el enlace wa.me para que el cliente continúe la conversación por
+     * WhatsApp con el número del formulario, con sus datos ya escritos.
+     */
+    protected function whatsAppHandoffUrl(LeadForm $form, Lead $lead): ?string
+    {
+        $number = preg_replace('/[^0-9]/', '', (string) $form->whatsapp_number);
+        if (blank($number)) {
+            return null;
+        }
+
+        $lines = ['Hola, soy '.$lead->full_name.'.'];
+        if ($lead->phone) {
+            $lines[] = 'Tel: '.$lead->phone;
+        }
+        if ($lead->email) {
+            $lines[] = 'Correo: '.$lead->email;
+        }
+        if ($lead->description) {
+            $lines[] = $lead->description;
+        }
+
+        return 'https://wa.me/'.$number.'?text='.rawurlencode(implode("\n", $lines));
     }
 
     /**
@@ -213,6 +239,7 @@ class LeadFormController extends Controller
         array $errors = [],
         array $old = [],
         ?string $redirect = null,
+        ?string $whatsapp = null,
         int $status = 200,
     ): Response {
         $view = view('public.lead-form', [
@@ -225,6 +252,7 @@ class LeadFormController extends Controller
             'fieldErrors' => $errors,
             'old' => $old,
             'redirect' => $redirect,
+            'whatsapp' => $whatsapp,
         ]);
 
         return response($view->render(), $status)
@@ -413,9 +441,6 @@ class LeadFormController extends Controller
 
         // Aviso de lead nuevo a administradores y supervisores (correo + campanita).
         app(LeadNotifier::class)->notifyNewLead($lead);
-
-        // Aviso por WhatsApp al número del formulario (si está configurado).
-        app(WhatsAppNotifier::class)->notifyNewLead($lead, $form->whatsapp_number);
 
         $form->increment('submissions_count');
 

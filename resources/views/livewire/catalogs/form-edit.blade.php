@@ -291,7 +291,7 @@ new #[Layout('layouts.app')] class extends Component
                             <input type="text" wire:model="whatsapp_number" placeholder="+52 1 55 1234 5678"
                                    class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
                             @error('whatsapp_number') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                            <p class="mt-1 text-xs text-gray-400">Con lada internacional. Al enviarse el formulario, llega un WhatsApp con los datos del lead.</p>
+                            <p class="mt-1 text-xs text-gray-400">Con lada internacional (ej. +52...). Al enviar, el cliente verá un botón «Continuar por WhatsApp» que abre un chat hacia este número con sus datos ya escritos. Gratis, sin configuración extra.</p>
                         </div>
                     </div>
                 @endif

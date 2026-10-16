@@ -41,6 +41,12 @@
         .aq-success svg { width: 48px; height: 48px; color: var(--accent); }
         .aq-success h2 { margin: 12px 0 4px; font-size: 18px; color: #111827; }
         .aq-success p { margin: 0; color: #6b7280; font-size: 14px; }
+        .aq-wa-btn {
+            display: inline-flex; align-items: center; gap: 8px; margin-top: 18px;
+            padding: 11px 18px; border-radius: 9px; background: #25D366; color: #fff;
+            font-size: 14px; font-weight: 600; text-decoration: none; transition: filter .15s;
+        }
+        .aq-wa-btn:hover { filter: brightness(0.95); }
         .aq-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
     </style>
 </head>
@@ -53,6 +59,12 @@
                 </svg>
                 <h2>¡Gracias!</h2>
                 <p>{{ $form->success_message ?: 'Hemos recibido tus datos. Te contactaremos pronto.' }}</p>
+                @if (! empty($whatsapp))
+                    <a class="aq-wa-btn" href="{{ $whatsapp }}" target="_blank" rel="noopener">
+                        <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12.04 2c-5.46 0-9.9 4.44-9.9 9.9 0 1.75.46 3.45 1.32 4.95L2 22l5.3-1.38a9.87 9.87 0 0 0 4.73 1.2h.01c5.46 0 9.9-4.44 9.9-9.9 0-2.64-1.03-5.13-2.9-7A9.82 9.82 0 0 0 12.04 2Zm5.8 14.17c-.25.69-1.44 1.32-1.98 1.37-.53.05-1.02.24-3.45-.72-2.9-1.15-4.76-4.12-4.9-4.31-.14-.19-1.18-1.57-1.18-3s.75-2.13 1.02-2.42c.27-.29.58-.36.78-.36l.56.01c.18.01.42-.07.66.5.25.6.84 2.06.91 2.2.07.14.12.31.02.5-.1.19-.15.31-.29.48-.14.17-.3.38-.43.5-.14.14-.29.29-.12.57.17.29.74 1.22 1.59 1.98 1.09.97 2.01 1.27 2.3 1.42.29.14.46.12.63-.07.17-.19.72-.84.91-1.13.19-.29.39-.24.66-.14.27.1 1.7.8 1.99.95.29.14.48.21.55.33.07.12.07.69-.18 1.37Z"/></svg>
+                        Continuar por WhatsApp
+                    </a>
+                @endif
             </div>
             <script>
                 try { window.parent.postMessage({ aquakitaForm: '{{ $form->token }}', submitted: true }, '*'); } catch (e) {}
