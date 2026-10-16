@@ -11,6 +11,7 @@ use App\Models\User;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
@@ -106,6 +107,57 @@ class LeadFormPublicTest extends TestCase
         ]);
         $this->assertDatabaseMissing('lead_notifications', ['vendor_id' => $vendedor->id]);
         Mail::assertSent(LeadNotificationMail::class);
+    }
+
+    public function test_widget_script_is_served(): void
+    {
+        $widget = LeadForm::factory()->create(['display_mode' => 'floating', 'launcher_label' => '¿Hablamos?']);
+
+        $this->get(route('public.forms.widget', $widget->token))
+            ->assertOk()
+            ->assertHeader('Content-Type', 'application/javascript; charset=utf-8')
+            ->assertSee($widget->token);
+    }
+
+    public function test_whatsapp_sent_when_configured(): void
+    {
+        config([
+            'services.twilio.sid' => 'AC_test',
+            'services.twilio.token' => 'secret',
+            'services.twilio.whatsapp_from' => '+14155238886',
+        ]);
+        Http::fake(['api.twilio.com/*' => Http::response(['sid' => 'SM1'], 201)]);
+
+        $widget = LeadForm::factory()->create([
+            'display_mode' => 'floating',
+            'whatsapp_number' => '+52 55 1234 5678',
+        ]);
+
+        $this->post(route('public.forms.submit', $widget->token), [
+            '_nonce' => $this->freshNonce(),
+            'first_name' => 'Ana',
+            'email' => 'ana@example.com',
+        ])->assertOk();
+
+        Http::assertSent(function ($request) {
+            return str_contains($request->url(), 'api.twilio.com')
+                && $request['To'] === 'whatsapp:+525512345678'
+                && str_contains($request['Body'], 'Ana');
+        });
+    }
+
+    public function test_whatsapp_skipped_when_not_configured(): void
+    {
+        Http::fake();
+        $widget = LeadForm::factory()->create(['display_mode' => 'floating', 'whatsapp_number' => '+525512345678']);
+
+        $this->post(route('public.forms.submit', $widget->token), [
+            '_nonce' => $this->freshNonce(),
+            'first_name' => 'Ana',
+            'email' => 'ana@example.com',
+        ])->assertOk();
+
+        Http::assertNothingSent();
     }
 
     public function test_honeypot_blocks_submission(): void

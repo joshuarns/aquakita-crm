@@ -12,7 +12,8 @@ new #[Layout('layouts.app')] class extends Component
      */
     public function forms(): Collection
     {
-        return LeadForm::with('source')->withCount('leads')->latest()->get();
+        return LeadForm::where('display_mode', 'inline')
+            ->with('source')->withCount('leads')->latest()->get();
     }
 
     public function create(): void
@@ -22,6 +23,7 @@ new #[Layout('layouts.app')] class extends Component
             'token' => LeadForm::generateToken(),
             'fields' => LeadForm::defaultFields(),
             'accent_color' => '#0e7490',
+            'display_mode' => 'inline',
             'active' => true,
         ]);
 

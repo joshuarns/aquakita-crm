@@ -16,6 +16,7 @@ Route::get('brand/logo.png', fn () => response(BrandLogo::bytes(), 200, [
 
 // Formularios web embebibles — endpoints públicos (sin autenticación).
 Route::get('f/{token}.js', [LeadFormController::class, 'script'])->whereAlphaNumeric('token')->name('public.forms.script');
+Route::get('f/{token}/widget.js', [LeadFormController::class, 'widget'])->whereAlphaNumeric('token')->name('public.forms.widget');
 Route::get('f/{token}', [LeadFormController::class, 'show'])->whereAlphaNumeric('token')->name('public.forms.show');
 Route::post('f/{token}', [LeadFormController::class, 'submit'])->whereAlphaNumeric('token')->name('public.forms.submit');
 
@@ -67,6 +68,7 @@ Route::middleware(['auth'])->group(function () {
     // Formularios web embebibles (captación web-to-lead).
     Route::middleware('permission:forms.manage')->group(function () {
         Volt::route('configuracion/formularios', 'catalogs.forms')->name('forms.index');
+        Volt::route('configuracion/widgets', 'catalogs.widgets')->name('widgets.index');
         Volt::route('configuracion/formularios/{form}', 'catalogs.form-edit')->name('forms.edit');
     });
 

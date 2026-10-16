@@ -54,6 +54,9 @@
                 <h2>¡Gracias!</h2>
                 <p>{{ $form->success_message ?: 'Hemos recibido tus datos. Te contactaremos pronto.' }}</p>
             </div>
+            <script>
+                try { window.parent.postMessage({ aquakitaForm: '{{ $form->token }}', submitted: true }, '*'); } catch (e) {}
+            </script>
             @if ($redirect)
                 <script>
                     (function () {

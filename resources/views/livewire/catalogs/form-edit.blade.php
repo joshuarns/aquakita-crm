@@ -20,6 +20,12 @@ new #[Layout('layouts.app')] class extends Component
     public string $accent_color = '#0e7490';
     public bool $active = true;
 
+    // Campos del widget flotante (solo aplican si display_mode = floating).
+    public string $launcher_label = '';
+    public string $launcher_icon = '';
+    public string $launcher_position = 'right';
+    public string $whatsapp_number = '';
+
     /**
      * Configuración de campos, indexada por clave para enlazar en la vista.
      *
@@ -38,6 +44,11 @@ new #[Layout('layouts.app')] class extends Component
         $this->allowed_domains = collect($form->allowed_domains ?: [])->implode("\n");
         $this->accent_color = $form->accent_color ?: '#0e7490';
         $this->active = $form->active;
+
+        $this->launcher_label = (string) $form->launcher_label;
+        $this->launcher_icon = (string) $form->launcher_icon;
+        $this->launcher_position = $form->launcher_position ?: 'right';
+        $this->whatsapp_number = (string) $form->whatsapp_number;
 
         $stored = collect($form->fields ?: LeadForm::defaultFields())->keyBy('key');
         foreach (LeadForm::availableFields() as $key => $meta) {
@@ -83,6 +94,10 @@ new #[Layout('layouts.app')] class extends Component
             'success_message' => ['nullable', 'string', 'max:500'],
             'redirect_url' => ['nullable', 'url', 'max:255'],
             'accent_color' => ['required', 'string', 'max:20'],
+            'launcher_label' => ['nullable', 'string', 'max:40'],
+            'launcher_icon' => ['nullable', 'string', 'max:8'],
+            'launcher_position' => ['in:right,left'],
+            'whatsapp_number' => ['nullable', 'string', 'max:25'],
         ]);
 
         $available = LeadForm::availableFields();
@@ -114,9 +129,13 @@ new #[Layout('layouts.app')] class extends Component
             'allowed_domains' => $domains ?: null,
             'accent_color' => $this->accent_color,
             'active' => $this->active,
+            'launcher_label' => $this->launcher_label ?: null,
+            'launcher_icon' => $this->launcher_icon ?: null,
+            'launcher_position' => $this->launcher_position,
+            'whatsapp_number' => $this->whatsapp_number ?: null,
         ]);
 
-        session()->flash('status', 'Formulario guardado.');
+        session()->flash('status', $this->form->isFloating() ? 'Widget guardado.' : 'Formulario guardado.');
     }
 
     public function with(): array
@@ -131,6 +150,7 @@ new #[Layout('layouts.app')] class extends Component
         return [
             'scriptSnippet' => '<script src="'.route('public.forms.script', $token).'" async></script>',
             'iframeSnippet' => $iframe,
+            'widgetSnippet' => '<script src="'.route('public.forms.widget', $token).'" async></script>',
             'previewUrl' => $showUrl,
         ];
     }
@@ -138,7 +158,11 @@ new #[Layout('layouts.app')] class extends Component
 
 <div class="py-8" x-data="{ copied: null, copy(text, id) { navigator.clipboard.writeText(text).then(() => { this.copied = id; setTimeout(() => this.copied = null, 1500); }); } }">
     <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
-        <a href="{{ route('forms.index') }}" wire:navigate class="text-sm text-gray-500 hover:text-gray-700">&larr; Formularios web</a>
+        @if ($form->isFloating())
+            <a href="{{ route('widgets.index') }}" wire:navigate class="text-sm text-gray-500 hover:text-gray-700">&larr; Widgets flotantes</a>
+        @else
+            <a href="{{ route('forms.index') }}" wire:navigate class="text-sm text-gray-500 hover:text-gray-700">&larr; Formularios web</a>
+        @endif
 
         @if (session('status'))
             <div class="my-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-800">{{ session('status') }}</div>
@@ -239,6 +263,39 @@ new #[Layout('layouts.app')] class extends Component
                     </div>
                 </div>
 
+                @if ($form->isFloating())
+                    {{-- Ajustes del widget flotante --}}
+                    <div class="bg-white shadow-sm rounded-lg p-6 space-y-4">
+                        <h3 class="font-semibold text-gray-800">Botón flotante y WhatsApp</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Texto del botón</label>
+                                <input type="text" wire:model="launcher_label" maxlength="40" placeholder="¿Hablamos?"
+                                       class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Ícono (emoji)</label>
+                                <input type="text" wire:model="launcher_icon" maxlength="8" placeholder="💬"
+                                       class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Posición</label>
+                                <select wire:model="launcher_position" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
+                                    <option value="right">Abajo a la derecha</option>
+                                    <option value="left">Abajo a la izquierda</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Número de WhatsApp para avisos</label>
+                            <input type="text" wire:model="whatsapp_number" placeholder="+52 1 55 1234 5678"
+                                   class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
+                            @error('whatsapp_number') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                            <p class="mt-1 text-xs text-gray-400">Con lada internacional. Al enviarse el formulario, llega un WhatsApp con los datos del lead.</p>
+                        </div>
+                    </div>
+                @endif
+
                 <button type="submit" class="rounded-lg bg-[#0e7490] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#155e75]">
                     Guardar cambios
                 </button>
@@ -250,25 +307,38 @@ new #[Layout('layouts.app')] class extends Component
                     <h3 class="font-semibold text-gray-800">Código para incrustar</h3>
                     <p class="text-sm text-gray-500 mb-4">Pega este código en tu sitio web.</p>
 
-                    <p class="text-xs font-medium text-gray-500 mb-1">Opción 1 — Script (recomendado)</p>
-                    <div class="relative">
-                        <pre class="rounded-lg bg-gray-900 p-3 text-xs text-gray-100 overflow-x-auto"><code>{{ $scriptSnippet }}</code></pre>
-                        <button type="button" @click="copy(@js($scriptSnippet), 'script')"
-                                class="absolute top-2 right-2 rounded bg-white/10 px-2 py-1 text-xs text-white hover:bg-white/20">
-                            <span x-show="copied !== 'script'">Copiar</span>
-                            <span x-show="copied === 'script'" x-cloak>¡Copiado!</span>
-                        </button>
-                    </div>
+                    @if ($form->isFloating())
+                        <p class="text-xs font-medium text-gray-500 mb-1">Botón flotante</p>
+                        <div class="relative">
+                            <pre class="rounded-lg bg-gray-900 p-3 text-xs text-gray-100 overflow-x-auto"><code>{{ $widgetSnippet }}</code></pre>
+                            <button type="button" @click="copy(@js($widgetSnippet), 'widget')"
+                                    class="absolute top-2 right-2 rounded bg-white/10 px-2 py-1 text-xs text-white hover:bg-white/20">
+                                <span x-show="copied !== 'widget'">Copiar</span>
+                                <span x-show="copied === 'widget'" x-cloak>¡Copiado!</span>
+                            </button>
+                        </div>
+                        <p class="mt-3 text-xs text-gray-400">Pégalo antes de <code>&lt;/body&gt;</code>. Aparecerá el botón flotante en todo el sitio.</p>
+                    @else
+                        <p class="text-xs font-medium text-gray-500 mb-1">Opción 1 — Script (recomendado)</p>
+                        <div class="relative">
+                            <pre class="rounded-lg bg-gray-900 p-3 text-xs text-gray-100 overflow-x-auto"><code>{{ $scriptSnippet }}</code></pre>
+                            <button type="button" @click="copy(@js($scriptSnippet), 'script')"
+                                    class="absolute top-2 right-2 rounded bg-white/10 px-2 py-1 text-xs text-white hover:bg-white/20">
+                                <span x-show="copied !== 'script'">Copiar</span>
+                                <span x-show="copied === 'script'" x-cloak>¡Copiado!</span>
+                            </button>
+                        </div>
 
-                    <p class="text-xs font-medium text-gray-500 mt-4 mb-1">Opción 2 — iframe</p>
-                    <div class="relative">
-                        <pre class="rounded-lg bg-gray-900 p-3 text-xs text-gray-100 overflow-x-auto"><code>{{ $iframeSnippet }}</code></pre>
-                        <button type="button" @click="copy(@js($iframeSnippet), 'iframe')"
-                                class="absolute top-2 right-2 rounded bg-white/10 px-2 py-1 text-xs text-white hover:bg-white/20">
-                            <span x-show="copied !== 'iframe'">Copiar</span>
-                            <span x-show="copied === 'iframe'" x-cloak>¡Copiado!</span>
-                        </button>
-                    </div>
+                        <p class="text-xs font-medium text-gray-500 mt-4 mb-1">Opción 2 — iframe</p>
+                        <div class="relative">
+                            <pre class="rounded-lg bg-gray-900 p-3 text-xs text-gray-100 overflow-x-auto"><code>{{ $iframeSnippet }}</code></pre>
+                            <button type="button" @click="copy(@js($iframeSnippet), 'iframe')"
+                                    class="absolute top-2 right-2 rounded bg-white/10 px-2 py-1 text-xs text-white hover:bg-white/20">
+                                <span x-show="copied !== 'iframe'">Copiar</span>
+                                <span x-show="copied === 'iframe'" x-cloak>¡Copiado!</span>
+                            </button>
+                        </div>
+                    @endif
 
                     <a href="{{ $previewUrl }}" target="_blank" rel="noopener"
                        class="mt-4 inline-block text-sm text-[#0e7490] hover:underline">Ver formulario &rarr;</a>

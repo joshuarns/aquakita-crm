@@ -106,6 +106,11 @@ class LeadForm extends Model
         return $result;
     }
 
+    public function isFloating(): bool
+    {
+        return $this->display_mode === 'floating';
+    }
+
     public static function generateToken(): string
     {
         do {
