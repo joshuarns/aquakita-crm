@@ -23,6 +23,7 @@ new #[Layout('layouts.app')] class extends Component
     // Campos del widget flotante (solo aplican si display_mode = floating).
     public string $launcher_label = '';
     public string $launcher_icon = '';
+    public string $launcher_avatar = '';
     public string $launcher_position = 'right';
     public string $whatsapp_number = '';
 
@@ -47,6 +48,7 @@ new #[Layout('layouts.app')] class extends Component
 
         $this->launcher_label = (string) $form->launcher_label;
         $this->launcher_icon = (string) $form->launcher_icon;
+        $this->launcher_avatar = (string) $form->launcher_avatar;
         $this->launcher_position = $form->launcher_position ?: 'right';
         $this->whatsapp_number = (string) $form->whatsapp_number;
 
@@ -94,8 +96,9 @@ new #[Layout('layouts.app')] class extends Component
             'success_message' => ['nullable', 'string', 'max:500'],
             'redirect_url' => ['nullable', 'url', 'max:255'],
             'accent_color' => ['required', 'string', 'max:20'],
-            'launcher_label' => ['nullable', 'string', 'max:40'],
+            'launcher_label' => ['nullable', 'string', 'max:60'],
             'launcher_icon' => ['nullable', 'string', 'max:8'],
+            'launcher_avatar' => ['nullable', 'url', 'max:500'],
             'launcher_position' => ['in:right,left'],
             'whatsapp_number' => ['nullable', 'string', 'max:25'],
         ]);
@@ -131,6 +134,7 @@ new #[Layout('layouts.app')] class extends Component
             'active' => $this->active,
             'launcher_label' => $this->launcher_label ?: null,
             'launcher_icon' => $this->launcher_icon ?: null,
+            'launcher_avatar' => $this->launcher_avatar ?: null,
             'launcher_position' => $this->launcher_position,
             'whatsapp_number' => $this->whatsapp_number ?: null,
         ]);
@@ -267,16 +271,12 @@ new #[Layout('layouts.app')] class extends Component
                     {{-- Ajustes del widget flotante --}}
                     <div class="bg-white shadow-sm rounded-lg p-6 space-y-4">
                         <h3 class="font-semibold text-gray-800">Botón flotante y WhatsApp</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">Texto del botón</label>
-                                <input type="text" wire:model="launcher_label" maxlength="40" placeholder="¿Hablamos?"
+                                <label class="block text-sm font-medium text-gray-700">Mensaje de saludo</label>
+                                <input type="text" wire:model="launcher_label" maxlength="60" placeholder="¿En qué podemos ayudarte?"
                                        class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Ícono (emoji)</label>
-                                <input type="text" wire:model="launcher_icon" maxlength="8" placeholder="💬"
-                                       class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
+                                <p class="mt-1 text-xs text-gray-400">Aparece en el globo junto al botón.</p>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Posición</label>
@@ -285,6 +285,13 @@ new #[Layout('layouts.app')] class extends Component
                                     <option value="left">Abajo a la izquierda</option>
                                 </select>
                             </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Avatar — URL de imagen (opcional)</label>
+                            <input type="url" wire:model="launcher_avatar" placeholder="https://tusitio.com/agente.jpg"
+                                   class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
+                            @error('launcher_avatar') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                            <p class="mt-1 text-xs text-gray-400">Foto de un asesor (recomendado, genera más confianza). Si lo dejas vacío, se usa el logo.</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Número de WhatsApp para avisos</label>

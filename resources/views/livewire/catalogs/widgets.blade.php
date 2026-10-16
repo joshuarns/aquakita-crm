@@ -24,8 +24,7 @@ new #[Layout('layouts.app')] class extends Component
             'fields' => LeadForm::defaultFields(),
             'accent_color' => '#0e7490',
             'display_mode' => 'floating',
-            'launcher_label' => '¿Hablamos?',
-            'launcher_icon' => '💬',
+            'launcher_label' => '¿En qué podemos ayudarte?',
             'launcher_position' => 'right',
             'active' => true,
         ]);

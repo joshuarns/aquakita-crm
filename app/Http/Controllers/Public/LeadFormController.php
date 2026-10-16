@@ -89,59 +89,99 @@ class LeadFormController extends Controller
     {
         $form = $this->resolveForm($token);
 
-        $src = route('public.forms.show', $form->token);
+        $tk = $form->token;
+        $src = route('public.forms.show', $tk);
         $color = $form->accent_color ?: '#0e7490';
-        $icon = $form->launcher_icon ?: '💬';
-        $label = addslashes($form->launcher_label ?: '¿Hablamos?');
+        $avatar = $form->launcher_avatar ?: route('brand.logo');
+        $greet = addslashes($form->launcher_label ?: '¿En qué podemos ayudarte?');
         $side = $form->launcher_position === 'left' ? 'left' : 'right';
+        $title = addslashes(config('app.name', 'Aquakita'));
 
         $js = <<<JS
         (function () {
-            if (document.getElementById('aqw-{$form->token}')) { return; }
-            var SIDE = '{$side}';
-            var COLOR = '{$color}';
+            if (document.getElementById('aqw-root-{$tk}')) { return; }
+            var SIDE='{$side}', COLOR='{$color}', AVATAR='{$avatar}', GREET='{$greet}', TITLE='{$title}', SRC='{$src}';
 
-            var btn = document.createElement('button');
-            btn.id = 'aqw-{$form->token}';
-            btn.type = 'button';
-            btn.setAttribute('aria-label', '{$label}');
-            btn.innerHTML = '<span style="font-size:22px;line-height:1">{$icon}</span><span class="aqw-label" style="font-weight:600;font-size:14px">{$label}</span>';
-            btn.style.cssText = 'position:fixed;bottom:20px;'+SIDE+':20px;z-index:2147483000;display:flex;align-items:center;gap:8px;'
-                + 'padding:12px 18px;border:0;border-radius:999px;cursor:pointer;color:#fff;background:'+COLOR+';'
-                + 'box-shadow:0 8px 24px rgba(0,0,0,.25);font-family:system-ui,-apple-system,sans-serif;transition:transform .15s';
-            btn.onmouseenter = function(){ btn.style.transform='translateY(-2px)'; };
-            btn.onmouseleave = function(){ btn.style.transform='none'; };
+            var st = document.createElement('style');
+            st.textContent = '@keyframes aqwPulse{0%{transform:scale(1);opacity:.55}70%{transform:scale(1.8);opacity:0}100%{opacity:0}}'
+                + '@keyframes aqwPop{from{transform:translateY(10px) scale(.92);opacity:0}to{transform:none;opacity:1}}'
+                + '@keyframes aqwBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}';
+            document.head.appendChild(st);
+
+            var root = document.createElement('div');
+            root.id = 'aqw-root-{$tk}';
+            root.style.cssText = 'position:fixed;bottom:22px;'+SIDE+':22px;z-index:2147483000;display:flex;align-items:center;gap:12px;'
+                + 'flex-direction:'+(SIDE==='left'?'row':'row-reverse')+';font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif';
+
+            var bubble = document.createElement('div');
+            bubble.style.cssText = 'display:none;position:relative;max-width:220px;background:#fff;color:#1f2937;padding:12px 30px 12px 14px;'
+                + 'border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,.18);font-size:14px;font-weight:500;line-height:1.35;cursor:pointer;animation:aqwPop .3s ease';
+            bubble.appendChild(document.createTextNode(GREET));
+            var bclose = document.createElement('span');
+            bclose.textContent = '×';
+            bclose.style.cssText = 'position:absolute;top:5px;right:9px;color:#9ca3af;font-size:17px;line-height:1;cursor:pointer';
+            bubble.appendChild(bclose);
+
+            var fab = document.createElement('button');
+            fab.type = 'button'; fab.setAttribute('aria-label', GREET);
+            fab.style.cssText = 'position:relative;width:66px;height:66px;border-radius:50%;border:3px solid #fff;padding:0;cursor:pointer;'
+                + 'background:'+COLOR+';box-shadow:0 10px 26px rgba(0,0,0,.3);flex:0 0 auto;transition:transform .15s;animation:aqwBob 3s ease-in-out infinite';
+            var ring = document.createElement('span');
+            ring.style.cssText = 'position:absolute;inset:-3px;border-radius:50%;background:'+COLOR+';z-index:-1;animation:aqwPulse 2.2s infinite';
+            var img = document.createElement('img');
+            img.src = AVATAR; img.alt = '';
+            img.style.cssText = 'width:100%;height:100%;border-radius:50%;object-fit:cover;background:#fff;display:block';
+            var dot = document.createElement('span');
+            dot.style.cssText = 'position:absolute;bottom:3px;right:3px;width:15px;height:15px;border-radius:50%;background:#22c55e;border:2px solid #fff';
+            fab.appendChild(ring); fab.appendChild(img); fab.appendChild(dot);
+            fab.onmouseenter = function(){ fab.style.transform='scale(1.07)'; };
+            fab.onmouseleave = function(){ fab.style.transform='none'; };
+
+            root.appendChild(bubble); root.appendChild(fab);
 
             var panel = document.createElement('div');
-            panel.style.cssText = 'position:fixed;bottom:84px;'+SIDE+':20px;z-index:2147483000;width:380px;max-width:calc(100vw - 32px);'
-                + 'height:600px;max-height:calc(100vh - 110px);background:#fff;border-radius:16px;overflow:hidden;'
-                + 'box-shadow:0 16px 48px rgba(0,0,0,.3);display:none;flex-direction:column';
+            panel.style.cssText = 'position:fixed;bottom:24px;'+SIDE+':22px;z-index:2147483000;width:384px;max-width:calc(100vw - 32px);'
+                + 'height:620px;max-height:calc(100vh - 48px);background:#fff;border-radius:18px;overflow:hidden;'
+                + 'box-shadow:0 20px 56px rgba(0,0,0,.32);display:none;flex-direction:column';
 
             var bar = document.createElement('div');
-            bar.style.cssText = 'display:flex;justify-content:flex-end;align-items:center;padding:8px 10px;background:'+COLOR;
+            bar.style.cssText = 'display:flex;align-items:center;gap:10px;padding:12px 14px;background:'+COLOR+';color:#fff';
+            var bav = document.createElement('img'); bav.src = AVATAR; bav.alt='';
+            bav.style.cssText = 'width:40px;height:40px;border-radius:50%;object-fit:cover;background:#fff;border:2px solid rgba(255,255,255,.6)';
+            var bti = document.createElement('div'); bti.style.cssText = 'flex:1;line-height:1.25';
+            var tname = document.createElement('div'); tname.style.cssText='font-weight:600;font-size:14px'; tname.textContent = TITLE;
+            var tsub = document.createElement('div'); tsub.style.cssText='font-size:11px;opacity:.9;display:flex;align-items:center;gap:5px';
+            tsub.innerHTML = '<span style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block"></span>En línea · normalmente responde en minutos';
+            bti.appendChild(tname); bti.appendChild(tsub);
             var close = document.createElement('button');
             close.type='button'; close.setAttribute('aria-label','Cerrar'); close.innerHTML='&times;';
-            close.style.cssText='border:0;background:transparent;color:#fff;font-size:24px;line-height:1;cursor:pointer;padding:2px 6px';
-            bar.appendChild(close);
+            close.style.cssText='border:0;background:transparent;color:#fff;font-size:26px;line-height:1;cursor:pointer;padding:0 4px';
+            bar.appendChild(bav); bar.appendChild(bti); bar.appendChild(close);
 
             var iframe = document.createElement('iframe');
-            iframe.src = '{$src}';
-            iframe.title = 'Formulario de contacto';
+            iframe.src = SRC; iframe.title = 'Formulario de contacto';
             iframe.style.cssText = 'flex:1;width:100%;border:0;background:#fff';
-
             panel.appendChild(bar); panel.appendChild(iframe);
 
-            function open(){ panel.style.display='flex'; btn.style.display='none'; }
-            function hide(){ panel.style.display='none'; btn.style.display='flex'; }
-            btn.onclick = open; close.onclick = hide;
+            function openPanel(){ panel.style.display='flex'; root.style.display='none'; }
+            function hidePanel(){ panel.style.display='none'; root.style.display='flex'; }
+            function hideBubble(){ bubble.style.display='none'; try{ sessionStorage.setItem('aqwG-{$tk}','1'); }catch(e){} }
+
+            fab.onclick = openPanel;
+            bubble.onclick = openPanel;
+            bclose.onclick = function(e){ e.stopPropagation(); hideBubble(); };
+            close.onclick = hidePanel;
+
+            var dismissed = false; try{ dismissed = sessionStorage.getItem('aqwG-{$tk}')==='1'; }catch(e){}
+            if (!dismissed) { setTimeout(function(){ bubble.style.display='block'; }, 2600); }
 
             window.addEventListener('message', function (e) {
-                if (!e.data || e.data.aquakitaForm !== '{$form->token}') { return; }
-                if (e.data.submitted) { setTimeout(hide, 2500); }
+                if (!e.data || e.data.aquakitaForm !== '{$tk}') { return; }
+                if (e.data.submitted) { setTimeout(hidePanel, 3500); }
                 if (e.data.redirect) { window.top.location.href = e.data.redirect; }
             });
 
-            document.body.appendChild(btn);
+            document.body.appendChild(root);
             document.body.appendChild(panel);
         })();
         JS;
