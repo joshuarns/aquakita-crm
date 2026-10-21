@@ -177,7 +177,7 @@ class LeadFormController extends Controller
 
             window.addEventListener('message', function (e) {
                 if (!e.data || e.data.aquakitaForm !== '{$tk}') { return; }
-                if (e.data.submitted) { setTimeout(hidePanel, 3500); }
+                // No cerramos el panel tras enviar: el usuario puede tocar «Continuar por WhatsApp».
                 if (e.data.redirect) { window.top.location.href = e.data.redirect; }
             });
 
