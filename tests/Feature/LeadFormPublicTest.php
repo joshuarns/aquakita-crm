@@ -148,6 +148,28 @@ class LeadFormPublicTest extends TestCase
             ->assertDontSee('wa.me');
     }
 
+    public function test_free_text_catalog_fields_resolve_to_ids(): void
+    {
+        $form = LeadForm::factory()->create([
+            'fields' => [
+                ['key' => 'first_name', 'enabled' => true, 'required' => true, 'label' => 'Nombre'],
+                ['key' => 'project_type_id', 'enabled' => true, 'required' => false, 'label' => 'Tipo de proyecto'],
+                ['key' => 'country_id', 'enabled' => true, 'required' => false, 'label' => 'País'],
+            ],
+        ]);
+
+        $this->post(route('public.forms.submit', $form->token), [
+            '_nonce' => $this->freshNonce(),
+            'first_name' => 'Ana',
+            'project_type_id' => 'Riego industrial',
+            'country_id' => 'Guatemala',
+        ])->assertOk();
+
+        $lead = Lead::first();
+        $this->assertSame('Riego industrial', $lead->projectType->name);
+        $this->assertSame('Guatemala', $lead->country->name);
+    }
+
     public function test_honeypot_blocks_submission(): void
     {
         $form = LeadForm::factory()->create();

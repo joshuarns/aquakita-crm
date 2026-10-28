@@ -39,8 +39,8 @@ class LeadForm extends Model
             'company' => ['label' => 'Empresa', 'type' => 'text'],
             'email' => ['label' => 'Correo electrónico', 'type' => 'email'],
             'phone' => ['label' => 'Teléfono', 'type' => 'tel'],
-            'project_type_id' => ['label' => 'Tipo de proyecto', 'type' => 'select', 'catalog' => ProjectType::class],
-            'country_id' => ['label' => 'País', 'type' => 'select', 'catalog' => Country::class],
+            'project_type_id' => ['label' => 'Tipo de proyecto', 'type' => 'text', 'resolve' => ProjectType::class],
+            'country_id' => ['label' => 'País', 'type' => 'text', 'resolve' => Country::class],
             'description' => ['label' => 'Mensaje', 'type' => 'textarea'],
         ];
     }
@@ -100,6 +100,7 @@ class LeadForm extends Model
                 'label' => $field['label'] ?: $available[$key]['label'],
                 'type' => $available[$key]['type'],
                 'catalog' => $available[$key]['catalog'] ?? null,
+                'resolve' => $available[$key]['resolve'] ?? null,
             ];
         }
 

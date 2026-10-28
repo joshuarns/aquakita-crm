@@ -456,12 +456,45 @@ class LeadFormController extends Controller
     }
 
     /**
+     * Convierte el texto libre de campos de catálogo (tipo de proyecto, país) en
+     * un id, creando el valor en el catálogo si no existe. Así el campo es de
+     * texto abierto para el visitante, pero la ficha y los reportes siguen igual.
+     *
+     * @param  array<string, mixed>  $data
+     * @return array<string, mixed>
+     */
+    protected function resolveCatalogValues(LeadForm $form, array $data): array
+    {
+        foreach ($form->enabledFields() as $field) {
+            $key = $field['key'];
+            if (empty($field['resolve'])) {
+                continue;
+            }
+
+            $value = trim((string) ($data[$key] ?? ''));
+            if ($value === '') {
+                unset($data[$key]);
+
+                continue;
+            }
+
+            $catalog = $field['resolve'];
+            $existing = $catalog::whereRaw('LOWER(name) = ?', [mb_strtolower($value)])->first();
+            $data[$key] = $existing?->id ?? $catalog::create(['name' => $value])->id;
+        }
+
+        return $data;
+    }
+
+    /**
      * Crea el lead a partir de los datos validados.
      *
      * @param  array<string, mixed>  $data
      */
     protected function createLead(LeadForm $form, array $data, Request $request): Lead
     {
+        $data = $this->resolveCatalogValues($form, $data);
+
         $initial = Status::where('order', 1)->firstOrFail();
 
         $lead = Lead::create([
