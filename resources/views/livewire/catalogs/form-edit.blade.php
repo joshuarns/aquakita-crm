@@ -214,6 +214,11 @@ new #[Layout('layouts.app')] class extends Component
                             <span class="col-span-6">Etiqueta</span>
                             <span class="col-span-4">Obligatorio</span>
                         </div>
+                        @php($fieldIcons = [
+                            'first_name' => '👤', 'last_name' => '👤', 'company' => '🏢',
+                            'email' => '✉️', 'phone' => '📞', 'project_type_id' => '🏗️',
+                            'country_id' => '📍', 'description' => '💬',
+                        ])
                         @foreach ($this->availableFields() as $key => $meta)
                             <div class="grid grid-cols-12 gap-2 items-center rounded-lg border border-gray-100 px-3 py-2">
                                 <div class="col-span-2">
@@ -224,6 +229,7 @@ new #[Layout('layouts.app')] class extends Component
                                 <div class="col-span-6">
                                     <input type="text" wire:model="fields.{{ $key }}.label"
                                            class="block w-full rounded-md border-gray-300 text-sm focus:border-[#0e7490] focus:ring-[#0e7490]">
+                                    <p class="mt-1 text-xs text-gray-400">{{ $fieldIcons[$key] ?? '🔤' }} {{ $meta['label'] }}</p>
                                 </div>
                                 <div class="col-span-4 flex items-center gap-2">
                                     <input type="checkbox" wire:model="fields.{{ $key }}.required"

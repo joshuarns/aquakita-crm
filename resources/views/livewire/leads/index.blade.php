@@ -120,6 +120,25 @@ new #[Layout('layouts.app')] class extends Component
 
         session()->flash('status', "Lead «{$lead->full_name}» asignado a {$vendor->name}.");
     }
+
+    /**
+     * Elimina un lead (y sus adjuntos físicos). Solo administrador (§LeadPolicy).
+     */
+    public function deleteLead(int $leadId): void
+    {
+        $lead = Lead::findOrFail($leadId);
+
+        abort_unless(auth()->user()->can('delete', $lead), 403);
+
+        foreach ($lead->attachments as $attachment) {
+            \Illuminate\Support\Facades\Storage::disk('local')->delete($attachment->path);
+        }
+
+        $name = $lead->full_name;
+        $lead->delete(); // las relaciones (actividades, timeline, etc.) caen en cascada
+
+        session()->flash('status', "Lead «{$name}» eliminado.");
+    }
 }; ?>
 
 <div class="py-8">
@@ -166,6 +185,9 @@ new #[Layout('layouts.app')] class extends Component
                         @can('leads.assign')
                             <th class="px-4 py-3">{{ __('Asignar') }}</th>
                         @endcan
+                        @role('administrador')
+                            <th class="px-4 py-3 text-right">{{ __('Acciones') }}</th>
+                        @endrole
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
@@ -201,10 +223,19 @@ new #[Layout('layouts.app')] class extends Component
                                     </select>
                                 </td>
                             @endcan
+                            @can('delete', $lead)
+                                <td class="px-4 py-3 text-right">
+                                    <button wire:click="deleteLead({{ $lead->id }})"
+                                            wire:confirm="¿Eliminar a «{{ $lead->full_name }}»? Esta acción no se puede deshacer: borra también su historial, actividades y adjuntos."
+                                            class="text-sm font-medium text-red-600 hover:text-red-800">
+                                        {{ __('Eliminar') }}
+                                    </button>
+                                </td>
+                            @endcan
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-4 py-8 text-center text-gray-500">
+                            <td colspan="7" class="px-4 py-8 text-center text-gray-500">
                                 {{ __('No hay leads que coincidan.') }}
                             </td>
                         </tr>

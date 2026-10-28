@@ -43,4 +43,12 @@ class LeadPolicy
             && $user->can('activities.manage')
             && $lead->vendor_id === $user->id;
     }
+
+    /**
+     * Quién puede eliminar un lead. Acción destructiva: solo administrador.
+     */
+    public function delete(User $user, Lead $lead): bool
+    {
+        return $user->hasRole('administrador');
+    }
 }
