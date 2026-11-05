@@ -18,6 +18,7 @@ new #[Layout('layouts.app')] class extends Component
     public string $redirect_url = '';
     public string $allowed_domains = '';
     public string $notify_emails = '';
+    public string $analytics_id = '';
     public string $accent_color = '#0e7490';
     public bool $active = true;
 
@@ -45,6 +46,7 @@ new #[Layout('layouts.app')] class extends Component
         $this->redirect_url = (string) $form->redirect_url;
         $this->allowed_domains = collect($form->allowed_domains ?: [])->implode("\n");
         $this->notify_emails = collect($form->notify_emails ?: [])->implode("\n");
+        $this->analytics_id = (string) $form->analytics_id;
         $this->accent_color = $form->accent_color ?: '#0e7490';
         $this->active = $form->active;
 
@@ -97,6 +99,7 @@ new #[Layout('layouts.app')] class extends Component
             'campaign_id' => ['nullable', 'exists:campaigns,id'],
             'success_message' => ['nullable', 'string', 'max:500'],
             'redirect_url' => ['nullable', 'url', 'max:255'],
+            'analytics_id' => ['nullable', 'string', 'max:40', 'regex:/^(G-|GT-|GTM-|AW-|UA-)[A-Z0-9-]+$/i'],
             'accent_color' => ['required', 'string', 'max:20'],
             'launcher_label' => ['nullable', 'string', 'max:60'],
             'launcher_icon' => ['nullable', 'string', 'max:8'],
@@ -148,6 +151,7 @@ new #[Layout('layouts.app')] class extends Component
             'redirect_url' => $this->redirect_url ?: null,
             'allowed_domains' => $domains ?: null,
             'notify_emails' => $emails ?: null,
+            'analytics_id' => trim($this->analytics_id) ?: null,
             'accent_color' => $this->accent_color,
             'active' => $this->active,
             'launcher_label' => $this->launcher_label ?: null,
@@ -288,6 +292,13 @@ new #[Layout('layouts.app')] class extends Component
                                   class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]"></textarea>
                         @error('notify_emails') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                         <p class="mt-1 text-xs text-gray-400">A quién llega el correo con los datos del lead. Vacío = administradores y supervisores.</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">ID de Google Analytics / GTM (opcional)</label>
+                        <input type="text" wire:model="analytics_id" placeholder="G-XXXXXXXXXX  o  GTM-XXXXXXX"
+                               class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
+                        @error('analytics_id') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                        <p class="mt-1 text-xs text-gray-400">Carga Analytics en la página del formulario y mide el envío (útil para el enlace directo). Si GA ya está en tu sitio, puedes dejarlo vacío.</p>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>

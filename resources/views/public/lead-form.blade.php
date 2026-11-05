@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
     <title>{{ $form->name }}</title>
+    @if ($form->analytics_id)
+        @if (Str::startsWith($form->analytics_id, 'GTM-'))
+            {{-- Google Tag Manager --}}
+            <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','{{ $form->analytics_id }}');</script>
+        @else
+            {{-- Google Analytics 4 (gtag.js) --}}
+            <script async src="https://www.googletagmanager.com/gtag/js?id={{ $form->analytics_id }}"></script>
+            <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','{{ $form->analytics_id }}');</script>
+        @endif
+    @endif
     @php($accent = $form->accent_color ?: '#0e7490')
     <style>
         :root { --accent: {{ $accent }}; }
@@ -51,6 +61,9 @@
     </style>
 </head>
 <body>
+    @if ($form->analytics_id && Str::startsWith($form->analytics_id, 'GTM-'))
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ $form->analytics_id }}" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    @endif
     <div class="aq-card">
         @if ($success)
             <div class="aq-success">
@@ -68,6 +81,13 @@
             </div>
             <script>
                 try { window.parent.postMessage({ aquakitaForm: '{{ $form->token }}', submitted: true }, '*'); } catch (e) {}
+                @if ($form->analytics_id)
+                try {
+                    window.dataLayer = window.dataLayer || [];
+                    window.dataLayer.push({ event: 'aquakita_form_submit', form_id: '{{ $form->token }}', form_name: @json($form->name) });
+                    if (typeof window.gtag === 'function') { gtag('event', 'generate_lead', { form_id: '{{ $form->token }}', form_name: @json($form->name) }); }
+                } catch (e) {}
+                @endif
             </script>
             @if ($redirect)
                 <script>
