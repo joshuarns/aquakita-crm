@@ -44,6 +44,7 @@ class LeadFormController extends Controller
         $src = route('public.forms.show', $form->token);
         $frameId = 'aquakita-form-'.$form->token;
         $name = addslashes($form->name);
+        $formTitle = addslashes($form->uiStrings()['form_title']);
 
         $js = <<<JS
         (function () {
@@ -55,7 +56,7 @@ class LeadFormController extends Controller
             iframe.style.border = '0';
             iframe.style.overflow = 'hidden';
             iframe.setAttribute('scrolling', 'no');
-            iframe.setAttribute('title', 'Formulario de contacto');
+            iframe.setAttribute('title', '{$formTitle}');
             iframe.height = '560';
             if (s && s.parentNode) {
                 s.parentNode.insertBefore(iframe, s);
@@ -102,14 +103,18 @@ class LeadFormController extends Controller
     {
         $form = $this->resolveForm($token);
 
+        $t = $form->uiStrings();
         $tk = $form->token;
         $src = route('public.forms.show', $tk);
         $color = $form->accent_color ?: '#0e7490';
         $avatar = $form->launcher_avatar ?: route('brand.logo');
-        $greet = addslashes($form->launcher_label ?: '¿En qué podemos ayudarte?');
+        $greet = addslashes($form->launcher_label ?: $t['greeting_default']);
         $side = $form->launcher_position === 'left' ? 'left' : 'right';
         $title = addslashes(config('app.name', 'Aquakita'));
         $name = addslashes($form->name);
+        $online = addslashes($t['online']);
+        $closeLabel = addslashes($t['close']);
+        $formTitle = addslashes($t['form_title']);
 
         $js = <<<JS
         (function () {
@@ -174,15 +179,15 @@ class LeadFormController extends Controller
             var bti = document.createElement('div'); bti.style.cssText = 'flex:1;line-height:1.25';
             var tname = document.createElement('div'); tname.style.cssText='font-weight:600;font-size:14px'; tname.textContent = TITLE;
             var tsub = document.createElement('div'); tsub.style.cssText='font-size:11px;opacity:.9;display:flex;align-items:center;gap:5px';
-            tsub.innerHTML = '<span style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block"></span>En línea · normalmente responde en minutos';
+            tsub.innerHTML = '<span style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block"></span>{$online}';
             bti.appendChild(tname); bti.appendChild(tsub);
             var close = document.createElement('button');
-            close.type='button'; close.setAttribute('aria-label','Cerrar'); close.innerHTML='&times;';
+            close.type='button'; close.setAttribute('aria-label','{$closeLabel}'); close.innerHTML='&times;';
             close.style.cssText='border:0;background:transparent;color:#fff;font-size:26px;line-height:1;cursor:pointer;padding:0 4px';
             bar.appendChild(bav); bar.appendChild(bti); bar.appendChild(close);
 
             var iframe = document.createElement('iframe');
-            iframe.src = SRC; iframe.title = 'Formulario de contacto';
+            iframe.src = SRC; iframe.title = '{$formTitle}';
             iframe.style.cssText = 'flex:1;width:100%;border:0;background:#fff';
             panel.appendChild(bar); panel.appendChild(iframe);
 
@@ -228,16 +233,18 @@ class LeadFormController extends Controller
             return $this->renderForm($form, success: true);
         }
 
+        $t = $form->uiStrings();
+
         if (! $this->originAllowed($request, $form)) {
-            abort(403, 'Este formulario no está autorizado para este dominio.');
+            abort(403, $t['error_domain']);
         }
 
         if (! $this->passesRateLimit($request, $form)) {
-            return $this->renderForm($form, error: 'Demasiados envíos. Intenta de nuevo en un momento.', status: 429);
+            return $this->renderForm($form, error: $t['error_rate'], status: 429);
         }
 
         if (! $this->nonceIsValid($request->input('_nonce'))) {
-            return $this->renderForm($form, error: 'La sesión del formulario expiró. Recarga la página e inténtalo de nuevo.', status: 422);
+            return $this->renderForm($form, error: $t['error_nonce'], status: 422);
         }
 
         try {
@@ -268,12 +275,13 @@ class LeadFormController extends Controller
             return null;
         }
 
-        $lines = ['Hola, soy '.$lead->full_name.'.'];
+        $t = $form->uiStrings();
+        $lines = [str_replace(':name', $lead->full_name, $t['wa_greeting'])];
         if ($lead->phone) {
-            $lines[] = 'Tel: '.$lead->phone;
+            $lines[] = $t['wa_phone'].': '.$lead->phone;
         }
         if ($lead->email) {
-            $lines[] = 'Correo: '.$lead->email;
+            $lines[] = $t['wa_email'].': '.$lead->email;
         }
         if ($lead->description) {
             $lines[] = $lead->description;
@@ -317,6 +325,7 @@ class LeadFormController extends Controller
             'old' => $old,
             'redirect' => $redirect,
             'whatsapp' => $whatsapp,
+            't' => $form->uiStrings(),
         ]);
 
         return response($view->render(), $status)

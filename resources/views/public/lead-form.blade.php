@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{ $form->locale ?: 'es' }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -70,12 +70,12 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline>
                 </svg>
-                <h2>¡Gracias!</h2>
-                <p>{{ $form->success_message ?: 'Hemos recibido tus datos. Te contactaremos pronto.' }}</p>
+                <h2>{{ $t['thanks'] }}</h2>
+                <p>{{ $form->success_message ?: $t['success_default'] }}</p>
                 @if (! empty($whatsapp))
                     <a class="aq-wa-btn" href="{{ $whatsapp }}" target="_blank" rel="noopener">
                         <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12.04 2c-5.46 0-9.9 4.44-9.9 9.9 0 1.75.46 3.45 1.32 4.95L2 22l5.3-1.38a9.87 9.87 0 0 0 4.73 1.2h.01c5.46 0 9.9-4.44 9.9-9.9 0-2.64-1.03-5.13-2.9-7A9.82 9.82 0 0 0 12.04 2Zm5.8 14.17c-.25.69-1.44 1.32-1.98 1.37-.53.05-1.02.24-3.45-.72-2.9-1.15-4.76-4.12-4.9-4.31-.14-.19-1.18-1.57-1.18-3s.75-2.13 1.02-2.42c.27-.29.58-.36.78-.36l.56.01c.18.01.42-.07.66.5.25.6.84 2.06.91 2.2.07.14.12.31.02.5-.1.19-.15.31-.29.48-.14.17-.3.38-.43.5-.14.14-.29.29-.12.57.17.29.74 1.22 1.59 1.98 1.09.97 2.01 1.27 2.3 1.42.29.14.46.12.63-.07.17-.19.72-.84.91-1.13.19-.29.39-.24.66-.14.27.1 1.7.8 1.99.95.29.14.48.21.55.33.07.12.07.69-.18 1.37Z"/></svg>
-                        Continuar por WhatsApp
+                        {{ $t['whatsapp'] }}
                     </a>
                 @endif
             </div>
@@ -109,7 +109,7 @@
 
                 {{-- Honeypot: invisible para humanos, tentador para bots. --}}
                 <div class="aq-hp" aria-hidden="true">
-                    <label>No llenar este campo
+                    <label>{{ $t['honeypot'] }}
                         <input type="text" name="website" tabindex="-1" autocomplete="off">
                     </label>
                 </div>
@@ -126,7 +126,7 @@
                             <textarea id="aq-{{ $key }}" name="{{ $key }}" class="aq-textarea" @if ($field['required']) required @endif>{{ $value }}</textarea>
                         @elseif ($field['type'] === 'select')
                             <select id="aq-{{ $key }}" name="{{ $key }}" class="aq-select" @if ($field['required']) required @endif>
-                                <option value="">Selecciona…</option>
+                                <option value="">{{ $t['select'] }}</option>
                                 @foreach (($options[$key] ?? []) as $option)
                                     <option value="{{ $option->id }}" @selected((string) $value === (string) $option->id)>{{ $option->name }}</option>
                                 @endforeach
@@ -142,7 +142,7 @@
                     </div>
                 @endforeach
 
-                <button type="submit" class="aq-btn">Enviar</button>
+                <button type="submit" class="aq-btn">{{ $t['submit'] }}</button>
             </form>
         @endif
     </div>

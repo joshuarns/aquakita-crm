@@ -113,6 +113,94 @@ class LeadForm extends Model
         return $this->display_mode === 'floating';
     }
 
+    /**
+     * Idiomas disponibles para los textos fijos del formulario/widget.
+     *
+     * @return array<string, string>
+     */
+    public static function availableLocales(): array
+    {
+        return ['es' => 'Español', 'en' => 'English', 'pt' => 'Português'];
+    }
+
+    /**
+     * Textos fijos del formulario/widget para un idioma.
+     *
+     * @return array<string, string>
+     */
+    public static function strings(?string $locale): array
+    {
+        $all = [
+            'es' => [
+                'select' => 'Selecciona…',
+                'honeypot' => 'No llenar este campo',
+                'submit' => 'Enviar',
+                'sending' => 'Enviando…',
+                'thanks' => '¡Gracias!',
+                'success_default' => 'Hemos recibido tus datos. Te contactaremos pronto.',
+                'whatsapp' => 'Continuar por WhatsApp',
+                'form_title' => 'Formulario de contacto',
+                'online' => 'En línea · normalmente responde en minutos',
+                'close' => 'Cerrar',
+                'greeting_default' => '¿En qué podemos ayudarte?',
+                'error_rate' => 'Demasiados envíos. Intenta de nuevo en un momento.',
+                'error_nonce' => 'La sesión del formulario expiró. Recarga la página e inténtalo de nuevo.',
+                'error_domain' => 'Este formulario no está autorizado para este dominio.',
+                'wa_greeting' => 'Hola, soy :name.',
+                'wa_phone' => 'Tel',
+                'wa_email' => 'Correo',
+            ],
+            'en' => [
+                'select' => 'Select…',
+                'honeypot' => 'Do not fill this field',
+                'submit' => 'Send',
+                'sending' => 'Sending…',
+                'thanks' => 'Thank you!',
+                'success_default' => 'We received your information. We will contact you soon.',
+                'whatsapp' => 'Continue on WhatsApp',
+                'form_title' => 'Contact form',
+                'online' => 'Online · usually replies within minutes',
+                'close' => 'Close',
+                'greeting_default' => 'How can we help you?',
+                'error_rate' => 'Too many submissions. Please try again shortly.',
+                'error_nonce' => 'The form session expired. Please reload the page and try again.',
+                'error_domain' => 'This form is not authorized for this domain.',
+                'wa_greeting' => 'Hi, I am :name.',
+                'wa_phone' => 'Phone',
+                'wa_email' => 'Email',
+            ],
+            'pt' => [
+                'select' => 'Selecione…',
+                'honeypot' => 'Não preencha este campo',
+                'submit' => 'Enviar',
+                'sending' => 'Enviando…',
+                'thanks' => 'Obrigado!',
+                'success_default' => 'Recebemos seus dados. Entraremos em contato em breve.',
+                'whatsapp' => 'Continuar no WhatsApp',
+                'form_title' => 'Formulário de contato',
+                'online' => 'Online · normalmente responde em minutos',
+                'close' => 'Fechar',
+                'greeting_default' => 'Como podemos ajudar?',
+                'error_rate' => 'Muitos envios. Tente novamente em instantes.',
+                'error_nonce' => 'A sessão do formulário expirou. Recarregue a página e tente novamente.',
+                'error_domain' => 'Este formulário não está autorizado para este domínio.',
+                'wa_greeting' => 'Olá, sou :name.',
+                'wa_phone' => 'Tel',
+                'wa_email' => 'E-mail',
+            ],
+        ];
+
+        return $all[$locale] ?? $all['es'];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function uiStrings(): array
+    {
+        return static::strings($this->locale);
+    }
+
     public static function generateToken(): string
     {
         do {

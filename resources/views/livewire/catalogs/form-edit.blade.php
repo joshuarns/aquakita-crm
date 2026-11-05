@@ -12,6 +12,7 @@ new #[Layout('layouts.app')] class extends Component
     public LeadForm $form;
 
     public string $name = '';
+    public string $locale = 'es';
     public ?int $source_id = null;
     public ?int $campaign_id = null;
     public string $success_message = '';
@@ -40,6 +41,7 @@ new #[Layout('layouts.app')] class extends Component
     {
         $this->form = $form;
         $this->name = $form->name;
+        $this->locale = $form->locale ?: 'es';
         $this->source_id = $form->source_id;
         $this->campaign_id = $form->campaign_id;
         $this->success_message = (string) $form->success_message;
@@ -95,6 +97,7 @@ new #[Layout('layouts.app')] class extends Component
     {
         $this->validate([
             'name' => ['required', 'string', 'max:255'],
+            'locale' => ['in:'.implode(',', array_keys(LeadForm::availableLocales()))],
             'source_id' => ['nullable', 'exists:sources,id'],
             'campaign_id' => ['nullable', 'exists:campaigns,id'],
             'success_message' => ['nullable', 'string', 'max:500'],
@@ -144,6 +147,7 @@ new #[Layout('layouts.app')] class extends Component
 
         $this->form->update([
             'name' => $this->name,
+            'locale' => $this->locale,
             'source_id' => $this->source_id,
             'campaign_id' => $this->campaign_id,
             'fields' => $fields,
@@ -201,10 +205,20 @@ new #[Layout('layouts.app')] class extends Component
             {{-- Configuración --}}
             <form wire:submit="save" class="lg:col-span-2 space-y-6">
                 <div class="bg-white shadow-sm rounded-lg p-6 space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Nombre del formulario</label>
-                        <input type="text" wire:model="name" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
-                        @error('name') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div class="sm:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700">Nombre del formulario</label>
+                            <input type="text" wire:model="name" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
+                            @error('name') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Idioma</label>
+                            <select wire:model="locale" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
+                                @foreach (\App\Models\LeadForm::availableLocales() as $code => $label)
+                                    <option value="{{ $code }}">{{ $label }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
