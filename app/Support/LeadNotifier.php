@@ -4,6 +4,7 @@ namespace App\Support;
 
 use App\Mail\LeadConfirmationMail;
 use App\Mail\LeadNotificationMail;
+use App\Mail\LeadReceivedMail;
 use App\Models\EmailTemplate;
 use App\Models\Lead;
 use App\Models\LeadNotification;
@@ -62,10 +63,23 @@ class LeadNotifier
             ->when($excludeUserId, fn ($q) => $q->where('id', '!=', $excludeUserId))
             ->get();
 
-        $extra = ['origen' => $lead->source?->name ?? 'Sin origen'];
-
         foreach ($recipients as $recipient) {
-            $this->notify($lead, $recipient, 'lead_recibido', $extra);
+            $notification = LeadNotification::create([
+                'lead_id' => $lead->id,
+                'vendor_id' => $recipient->id,
+                'type' => 'lead_recibido',
+                'message' => 'Nuevo lead: '.$lead->full_name,
+                'sent_at' => now(),
+            ]);
+
+            if ($recipient->email) {
+                try {
+                    Mail::to($recipient->email)->send(new LeadReceivedMail($lead));
+                    $notification->update(['emailed_at' => now()]);
+                } catch (\Throwable $e) {
+                    Log::warning('Aviso de lead nuevo no enviado: '.$e->getMessage());
+                }
+            }
         }
     }
 

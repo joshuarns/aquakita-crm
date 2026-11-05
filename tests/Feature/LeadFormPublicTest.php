@@ -3,7 +3,7 @@
 namespace Tests\Feature;
 
 use App\Mail\LeadConfirmationMail;
-use App\Mail\LeadNotificationMail;
+use App\Mail\LeadReceivedMail;
 use App\Models\Lead;
 use App\Models\LeadForm;
 use App\Models\Source;
@@ -106,7 +106,7 @@ class LeadFormPublicTest extends TestCase
             'lead_id' => $lead->id, 'vendor_id' => $admin->id, 'type' => 'lead_recibido',
         ]);
         $this->assertDatabaseMissing('lead_notifications', ['vendor_id' => $vendedor->id]);
-        Mail::assertSent(LeadNotificationMail::class);
+        Mail::assertSent(LeadReceivedMail::class, fn ($mail) => $mail->hasTo($admin->email));
     }
 
     public function test_widget_script_is_served(): void

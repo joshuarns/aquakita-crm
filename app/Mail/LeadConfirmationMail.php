@@ -29,7 +29,7 @@ class LeadConfirmationMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            markdown: 'mail.lead-confirmation',
+            view: 'mail.lead-confirmation',
             with: ['body' => $this->body],
         );
     }
