@@ -286,20 +286,6 @@ new #[Layout('layouts.app')] class extends Component
                                   class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]"></textarea>
                         <p class="mt-1 text-xs text-gray-400">Vacío = permitir en cualquier sitio.</p>
                     </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Destinatarios del aviso por correo (uno por línea)</label>
-                        <textarea wire:model="notify_emails" rows="2" placeholder="ventas@aquakita.com&#10;gerente@aquakita.com"
-                                  class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]"></textarea>
-                        @error('notify_emails') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                        <p class="mt-1 text-xs text-gray-400">A quién llega el correo con los datos del lead. Vacío = administradores y supervisores.</p>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">ID de Google Analytics / GTM (opcional)</label>
-                        <input type="text" wire:model="analytics_id" placeholder="G-XXXXXXXXXX  o  GTM-XXXXXXX"
-                               class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
-                        @error('analytics_id') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                        <p class="mt-1 text-xs text-gray-400">Carga Analytics en la página del formulario y mide el envío (útil para el enlace directo). Si GA ya está en tu sitio, puedes dejarlo vacío.</p>
-                    </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Color</label>
@@ -355,6 +341,31 @@ new #[Layout('layouts.app')] class extends Component
 
             {{-- Código para incrustar --}}
             <div class="space-y-6">
+                {{-- Notificaciones y medición --}}
+                <div class="bg-white shadow-sm rounded-lg p-6">
+                    <h3 class="font-semibold text-gray-800">Notificaciones y medición</h3>
+                    <div class="mt-4 space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Destinatarios del aviso por correo (uno por línea)</label>
+                            <textarea wire:model="notify_emails" rows="2" placeholder="ventas@aquakita.com&#10;gerente@aquakita.com"
+                                      class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]"></textarea>
+                            @error('notify_emails') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                            <p class="mt-1 text-xs text-gray-400">A quién llega el correo con los datos del lead. Vacío = administradores y supervisores.</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">ID de Google Analytics / GTM (opcional)</label>
+                            <input type="text" wire:model="analytics_id" placeholder="G-XXXXXXXXXX  o  GTM-XXXXXXX"
+                                   class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
+                            @error('analytics_id') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                            <p class="mt-1 text-xs text-gray-400">Carga Analytics en la página del formulario y mide el envío (útil para el enlace directo). Si GA ya está en tu sitio, puedes dejarlo vacío.</p>
+                        </div>
+                        <button type="button" wire:click="save"
+                                class="rounded-lg bg-[#0e7490] px-4 py-2 text-sm font-semibold text-white hover:bg-[#155e75]">
+                            Guardar
+                        </button>
+                    </div>
+                </div>
+
                 <div class="bg-white shadow-sm rounded-lg p-6">
                     <h3 class="font-semibold text-gray-800">Código para incrustar</h3>
                     <p class="text-sm text-gray-500 mb-4">Pega este código en tu sitio web.</p>
