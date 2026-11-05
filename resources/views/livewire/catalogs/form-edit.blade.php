@@ -166,8 +166,11 @@ new #[Layout('layouts.app')] class extends Component
         $showUrl = route('public.forms.show', $token);
         $frameId = 'aquakita-form-'.$token;
 
+        $nameJs = addslashes($this->name);
         $iframe = '<iframe src="'.$showUrl.'" id="'.$frameId.'" style="width:100%;border:0;overflow:hidden" height="560" scrolling="no" title="'.e($this->name).'"></iframe>'."\n"
-            .'<script>window.addEventListener("message",function(e){if(!e.data||e.data.aquakitaForm!=="'.$token.'")return;var f=document.getElementById("'.$frameId.'");if(f&&e.data.height)f.height=e.data.height;if(e.data.redirect)window.top.location.href=e.data.redirect;});</script>';
+            .'<script>window.addEventListener("message",function(e){if(!e.data||e.data.aquakitaForm!=="'.$token.'")return;var f=document.getElementById("'.$frameId.'");if(f&&e.data.height)f.height=e.data.height;'
+            .'if(e.data.submitted){try{window.dataLayer=window.dataLayer||[];window.dataLayer.push({event:"aquakita_form_submit",form_id:"'.$token.'",form_name:"'.$nameJs.'"});if(typeof window.gtag==="function")window.gtag("event","generate_lead",{form_id:"'.$token.'",form_name:"'.$nameJs.'"});}catch(x){}}'
+            .'if(e.data.redirect)window.top.location.href=e.data.redirect;});</script>';
 
         return [
             'scriptSnippet' => '<script src="'.route('public.forms.script', $token).'" async></script>',

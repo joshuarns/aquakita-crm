@@ -43,6 +43,7 @@ class LeadFormController extends Controller
 
         $src = route('public.forms.show', $form->token);
         $frameId = 'aquakita-form-'.$form->token;
+        $name = addslashes($form->name);
 
         $js = <<<JS
         (function () {
@@ -61,12 +62,24 @@ class LeadFormController extends Controller
             } else {
                 document.body.appendChild(iframe);
             }
+            function aqwTrack(ev) {
+                try {
+                    window.dataLayer = window.dataLayer || [];
+                    window.dataLayer.push({ event: ev, form_id: '{$form->token}', form_name: '{$name}' });
+                    if (typeof window.gtag === 'function') {
+                        window.gtag('event', ev === 'aquakita_form_submit' ? 'generate_lead' : ev, { form_id: '{$form->token}', form_name: '{$name}' });
+                    }
+                } catch (err) {}
+            }
             window.addEventListener('message', function (e) {
                 if (!e.data || e.data.aquakitaForm !== '{$form->token}') {
                     return;
                 }
                 if (e.data.height) {
                     iframe.height = e.data.height;
+                }
+                if (e.data.submitted) {
+                    aqwTrack('aquakita_form_submit');
                 }
                 if (e.data.redirect) {
                     window.top.location.href = e.data.redirect;
@@ -96,11 +109,21 @@ class LeadFormController extends Controller
         $greet = addslashes($form->launcher_label ?: '¿En qué podemos ayudarte?');
         $side = $form->launcher_position === 'left' ? 'left' : 'right';
         $title = addslashes(config('app.name', 'Aquakita'));
+        $name = addslashes($form->name);
 
         $js = <<<JS
         (function () {
             if (document.getElementById('aqw-root-{$tk}')) { return; }
             var SIDE='{$side}', COLOR='{$color}', AVATAR='{$avatar}', GREET='{$greet}', TITLE='{$title}', SRC='{$src}';
+            function aqwTrack(ev) {
+                try {
+                    window.dataLayer = window.dataLayer || [];
+                    window.dataLayer.push({ event: ev, form_id: '{$tk}', form_name: '{$name}' });
+                    if (typeof window.gtag === 'function') {
+                        window.gtag('event', ev === 'aquakita_form_submit' ? 'generate_lead' : ev, { form_id: '{$tk}', form_name: '{$name}' });
+                    }
+                } catch (err) {}
+            }
 
             var st = document.createElement('style');
             st.textContent = '@keyframes aqwPulse{0%{transform:scale(1);opacity:.55}70%{transform:scale(1.8);opacity:0}100%{opacity:0}}'
@@ -163,7 +186,7 @@ class LeadFormController extends Controller
             iframe.style.cssText = 'flex:1;width:100%;border:0;background:#fff';
             panel.appendChild(bar); panel.appendChild(iframe);
 
-            function openPanel(){ panel.style.display='flex'; root.style.display='none'; }
+            function openPanel(){ panel.style.display='flex'; root.style.display='none'; aqwTrack('aquakita_form_open'); }
             function hidePanel(){ panel.style.display='none'; root.style.display='flex'; }
             function hideBubble(){ bubble.style.display='none'; try{ sessionStorage.setItem('aqwG-{$tk}','1'); }catch(e){} }
 
@@ -178,6 +201,7 @@ class LeadFormController extends Controller
             window.addEventListener('message', function (e) {
                 if (!e.data || e.data.aquakitaForm !== '{$tk}') { return; }
                 // No cerramos el panel tras enviar: el usuario puede tocar «Continuar por WhatsApp».
+                if (e.data.submitted) { aqwTrack('aquakita_form_submit'); }
                 if (e.data.redirect) { window.top.location.href = e.data.redirect; }
             });
 
