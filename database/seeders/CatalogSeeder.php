@@ -51,6 +51,7 @@ class CatalogSeeder extends Seeder
         }
 
         $templates = [
+            ['confirmacion_cliente', '¡Gracias por contactarnos! — {{negocio}}', "Hola {{lead}},\n\nRecibimos tu información correctamente. ¡Gracias por tu interés! Uno de nuestros asesores se pondrá en contacto contigo muy pronto para atenderte.\n\nSi tu consulta es urgente, puedes responder directamente a este correo.\n\nSaludos cordiales,\nEquipo {{negocio}}"],
             ['lead_recibido', 'Nuevo lead recibido: {{lead}}', 'Hola {{destinatario}}, llegó un nuevo lead: {{lead}} (origen: {{origen}}). Ya está en la bandeja general para asignarlo a un vendedor.'],
             ['nuevo_lead', 'Se te asignó un nuevo lead', 'Hola {{vendedor}}, se te asignó el lead {{lead}}. Ingresa al sistema para atenderlo.'],
             ['reasignacion', 'Un lead fue reasignado a ti', 'Hola {{vendedor}}, el lead {{lead}} fue reasignado a tu cuenta.'],

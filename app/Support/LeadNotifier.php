@@ -2,11 +2,13 @@
 
 namespace App\Support;
 
+use App\Mail\LeadConfirmationMail;
 use App\Mail\LeadNotificationMail;
 use App\Models\EmailTemplate;
 use App\Models\Lead;
 use App\Models\LeadNotification;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Spatie\Permission\Models\Permission;
 
@@ -16,6 +18,35 @@ use Spatie\Permission\Models\Permission;
  */
 class LeadNotifier
 {
+    /**
+     * Envía un correo de confirmación al propio cliente que llenó el formulario.
+     * Usa la plantilla editable «confirmacion_cliente» (§3.2); si no existe, usa
+     * un texto por defecto. No afecta la captura si el correo falla.
+     */
+    public function notifyClient(Lead $lead): void
+    {
+        if (blank($lead->email)) {
+            return;
+        }
+
+        $negocio = config('app.name', 'Aquakita');
+        $template = EmailTemplate::where('key', 'confirmacion_cliente')->where('active', true)->first();
+
+        $subject = $template?->subject ?? '¡Gracias por contactarnos! — {{negocio}}';
+        $body = $template?->body ?? "Hola {{lead}},\n\nRecibimos tu información correctamente. ¡Gracias por tu interés! Uno de nuestros asesores se pondrá en contacto contigo muy pronto para atenderte.\n\nSi tu consulta es urgente, puedes responder directamente a este correo.\n\nSaludos cordiales,\nEquipo {{negocio}}";
+
+        foreach (['lead' => $lead->full_name, 'negocio' => $negocio] as $key => $value) {
+            $subject = str_replace('{{'.$key.'}}', $value, $subject);
+            $body = str_replace('{{'.$key.'}}', $value, $body);
+        }
+
+        try {
+            Mail::to($lead->email)->send(new LeadConfirmationMail($subject, $body));
+        } catch (\Throwable $e) {
+            Log::warning('Correo de confirmación al cliente no enviado: '.$e->getMessage());
+        }
+    }
+
     /**
      * Avisa a administradores y supervisores que llegó un lead nuevo a la bandeja.
      * Se dispara en la captura manual y en los formularios web.

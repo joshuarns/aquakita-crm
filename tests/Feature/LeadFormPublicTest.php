@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Mail\LeadConfirmationMail;
 use App\Mail\LeadNotificationMail;
 use App\Models\Lead;
 use App\Models\LeadForm;
@@ -168,6 +169,35 @@ class LeadFormPublicTest extends TestCase
         $lead = Lead::first();
         $this->assertSame('Riego industrial', $lead->projectType->name);
         $this->assertSame('Guatemala', $lead->country->name);
+    }
+
+    public function test_client_receives_confirmation_email(): void
+    {
+        Mail::fake();
+        $form = LeadForm::factory()->create();
+
+        $this->post(route('public.forms.submit', $form->token), [
+            '_nonce' => $this->freshNonce(),
+            'first_name' => 'Ana',
+            'email' => 'ana@example.com',
+        ])->assertOk();
+
+        Mail::assertSent(LeadConfirmationMail::class, fn ($mail) => $mail->hasTo('ana@example.com'));
+    }
+
+    public function test_no_confirmation_email_without_client_email(): void
+    {
+        Mail::fake();
+        $form = LeadForm::factory()->create([
+            'fields' => [['key' => 'first_name', 'enabled' => true, 'required' => true, 'label' => 'Nombre']],
+        ]);
+
+        $this->post(route('public.forms.submit', $form->token), [
+            '_nonce' => $this->freshNonce(),
+            'first_name' => 'Ana',
+        ])->assertOk();
+
+        Mail::assertNothingSent();
     }
 
     public function test_honeypot_blocks_submission(): void

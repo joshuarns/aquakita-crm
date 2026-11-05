@@ -515,6 +515,9 @@ class LeadFormController extends Controller
         // Aviso de lead nuevo a administradores y supervisores (correo + campanita).
         app(LeadNotifier::class)->notifyNewLead($lead);
 
+        // Confirmación automática al cliente que llenó el formulario.
+        app(LeadNotifier::class)->notifyClient($lead);
+
         $form->increment('submissions_count');
 
         return $lead;
