@@ -17,6 +17,7 @@ new #[Layout('layouts.app')] class extends Component
     public string $success_message = '';
     public string $redirect_url = '';
     public string $allowed_domains = '';
+    public string $notify_emails = '';
     public string $accent_color = '#0e7490';
     public bool $active = true;
 
@@ -43,6 +44,7 @@ new #[Layout('layouts.app')] class extends Component
         $this->success_message = (string) $form->success_message;
         $this->redirect_url = (string) $form->redirect_url;
         $this->allowed_domains = collect($form->allowed_domains ?: [])->implode("\n");
+        $this->notify_emails = collect($form->notify_emails ?: [])->implode("\n");
         $this->accent_color = $form->accent_color ?: '#0e7490';
         $this->active = $form->active;
 
@@ -122,6 +124,21 @@ new #[Layout('layouts.app')] class extends Component
             ->values()
             ->all();
 
+        $emails = collect(preg_split('/\r\n|\r|\n|,/', $this->notify_emails))
+            ->map(fn ($e) => trim($e))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+
+        foreach ($emails as $email) {
+            if (! filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $this->addError('notify_emails', "«{$email}» no es un correo válido.");
+
+                return;
+            }
+        }
+
         $this->form->update([
             'name' => $this->name,
             'source_id' => $this->source_id,
@@ -130,6 +147,7 @@ new #[Layout('layouts.app')] class extends Component
             'success_message' => $this->success_message ?: null,
             'redirect_url' => $this->redirect_url ?: null,
             'allowed_domains' => $domains ?: null,
+            'notify_emails' => $emails ?: null,
             'accent_color' => $this->accent_color,
             'active' => $this->active,
             'launcher_label' => $this->launcher_label ?: null,
@@ -260,6 +278,13 @@ new #[Layout('layouts.app')] class extends Component
                         <textarea wire:model="allowed_domains" rows="2" placeholder="tusitio.com&#10;www.tusitio.com"
                                   class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]"></textarea>
                         <p class="mt-1 text-xs text-gray-400">Vacío = permitir en cualquier sitio.</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Destinatarios del aviso por correo (uno por línea)</label>
+                        <textarea wire:model="notify_emails" rows="2" placeholder="ventas@aquakita.com&#10;gerente@aquakita.com"
+                                  class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]"></textarea>
+                        @error('notify_emails') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                        <p class="mt-1 text-xs text-gray-400">A quién llega el correo con los datos del lead. Vacío = administradores y supervisores.</p>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>

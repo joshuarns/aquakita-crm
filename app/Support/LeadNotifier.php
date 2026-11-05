@@ -63,22 +63,38 @@ class LeadNotifier
             ->when($excludeUserId, fn ($q) => $q->where('id', '!=', $excludeUserId))
             ->get();
 
+        // Campanita interna: siempre a los administradores y supervisores.
+        $notifications = [];
         foreach ($recipients as $recipient) {
-            $notification = LeadNotification::create([
+            $notifications[$recipient->id] = LeadNotification::create([
                 'lead_id' => $lead->id,
                 'vendor_id' => $recipient->id,
                 'type' => 'lead_recibido',
                 'message' => 'Nuevo lead: '.$lead->full_name,
                 'sent_at' => now(),
             ]);
+        }
 
-            if ($recipient->email) {
-                try {
-                    Mail::to($recipient->email)->send(new LeadReceivedMail($lead));
-                    $notification->update(['emailed_at' => now()]);
-                } catch (\Throwable $e) {
-                    Log::warning('Aviso de lead nuevo no enviado: '.$e->getMessage());
-                }
+        // Correo: destinatarios configurados en el formulario, o los admins por defecto.
+        $formEmails = collect($lead->leadForm?->notify_emails ?? [])
+            ->map(fn ($e) => trim((string) $e))->filter()->unique()->values();
+
+        $emails = $formEmails->isNotEmpty()
+            ? $formEmails->all()
+            : $recipients->pluck('email')->filter()->unique()->values()->all();
+
+        foreach ($emails as $email) {
+            try {
+                Mail::to($email)->send(new LeadReceivedMail($lead));
+            } catch (\Throwable $e) {
+                Log::warning('Aviso de lead nuevo no enviado: '.$e->getMessage());
+            }
+        }
+
+        // Marca la campanita como "enviada por correo" cuando el admin recibió el aviso.
+        foreach ($recipients as $recipient) {
+            if ($recipient->email && in_array($recipient->email, $emails, true)) {
+                $notifications[$recipient->id]->update(['emailed_at' => now()]);
             }
         }
     }

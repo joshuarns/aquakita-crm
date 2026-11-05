@@ -22,6 +22,7 @@ class LeadForm extends Model
         return [
             'fields' => 'array',
             'allowed_domains' => 'array',
+            'notify_emails' => 'array',
             'active' => 'boolean',
         ];
     }

@@ -200,6 +200,30 @@ class LeadFormPublicTest extends TestCase
         Mail::assertNothingSent();
     }
 
+    public function test_form_notify_emails_override_recipients(): void
+    {
+        Mail::fake();
+        $this->seed(RolePermissionSeeder::class);
+        $admin = User::factory()->create(['active' => true]);
+        $admin->assignRole('administrador');
+
+        $form = LeadForm::factory()->create([
+            'notify_emails' => ['ventas@aquakita.com', 'gerente@aquakita.com'],
+        ]);
+
+        $this->post(route('public.forms.submit', $form->token), [
+            '_nonce' => $this->freshNonce(),
+            'first_name' => 'Ana',
+            'email' => 'ana@example.com',
+        ])->assertOk();
+
+        Mail::assertSent(LeadReceivedMail::class, fn ($m) => $m->hasTo('ventas@aquakita.com'));
+        Mail::assertSent(LeadReceivedMail::class, fn ($m) => $m->hasTo('gerente@aquakita.com'));
+        // El admin NO recibe el correo (el formulario lo sobreescribe), pero sí la campanita.
+        Mail::assertNotSent(LeadReceivedMail::class, fn ($m) => $m->hasTo($admin->email));
+        $this->assertDatabaseHas('lead_notifications', ['vendor_id' => $admin->id, 'type' => 'lead_recibido']);
+    }
+
     public function test_honeypot_blocks_submission(): void
     {
         $form = LeadForm::factory()->create();
