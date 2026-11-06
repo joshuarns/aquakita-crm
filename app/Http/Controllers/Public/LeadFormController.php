@@ -7,6 +7,7 @@ use App\Models\Lead;
 use App\Models\LeadForm;
 use App\Models\Status;
 use App\Support\LeadNotifier;
+use App\Support\Tenancy;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -295,7 +296,12 @@ class LeadFormController extends Controller
      */
     protected function resolveForm(string $token): LeadForm
     {
-        return LeadForm::where('token', $token)->where('active', true)->firstOrFail();
+        $form = LeadForm::where('token', $token)->where('active', true)->firstOrFail();
+
+        // Fija la empresa del formulario para que el lead y los avisos queden en ella.
+        app(Tenancy::class)->set($form->company_id);
+
+        return $form;
     }
 
     /**

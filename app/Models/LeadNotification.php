@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToCompany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /** Notificación al vendedor (§4.3). */
 class LeadNotification extends Model
 {
+    use BelongsToCompany;
+
     protected $guarded = ['id'];
 
     protected function casts(): array

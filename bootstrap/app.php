@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\SetCurrentCompany;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -27,6 +28,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // Se protegen con honeypot, límite por IP y validación de dominio.
         $middleware->validateCsrfTokens(except: [
             'f/*',
+        ]);
+
+        // Multi-tenant: fija la empresa activa según el usuario autenticado.
+        $middleware->web(append: [
+            SetCurrentCompany::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

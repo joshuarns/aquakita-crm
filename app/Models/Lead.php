@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToCompany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,6 +17,7 @@ use OwenIt\Auditing\Contracts\Auditable;
 class Lead extends Model implements Auditable
 {
     use AuditableTrait, HasFactory;
+    use BelongsToCompany;
 
     protected $guarded = ['id'];
 

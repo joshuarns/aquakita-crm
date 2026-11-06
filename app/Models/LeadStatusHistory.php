@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToCompany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /** Cambio de estatus (§5, §7). Registro inmutable. */
 class LeadStatusHistory extends Model
 {
+    use BelongsToCompany;
+
     protected $guarded = ['id'];
 
     public function lead(): BelongsTo

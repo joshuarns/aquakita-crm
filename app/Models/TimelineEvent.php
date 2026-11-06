@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToCompany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /** Evento de la línea de tiempo de la ficha (§5). */
 class TimelineEvent extends Model
 {
+    use BelongsToCompany;
+
     protected $guarded = ['id'];
 
     protected function casts(): array

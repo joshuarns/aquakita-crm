@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\BelongsToCompany;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /** Archivo adjunto de la ficha (§5). */
 class Attachment extends Model
 {
+    use BelongsToCompany;
+
     protected $guarded = ['id'];
 
     public function lead(): BelongsTo
