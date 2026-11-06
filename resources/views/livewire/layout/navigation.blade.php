@@ -34,7 +34,7 @@ new class extends Component
                         <x-nav-link :href="route('superadmin.companies')" :active="request()->routeIs('superadmin.*')" wire:navigate>
                             {{ __('Empresas') }}
                         </x-nav-link>
-                    @endif
+                    @else
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" wire:navigate>
                         {{ __('Dashboard') }}
                     </x-nav-link>
@@ -66,6 +66,7 @@ new class extends Component
                             {{ __('Configuración') }}
                         </x-nav-link>
                     @endcan
+                    @endif
                 </div>
             </div>
 

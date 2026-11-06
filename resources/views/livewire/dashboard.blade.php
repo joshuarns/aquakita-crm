@@ -10,6 +10,14 @@ use Livewire\Volt\Component;
 
 new #[Layout('layouts.app')] class extends Component
 {
+    public function mount()
+    {
+        // El super-admin no tiene empresa: va a la gestión de empresas.
+        if (auth()->user()->is_super_admin) {
+            return $this->redirectRoute('superadmin.companies', navigate: true);
+        }
+    }
+
     private function canViewAll(): bool
     {
         return auth()->user()->can('leads.view.all');
