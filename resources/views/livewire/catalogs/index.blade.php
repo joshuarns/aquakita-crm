@@ -19,6 +19,7 @@ new #[Layout('layouts.app')] class extends Component
             ['route' => 'catalogs.manage', 'param' => ['type' => 'countries'], 'title' => 'Países', 'desc' => 'Países de operación.'],
             ['route' => 'catalogs.cities', 'param' => [], 'title' => 'Ciudades', 'desc' => 'Ciudades por país.'],
             ['route' => 'catalogs.templates', 'param' => [], 'title' => 'Plantillas de correo', 'desc' => 'Textos de los avisos por correo.'],
+            ['route' => 'company.settings', 'param' => [], 'title' => 'Mi empresa', 'desc' => 'Logo, nombre y color de tu marca.'],
             ['route' => 'forms.index', 'param' => [], 'title' => 'Formularios web', 'desc' => 'Captura leads desde tu sitio web.'],
             ['route' => 'widgets.index', 'param' => [], 'title' => 'Widgets flotantes', 'desc' => 'Botón flotante + aviso por WhatsApp.'],
             ['route' => 'users.index', 'param' => [], 'title' => 'Usuarios', 'desc' => 'Alta, edición y permisos.'],

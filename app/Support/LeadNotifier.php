@@ -30,7 +30,7 @@ class LeadNotifier
             return;
         }
 
-        $negocio = config('app.name', 'Aquakita');
+        $negocio = $lead->company?->name ?? config('app.name', 'Aquakita');
         $template = EmailTemplate::where('key', 'confirmacion_cliente')->where('active', true)->first();
 
         $subject = $template?->subject ?? '¡Gracias por contactarnos! — {{negocio}}';
@@ -42,7 +42,7 @@ class LeadNotifier
         }
 
         try {
-            Mail::to($lead->email)->send(new LeadConfirmationMail($subject, $body));
+            Mail::to($lead->email)->send(new LeadConfirmationMail($subject, $body, $lead->company));
         } catch (\Throwable $e) {
             Log::warning('Correo de confirmación al cliente no enviado: '.$e->getMessage());
         }

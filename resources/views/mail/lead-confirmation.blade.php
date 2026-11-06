@@ -1,4 +1,4 @@
-@php($logo = $message->embedData(\App\Support\BrandLogo::bytes(), 'aquakita-logo.png', 'image/png'))
+@php($logo = $message->embedData(optional($company)->logoBytes() ?? \App\Support\BrandLogo::bytes(), 'logo.png', 'image/png'))
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -22,7 +22,7 @@
                     </tr>
                     <tr>
                         <td align="center" style="padding:18px 10px 6px;color:#9ca3af;font-size:12px;line-height:1.6;">
-                            {{ config('app.name', 'Aquakita') }}
+                            {{ optional($company)->name ?? config('app.name', 'Aquakita') }}
                         </td>
                     </tr>
                 </table>

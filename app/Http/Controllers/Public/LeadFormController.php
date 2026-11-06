@@ -108,10 +108,10 @@ class LeadFormController extends Controller
         $tk = $form->token;
         $src = route('public.forms.show', $tk);
         $color = $form->accent_color ?: '#0e7490';
-        $avatar = $form->launcher_avatar ?: route('brand.logo');
+        $avatar = $form->launcher_avatar ?: ($form->company?->logoUrl() ?? route('brand.logo'));
         $greet = addslashes($form->launcher_label ?: $t['greeting_default']);
         $side = $form->launcher_position === 'left' ? 'left' : 'right';
-        $title = addslashes(config('app.name', 'Aquakita'));
+        $title = addslashes($form->company?->name ?? config('app.name', 'Aquakita'));
         $name = addslashes($form->name);
         $online = addslashes($t['online']);
         $closeLabel = addslashes($t['close']);

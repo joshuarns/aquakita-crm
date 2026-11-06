@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\Public\LeadFormController;
+use App\Models\Company;
 use App\Support\BrandLogo;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
@@ -13,6 +14,12 @@ Route::get('brand/logo.png', fn () => response(BrandLogo::bytes(), 200, [
     'Content-Type' => 'image/png',
     'Cache-Control' => 'public, max-age=31536000, immutable',
 ]))->name('brand.logo');
+
+// Logo por empresa (propio o el de la plataforma por defecto).
+Route::get('c/{company}/logo.png', fn (Company $company) => response($company->logoBytes(), 200, [
+    'Content-Type' => 'image/png',
+    'Cache-Control' => 'public, max-age=3600',
+]))->name('company.logo');
 
 // Formularios web embebibles — endpoints públicos (sin autenticación).
 Route::get('f/{token}.js', [LeadFormController::class, 'script'])->whereAlphaNumeric('token')->name('public.forms.script');
@@ -65,6 +72,7 @@ Route::middleware(['auth'])->group(function () {
     // Catálogos de configuración (§3.2).
     Route::middleware('permission:catalogs.manage')->group(function () {
         Volt::route('configuracion', 'catalogs.index')->name('catalogs.index');
+        Volt::route('configuracion/empresa', 'catalogs.company')->name('company.settings');
         Volt::route('configuracion/ciudades', 'catalogs.cities')->name('catalogs.cities');
         Volt::route('configuracion/plantillas', 'catalogs.templates')->name('catalogs.templates');
         Volt::route('configuracion/catalogo/{type}', 'catalogs.manage')->name('catalogs.manage');

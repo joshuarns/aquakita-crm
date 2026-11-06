@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Models\Company;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -19,6 +20,7 @@ class LeadConfirmationMail extends Mailable
     public function __construct(
         public string $subjectLine,
         public string $body,
+        public ?Company $company = null,
     ) {}
 
     public function envelope(): Envelope
@@ -30,7 +32,10 @@ class LeadConfirmationMail extends Mailable
     {
         return new Content(
             view: 'mail.lead-confirmation',
-            with: ['body' => $this->body],
+            with: [
+                'body' => $this->body,
+                'company' => $this->company,
+            ],
         );
     }
 }

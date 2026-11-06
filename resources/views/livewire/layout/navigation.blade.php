@@ -24,7 +24,7 @@ new class extends Component
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}" wire:navigate>
-                        <img src="{{ route('brand.logo') }}" alt="Aquakita" class="block h-10 w-auto">
+                        <img src="{{ auth()->user()->company?->logoUrl() ?? route('brand.logo') }}" alt="{{ auth()->user()->company?->name ?? config('app.name') }}" class="block h-10 w-auto">
                     </a>
                 </div>
 
