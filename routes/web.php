@@ -29,6 +29,11 @@ Route::view('profile', 'profile')
     ->name('profile');
 
 // Gestión de leads (§3.3 captura, §4.1 bandeja, §4.2 panel del vendedor).
+// Plataforma (super-admin): alta y gestión de empresas.
+Volt::route('superadmin/empresas', 'superadmin.companies')
+    ->middleware(['auth', 'super_admin'])
+    ->name('superadmin.companies');
+
 Route::middleware(['auth'])->group(function () {
     Volt::route('panel', 'panel')->name('panel');
 
