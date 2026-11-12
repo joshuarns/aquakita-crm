@@ -76,4 +76,22 @@ class LeadFormEditTest extends TestCase
             'confirmation_body' => 'Te contactaremos pronto.',
         ]);
     }
+
+    public function test_admin_can_set_whatsapp_button(): void
+    {
+        $form = LeadForm::factory()->create();
+
+        Volt::actingAs($this->admin())
+            ->test('catalogs.form-edit', ['form' => $form])
+            ->set('whatsapp_number', '+52 55 9999 0000')
+            ->set('whatsapp_label', 'Enviar mis datos por WhatsApp')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('lead_forms', [
+            'id' => $form->id,
+            'whatsapp_number' => '+52 55 9999 0000',
+            'whatsapp_label' => 'Enviar mis datos por WhatsApp',
+        ]);
+    }
 }

@@ -148,6 +148,23 @@ class LeadFormPublicTest extends TestCase
             ->assertSee('https://wa.me/525512345678', escape: false);
     }
 
+    public function test_whatsapp_button_with_custom_label_on_embedded_form(): void
+    {
+        $form = LeadForm::factory()->create([
+            'whatsapp_number' => '+52 55 1234 5678',
+            'whatsapp_label' => 'Enviar mis datos por WhatsApp',
+        ]);
+
+        $this->post(route('public.forms.submit', $form->token), [
+            '_nonce' => $this->freshNonce(),
+            'first_name' => 'Ana',
+            'email' => 'ana@example.com',
+        ])
+            ->assertOk()
+            ->assertSee('Enviar mis datos por WhatsApp')
+            ->assertSee('https://wa.me/525512345678', escape: false);
+    }
+
     public function test_no_whatsapp_link_without_number(): void
     {
         $form = LeadForm::factory()->create(['whatsapp_number' => null]);
