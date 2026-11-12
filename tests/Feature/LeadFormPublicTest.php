@@ -4,11 +4,13 @@ namespace Tests\Feature;
 
 use App\Mail\LeadConfirmationMail;
 use App\Mail\LeadReceivedMail;
+use App\Models\Company;
 use App\Models\Lead;
 use App\Models\LeadForm;
 use App\Models\Source;
 use App\Models\Status;
 use App\Models\User;
+use App\Support\LeadNotifier;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Crypt;
@@ -214,6 +216,32 @@ class LeadFormPublicTest extends TestCase
                 && str_contains($mail->subjectLine, 'Recibido, Ana')
                 && str_contains($mail->body, 'gracias por escribir');
         });
+    }
+
+    public function test_confirmation_email_sends_when_lead_has_client_company(): void
+    {
+        // Regresión: la columna string `company` (empresa del cliente) ocultaba la
+        // relación company() del tenant y rompía el envío del correo de confirmación.
+        Mail::fake();
+
+        $company = Company::create([
+            'name' => 'Mi Empresa',
+            'slug' => 'mi-empresa-test',
+            'brand_color' => '#0e7490',
+            'timezone' => 'America/Mexico_City',
+            'locale' => 'es',
+            'active' => true,
+        ]);
+
+        $lead = Lead::factory()->create([
+            'company' => 'Addabra',
+            'company_id' => $company->id,
+            'email' => 'cliente@example.com',
+        ]);
+
+        app(LeadNotifier::class)->notifyClient($lead);
+
+        Mail::assertSent(LeadConfirmationMail::class, fn ($mail) => $mail->hasTo('cliente@example.com'));
     }
 
     public function test_no_confirmation_email_without_client_email(): void

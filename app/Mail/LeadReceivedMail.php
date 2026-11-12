@@ -28,7 +28,10 @@ class LeadReceivedMail extends Mailable
     {
         return new Content(
             view: 'mail.lead-received',
-            with: ['lead' => $this->lead->loadMissing(['country', 'projectType', 'source'])],
+            with: [
+                'lead' => $this->lead->loadMissing(['country', 'projectType', 'source']),
+                'company' => $this->lead->ownerCompany(),
+            ],
         );
     }
 }
