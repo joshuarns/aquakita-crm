@@ -48,6 +48,16 @@ class LeadFormPublicTest extends TestCase
             ->assertSee('Enviar');
     }
 
+    public function test_custom_submit_label_overrides_default(): void
+    {
+        $form = LeadForm::factory()->create(['submit_label' => 'Quiero información']);
+
+        $this->get(route('public.forms.show', $form->token))
+            ->assertOk()
+            ->assertSee('Quiero información')
+            ->assertDontSee('>Enviar<', escape: false);
+    }
+
     public function test_inactive_form_returns_404(): void
     {
         $form = LeadForm::factory()->inactive()->create();
