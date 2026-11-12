@@ -1,7 +1,7 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/aquakita
+    - export DEPLOYPATH=/home/proyectopublicit/crm.proyectopublicitario.com
     # --- Código de la aplicación ---
     - /bin/cp -R app config database resources routes $DEPLOYPATH/
     - /bin/cp bootstrap/app.php $DEPLOYPATH/bootstrap/app.php
