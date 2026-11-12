@@ -58,4 +58,22 @@ class LeadFormEditTest extends TestCase
             'submit_label' => null,
         ]);
     }
+
+    public function test_admin_can_customize_confirmation_email(): void
+    {
+        $form = LeadForm::factory()->create();
+
+        Volt::actingAs($this->admin())
+            ->test('catalogs.form-edit', ['form' => $form])
+            ->set('confirmation_subject', 'Gracias {{lead}}')
+            ->set('confirmation_body', 'Te contactaremos pronto.')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('lead_forms', [
+            'id' => $form->id,
+            'confirmation_subject' => 'Gracias {{lead}}',
+            'confirmation_body' => 'Te contactaremos pronto.',
+        ]);
+    }
 }

@@ -22,6 +22,8 @@ new #[Layout('layouts.app')] class extends Component
     public string $analytics_id = '';
     public string $accent_color = '#0e7490';
     public string $submit_label = '';
+    public string $confirmation_subject = '';
+    public string $confirmation_body = '';
     public bool $active = true;
 
     // Campos del widget flotante (solo aplican si display_mode = floating).
@@ -52,6 +54,8 @@ new #[Layout('layouts.app')] class extends Component
         $this->analytics_id = (string) $form->analytics_id;
         $this->accent_color = $form->accent_color ?: '#0e7490';
         $this->submit_label = (string) $form->submit_label;
+        $this->confirmation_subject = (string) $form->confirmation_subject;
+        $this->confirmation_body = (string) $form->confirmation_body;
         $this->active = $form->active;
 
         $this->launcher_label = (string) $form->launcher_label;
@@ -107,6 +111,8 @@ new #[Layout('layouts.app')] class extends Component
             'analytics_id' => ['nullable', 'string', 'max:40', 'regex:/^(G-|GT-|GTM-|AW-|UA-)[A-Z0-9-]+$/i'],
             'accent_color' => ['required', 'string', 'max:20'],
             'submit_label' => ['nullable', 'string', 'max:60'],
+            'confirmation_subject' => ['nullable', 'string', 'max:255'],
+            'confirmation_body' => ['nullable', 'string', 'max:2000'],
             'launcher_label' => ['nullable', 'string', 'max:60'],
             'launcher_icon' => ['nullable', 'string', 'max:8'],
             'launcher_avatar' => ['nullable', 'url', 'max:500'],
@@ -161,6 +167,8 @@ new #[Layout('layouts.app')] class extends Component
             'analytics_id' => trim($this->analytics_id) ?: null,
             'accent_color' => $this->accent_color,
             'submit_label' => $this->submit_label ?: null,
+            'confirmation_subject' => $this->confirmation_subject ?: null,
+            'confirmation_body' => $this->confirmation_body ?: null,
             'active' => $this->active,
             'launcher_label' => $this->launcher_label ?: null,
             'launcher_icon' => $this->launcher_icon ?: null,
@@ -299,6 +307,24 @@ new #[Layout('layouts.app')] class extends Component
                                class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
                         <p class="mt-1 text-xs text-gray-400">Vacío = usa el texto por idioma («{{ \App\Models\LeadForm::strings($locale)['submit'] }}»). Aplica al formulario y al widget flotante.</p>
                         @error('submit_label') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                    </div>
+                    <div class="border-t border-gray-100 pt-4">
+                        <h4 class="text-sm font-semibold text-gray-700">Correo de "gracias" al cliente</h4>
+                        <p class="text-xs text-gray-500">Se envía al cliente cuando llena el formulario (si dejó su correo). Vacío = usa la plantilla general de la empresa. Comodines: <code>@{{lead}}</code> (nombre) y <code>@{{negocio}}</code> (empresa).</p>
+                        <div class="mt-3">
+                            <label class="block text-sm font-medium text-gray-700">Asunto</label>
+                            <input type="text" wire:model="confirmation_subject" maxlength="255"
+                                   placeholder="¡Gracias por contactarnos! — @{{negocio}}"
+                                   class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
+                            @error('confirmation_subject') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                        </div>
+                        <div class="mt-3">
+                            <label class="block text-sm font-medium text-gray-700">Mensaje</label>
+                            <textarea wire:model="confirmation_body" rows="5" maxlength="2000"
+                                      placeholder="Hola @{{lead}},&#10;&#10;Gracias por contactarnos. Uno de nuestros asesores se pondrá en contacto contigo muy pronto.&#10;&#10;Saludos,&#10;Equipo @{{negocio}}"
+                                      class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]"></textarea>
+                            @error('confirmation_body') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                        </div>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Redirección tras enviar (opcional)</label>

@@ -31,10 +31,14 @@ class LeadNotifier
         }
 
         $negocio = $lead->company?->name ?? config('app.name', 'Aquakita');
+        $form = $lead->leadForm;
         $template = EmailTemplate::where('key', 'confirmacion_cliente')->where('active', true)->first();
 
-        $subject = $template?->subject ?? '¡Gracias por contactarnos! — {{negocio}}';
-        $body = $template?->body ?? "Hola {{lead}},\n\nRecibimos tu información correctamente. ¡Gracias por tu interés! Uno de nuestros asesores se pondrá en contacto contigo muy pronto para atenderte.\n\nSi tu consulta es urgente, puedes responder directamente a este correo.\n\nSaludos cordiales,\nEquipo {{negocio}}";
+        // Precedencia: mensaje propio del formulario → plantilla de la empresa → texto por defecto.
+        $subject = $form?->confirmation_subject
+            ?: ($template?->subject ?? '¡Gracias por contactarnos! — {{negocio}}');
+        $body = $form?->confirmation_body
+            ?: ($template?->body ?? "Hola {{lead}},\n\nRecibimos tu información correctamente. ¡Gracias por tu interés! Uno de nuestros asesores se pondrá en contacto contigo muy pronto para atenderte.\n\nSi tu consulta es urgente, puedes responder directamente a este correo.\n\nSaludos cordiales,\nEquipo {{negocio}}");
 
         foreach (['lead' => $lead->full_name, 'negocio' => $negocio] as $key => $value) {
             $subject = str_replace('{{'.$key.'}}', $value, $subject);
