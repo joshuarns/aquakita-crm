@@ -92,6 +92,16 @@ class Lead extends Model implements Auditable
         return $this->belongsTo(User::class, 'captured_by');
     }
 
+    /**
+     * Empresa dueña (tenant). Se resuelve por company_id porque la columna
+     * string `company` (empresa del cliente, campo del formulario) oculta el
+     * accesor mágico de la relación company() del trait multiempresa.
+     */
+    public function ownerCompany(): ?Company
+    {
+        return $this->company_id ? Company::find($this->company_id) : null;
+    }
+
     // ---- Historial y actividad ----
     public function activities(): HasMany
     {

@@ -1,4 +1,4 @@
-@php($logo = $message->embedData(optional($lead->company)->logoBytes() ?? \App\Support\BrandLogo::bytes(), 'logo.png', 'image/png'))
+@php($logo = $message->embedData(optional($company)->logoBytes() ?? \App\Support\BrandLogo::bytes(), 'logo.png', 'image/png'))
 @php($rows = array_filter([
     'Nombre' => $lead->full_name,
     'Empresa' => $lead->company,
