@@ -32,6 +32,7 @@ new #[Layout('layouts.app')] class extends Component
     public string $launcher_avatar = '';
     public string $launcher_position = 'right';
     public string $whatsapp_number = '';
+    public string $whatsapp_label = '';
 
     /**
      * Configuración de campos, indexada por clave para enlazar en la vista.
@@ -63,6 +64,7 @@ new #[Layout('layouts.app')] class extends Component
         $this->launcher_avatar = (string) $form->launcher_avatar;
         $this->launcher_position = $form->launcher_position ?: 'right';
         $this->whatsapp_number = (string) $form->whatsapp_number;
+        $this->whatsapp_label = (string) $form->whatsapp_label;
 
         $stored = collect($form->fields ?: LeadForm::defaultFields())->keyBy('key');
         foreach (LeadForm::availableFields() as $key => $meta) {
@@ -118,6 +120,7 @@ new #[Layout('layouts.app')] class extends Component
             'launcher_avatar' => ['nullable', 'url', 'max:500'],
             'launcher_position' => ['in:right,left'],
             'whatsapp_number' => ['nullable', 'string', 'max:25'],
+            'whatsapp_label' => ['nullable', 'string', 'max:60'],
         ]);
 
         $available = LeadForm::availableFields();
@@ -175,6 +178,7 @@ new #[Layout('layouts.app')] class extends Component
             'launcher_avatar' => $this->launcher_avatar ?: null,
             'launcher_position' => $this->launcher_position,
             'whatsapp_number' => $this->whatsapp_number ?: null,
+            'whatsapp_label' => $this->whatsapp_label ?: null,
         ]);
 
         session()->flash('status', $this->form->isFloating() ? 'Widget guardado.' : 'Formulario guardado.');
@@ -350,10 +354,35 @@ new #[Layout('layouts.app')] class extends Component
                     </div>
                 </div>
 
+                {{-- Botón de WhatsApp en la pantalla de "gracias" (todos los formularios) --}}
+                <div class="bg-white shadow-sm rounded-lg p-6 space-y-4">
+                    <div>
+                        <h3 class="font-semibold text-gray-800">Botón de WhatsApp al terminar</h3>
+                        <p class="text-xs text-gray-500">Al enviar, el cliente ve un botón que abre un chat de WhatsApp hacia tu número con sus datos ya escritos. Déjalo vacío para no mostrarlo.</p>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Número de WhatsApp</label>
+                            <input type="text" wire:model="whatsapp_number" placeholder="+52 1 55 1234 5678"
+                                   class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
+                            @error('whatsapp_number') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                            <p class="mt-1 text-xs text-gray-400">Con lada internacional (ej. +52...).</p>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Texto del botón</label>
+                            <input type="text" wire:model="whatsapp_label" maxlength="60"
+                                   placeholder="{{ \App\Models\LeadForm::strings($locale)['whatsapp'] }}"
+                                   class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
+                            @error('whatsapp_label') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                            <p class="mt-1 text-xs text-gray-400">Vacío = «{{ \App\Models\LeadForm::strings($locale)['whatsapp'] }}». Ej: «Enviar mis datos por WhatsApp».</p>
+                        </div>
+                    </div>
+                </div>
+
                 @if ($form->isFloating())
                     {{-- Ajustes del widget flotante --}}
                     <div class="bg-white shadow-sm rounded-lg p-6 space-y-4">
-                        <h3 class="font-semibold text-gray-800">Botón flotante y WhatsApp</h3>
+                        <h3 class="font-semibold text-gray-800">Botón flotante</h3>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700">Mensaje de saludo</label>
@@ -375,13 +404,6 @@ new #[Layout('layouts.app')] class extends Component
                                    class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
                             @error('launcher_avatar') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                             <p class="mt-1 text-xs text-gray-400">Foto de un asesor (recomendado, genera más confianza). Si lo dejas vacío, se usa el logo.</p>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Número de WhatsApp para avisos</label>
-                            <input type="text" wire:model="whatsapp_number" placeholder="+52 1 55 1234 5678"
-                                   class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
-                            @error('whatsapp_number') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                            <p class="mt-1 text-xs text-gray-400">Con lada internacional (ej. +52...). Al enviar, el cliente verá un botón «Continuar por WhatsApp» que abre un chat hacia este número con sus datos ya escritos. Gratis, sin configuración extra.</p>
                         </div>
                     </div>
                 @endif
