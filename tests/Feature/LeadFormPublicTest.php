@@ -195,6 +195,27 @@ class LeadFormPublicTest extends TestCase
         Mail::assertSent(LeadConfirmationMail::class, fn ($mail) => $mail->hasTo('ana@example.com'));
     }
 
+    public function test_form_custom_confirmation_message_is_used(): void
+    {
+        Mail::fake();
+        $form = LeadForm::factory()->create([
+            'confirmation_subject' => 'Recibido, {{lead}}',
+            'confirmation_body' => 'Hola {{lead}}, gracias por escribir. Pronto te contactamos.',
+        ]);
+
+        $this->post(route('public.forms.submit', $form->token), [
+            '_nonce' => $this->freshNonce(),
+            'first_name' => 'Ana',
+            'email' => 'ana@example.com',
+        ])->assertOk();
+
+        Mail::assertSent(LeadConfirmationMail::class, function ($mail) {
+            return $mail->hasTo('ana@example.com')
+                && str_contains($mail->subjectLine, 'Recibido, Ana')
+                && str_contains($mail->body, 'gracias por escribir');
+        });
+    }
+
     public function test_no_confirmation_email_without_client_email(): void
     {
         Mail::fake();
