@@ -21,6 +21,7 @@ new #[Layout('layouts.app')] class extends Component
     public string $notify_emails = '';
     public string $analytics_id = '';
     public string $accent_color = '#0e7490';
+    public string $submit_label = '';
     public bool $active = true;
 
     // Campos del widget flotante (solo aplican si display_mode = floating).
@@ -50,6 +51,7 @@ new #[Layout('layouts.app')] class extends Component
         $this->notify_emails = collect($form->notify_emails ?: [])->implode("\n");
         $this->analytics_id = (string) $form->analytics_id;
         $this->accent_color = $form->accent_color ?: '#0e7490';
+        $this->submit_label = (string) $form->submit_label;
         $this->active = $form->active;
 
         $this->launcher_label = (string) $form->launcher_label;
@@ -104,6 +106,7 @@ new #[Layout('layouts.app')] class extends Component
             'redirect_url' => ['nullable', 'url', 'max:255'],
             'analytics_id' => ['nullable', 'string', 'max:40', 'regex:/^(G-|GT-|GTM-|AW-|UA-)[A-Z0-9-]+$/i'],
             'accent_color' => ['required', 'string', 'max:20'],
+            'submit_label' => ['nullable', 'string', 'max:60'],
             'launcher_label' => ['nullable', 'string', 'max:60'],
             'launcher_icon' => ['nullable', 'string', 'max:8'],
             'launcher_avatar' => ['nullable', 'url', 'max:500'],
@@ -157,6 +160,7 @@ new #[Layout('layouts.app')] class extends Component
             'notify_emails' => $emails ?: null,
             'analytics_id' => trim($this->analytics_id) ?: null,
             'accent_color' => $this->accent_color,
+            'submit_label' => $this->submit_label ?: null,
             'active' => $this->active,
             'launcher_label' => $this->launcher_label ?: null,
             'launcher_icon' => $this->launcher_icon ?: null,
@@ -287,6 +291,14 @@ new #[Layout('layouts.app')] class extends Component
                         <label class="block text-sm font-medium text-gray-700">Mensaje de éxito</label>
                         <textarea wire:model="success_message" rows="2" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]"
                                   placeholder="¡Gracias! Te contactaremos pronto."></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">Texto del botón de envío</label>
+                        <input type="text" wire:model="submit_label" maxlength="60"
+                               placeholder="{{ \App\Models\LeadForm::strings($locale)['submit'] }}"
+                               class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
+                        <p class="mt-1 text-xs text-gray-400">Vacío = usa el texto por idioma («{{ \App\Models\LeadForm::strings($locale)['submit'] }}»). Aplica al formulario y al widget flotante.</p>
+                        @error('submit_label') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700">Redirección tras enviar (opcional)</label>

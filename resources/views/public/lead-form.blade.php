@@ -142,7 +142,7 @@
                     </div>
                 @endforeach
 
-                <button type="submit" class="aq-btn">{{ $t['submit'] }}</button>
+                <button type="submit" class="aq-btn">{{ $form->submit_label ?: $t['submit'] }}</button>
             </form>
         @endif
     </div>
