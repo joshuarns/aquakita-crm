@@ -73,8 +73,8 @@ new #[Layout('layouts.app')] class extends Component
         <div class="mb-6 flex items-center justify-between">
             <div>
                 <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#0891b2]">Plataforma</p>
-                <h2 class="text-2xl font-bold text-gray-900">Empresas</h2>
-                <p class="text-sm text-gray-500">Cada empresa tiene sus propios leads, usuarios y catálogos.</p>
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Empresas</h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Cada empresa tiene sus propios leads, usuarios y catálogos.</p>
             </div>
             <button wire:click="$toggle('showForm')"
                     class="rounded-lg bg-[#0e7490] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#155e75]">
@@ -87,33 +87,33 @@ new #[Layout('layouts.app')] class extends Component
         @endif
 
         @if ($showForm)
-            <form wire:submit="create" class="mb-6 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-                <h3 class="font-semibold text-gray-800">Nueva empresa</h3>
+            <form wire:submit="create" class="mb-6 card p-6 shadow-sm">
+                <h3 class="font-semibold text-slate-800 dark:text-slate-100">Nueva empresa</h3>
                 <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Nombre de la empresa</label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Nombre de la empresa</label>
                         <input type="text" wire:model="name" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
                         @error('name') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Color de marca</label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Color de marca</label>
                         <input type="color" wire:model="brand_color" class="mt-1 h-10 w-16 rounded border-gray-300">
                     </div>
                 </div>
-                <h4 class="mt-6 text-sm font-semibold text-gray-700">Administrador de la empresa</h4>
+                <h4 class="mt-6 text-sm font-semibold text-slate-700 dark:text-slate-300">Administrador de la empresa</h4>
                 <div class="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Nombre</label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Nombre</label>
                         <input type="text" wire:model="admin_name" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
                         @error('admin_name') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Correo</label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Correo</label>
                         <input type="email" wire:model="admin_email" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
                         @error('admin_email') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Contraseña</label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Contraseña</label>
                         <input type="text" wire:model="admin_password" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
                         @error('admin_password') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                     </div>
@@ -124,23 +124,23 @@ new #[Layout('layouts.app')] class extends Component
             </form>
         @endif
 
-        <div class="rounded-2xl border border-gray-100 bg-white shadow-sm overflow-hidden">
+        <div class="card shadow-sm overflow-hidden">
             @forelse ($this->companies() as $company)
-                <div class="flex items-center justify-between border-b border-gray-100 px-5 py-4 last:border-0">
+                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 px-5 py-4 last:border-0">
                     <div class="flex items-center gap-3">
                         <span class="h-8 w-8 rounded-lg" style="background: {{ $company->brand_color }}"></span>
                         <div>
-                            <p class="font-medium text-gray-900">{{ $company->name }}</p>
-                            <p class="text-sm text-gray-500">{{ $company->users_count }} usuarios · {{ $company->leads_count }} leads</p>
+                            <p class="font-medium text-slate-900 dark:text-slate-100">{{ $company->name }}</p>
+                            <p class="text-sm text-slate-500 dark:text-slate-400">{{ $company->users_count }} usuarios · {{ $company->leads_count }} leads</p>
                         </div>
                     </div>
                     <button wire:click="toggle({{ $company->id }})"
-                            class="rounded-full px-3 py-1 text-xs font-medium {{ $company->active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500' }}">
+                            class="rounded-full px-3 py-1 text-xs font-medium {{ $company->active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-slate-500 dark:text-slate-400' }}">
                         {{ $company->active ? 'Activa' : 'Inactiva' }}
                     </button>
                 </div>
             @empty
-                <div class="px-5 py-12 text-center text-gray-500">Aún no hay empresas.</div>
+                <div class="px-5 py-12 text-center text-slate-500 dark:text-slate-400">Aún no hay empresas.</div>
             @endforelse
         </div>
     </div>

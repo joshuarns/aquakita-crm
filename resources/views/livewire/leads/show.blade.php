@@ -265,20 +265,25 @@ new #[Layout('layouts.app')] class extends Component
     }
 }; ?>
 
-<div class="py-8" wire:key="lead-{{ $lead->id }}">
-    <div class="max-w-6xl mx-auto sm:px-6 lg:px-8">
-        <div class="mb-6 flex items-center justify-between">
-            <div>
-                <h2 class="text-xl font-semibold text-gray-800">{{ $lead->full_name }}</h2>
-                <p class="text-sm text-gray-500">{{ $lead->company ?: __('Sin empresa') }}</p>
+<div class="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8" wire:key="lead-{{ $lead->id }}">
+        <div class="mb-6 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <span class="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-brand-600 text-sm font-semibold text-white">
+                    {{ \Illuminate\Support\Str::of($lead->full_name)->explode(' ')->take(2)->map(fn ($w) => mb_substr($w, 0, 1))->implode('') ?: '?' }}
+                </span>
+                <div>
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white">{{ $lead->full_name }}</h2>
+                    <p class="text-sm text-muted">{{ $lead->company ?: __('Sin empresa') }}</p>
+                </div>
             </div>
-            <a href="{{ route('leads.index') }}" wire:navigate class="text-sm text-gray-600 hover:text-gray-900">
-                &larr; {{ __('Volver a la bandeja') }}
+            <a href="{{ route('leads.index') }}" wire:navigate class="btn-secondary btn-sm">
+                &larr; {{ __('Volver') }}
             </a>
         </div>
 
         @if (session('activity_status'))
-            <div class="mb-4 rounded-md border border-green-300 bg-green-50 p-3 text-sm text-green-800">
+            <div class="mb-4 flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300">
+                <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                 {{ session('activity_status') }}
             </div>
         @endif
@@ -287,66 +292,66 @@ new #[Layout('layouts.app')] class extends Component
             {{-- Columna izquierda: datos + acciones --}}
             <div class="lg:col-span-1 space-y-6">
                 {{-- Datos del prospecto (§5) --}}
-                <div class="bg-white shadow-sm sm:rounded-lg p-5 text-sm">
-                    <h3 class="font-semibold text-gray-700 mb-3">{{ __('Datos') }}</h3>
+                <div class="card p-5 text-sm">
+                    <h3 class="font-semibold text-slate-700 dark:text-slate-300 mb-3">{{ __('Datos') }}</h3>
                     <dl class="space-y-2">
-                        <div class="flex justify-between"><dt class="text-gray-500">{{ __('Correo') }}</dt><dd class="text-gray-900">{{ $lead->email ?: '—' }}</dd></div>
-                        <div class="flex justify-between"><dt class="text-gray-500">{{ __('Teléfono') }}</dt><dd class="text-gray-900">{{ $lead->phone ?: '—' }}</dd></div>
-                        <div class="flex justify-between"><dt class="text-gray-500">{{ __('País') }}</dt><dd class="text-gray-900">{{ $lead->country?->name ?: '—' }}</dd></div>
-                        <div class="flex justify-between"><dt class="text-gray-500">{{ __('Idioma') }}</dt><dd class="text-gray-900">{{ $lead->language?->name ?: '—' }}</dd></div>
-                        <div class="flex justify-between"><dt class="text-gray-500">{{ __('Fuente') }}</dt><dd class="text-gray-900">{{ $lead->source?->name ?: '—' }}</dd></div>
-                        <div class="flex justify-between"><dt class="text-gray-500">{{ __('Campaña') }}</dt><dd class="text-gray-900">{{ $lead->campaign?->name ?: '—' }}</dd></div>
-                        <div class="flex justify-between"><dt class="text-gray-500">{{ __('Tipo de proyecto') }}</dt><dd class="text-gray-900">{{ $lead->projectType?->name ?: '—' }}</dd></div>
-                        <div class="flex justify-between"><dt class="text-gray-500">{{ __('Vendedor') }}</dt><dd class="text-gray-900">{{ $lead->vendor?->name ?: '—' }}</dd></div>
+                        <div class="flex justify-between"><dt class="text-slate-500 dark:text-slate-400">{{ __('Correo') }}</dt><dd class="text-slate-900 dark:text-slate-100">{{ $lead->email ?: '—' }}</dd></div>
+                        <div class="flex justify-between"><dt class="text-slate-500 dark:text-slate-400">{{ __('Teléfono') }}</dt><dd class="text-slate-900 dark:text-slate-100">{{ $lead->phone ?: '—' }}</dd></div>
+                        <div class="flex justify-between"><dt class="text-slate-500 dark:text-slate-400">{{ __('País') }}</dt><dd class="text-slate-900 dark:text-slate-100">{{ $lead->country?->name ?: '—' }}</dd></div>
+                        <div class="flex justify-between"><dt class="text-slate-500 dark:text-slate-400">{{ __('Idioma') }}</dt><dd class="text-slate-900 dark:text-slate-100">{{ $lead->language?->name ?: '—' }}</dd></div>
+                        <div class="flex justify-between"><dt class="text-slate-500 dark:text-slate-400">{{ __('Fuente') }}</dt><dd class="text-slate-900 dark:text-slate-100">{{ $lead->source?->name ?: '—' }}</dd></div>
+                        <div class="flex justify-between"><dt class="text-slate-500 dark:text-slate-400">{{ __('Campaña') }}</dt><dd class="text-slate-900 dark:text-slate-100">{{ $lead->campaign?->name ?: '—' }}</dd></div>
+                        <div class="flex justify-between"><dt class="text-slate-500 dark:text-slate-400">{{ __('Tipo de proyecto') }}</dt><dd class="text-slate-900 dark:text-slate-100">{{ $lead->projectType?->name ?: '—' }}</dd></div>
+                        <div class="flex justify-between"><dt class="text-slate-500 dark:text-slate-400">{{ __('Vendedor') }}</dt><dd class="text-slate-900 dark:text-slate-100">{{ $lead->vendor?->name ?: '—' }}</dd></div>
                     </dl>
                     @if ($lead->description)
-                        <p class="mt-3 pt-3 border-t border-gray-100 text-gray-600">{{ $lead->description }}</p>
+                        <p class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-slate-600 dark:text-slate-300">{{ $lead->description }}</p>
                     @endif
                 </div>
 
                 {{-- Estatus actual y próximo seguimiento --}}
-                <div class="bg-white shadow-sm sm:rounded-lg p-5 text-sm">
+                <div class="card p-5 text-sm">
                     <div class="flex items-center justify-between">
-                        <span class="text-gray-500">{{ __('Estatus') }}</span>
-                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-50 text-indigo-700">
+                        <span class="text-slate-500 dark:text-slate-400">{{ __('Estatus') }}</span>
+                        <span class="badge-brand">
                             {{ $lead->status?->name }}
                         </span>
                     </div>
                     @if ($lead->next_follow_up_at)
                         <div class="mt-2 flex items-center justify-between">
-                            <span class="text-gray-500">{{ __('Próximo seguimiento') }}</span>
-                            <span class="text-gray-900">{{ $lead->next_follow_up_at->format('d/m/Y H:i') }}</span>
+                            <span class="text-slate-500 dark:text-slate-400">{{ __('Próximo seguimiento') }}</span>
+                            <span class="text-slate-900 dark:text-slate-100">{{ $lead->next_follow_up_at->format('d/m/Y H:i') }}</span>
                         </div>
                     @endif
                 </div>
 
                 {{-- Archivos adjuntos (§5) --}}
-                <div class="bg-white shadow-sm sm:rounded-lg p-5">
-                    <h3 class="font-semibold text-gray-700 mb-3 text-sm">{{ __('Archivos adjuntos') }}</h3>
+                <div class="card p-5">
+                    <h3 class="font-semibold text-slate-700 dark:text-slate-300 mb-3 text-sm">{{ __('Archivos adjuntos') }}</h3>
 
                     <ul class="space-y-2 mb-3">
                         @forelse ($this->attachments as $attachment)
                             <li class="flex items-center justify-between gap-2 text-sm">
                                 <a href="{{ route('leads.attachments.download', [$lead, $attachment]) }}"
-                                   class="text-indigo-600 hover:text-indigo-800 truncate">
+                                   class="truncate text-brand-600 hover:text-brand-700 dark:text-brand-400">
                                     {{ $attachment->original_name }}
                                 </a>
                                 @can('manage', $lead)
                                     <button wire:click="deleteAttachment({{ $attachment->id }})"
                                             wire:confirm="{{ __('¿Eliminar este archivo?') }}"
-                                            class="text-xs text-gray-400 hover:text-red-600 shrink-0">✕</button>
+                                            class="text-xs text-slate-400 dark:text-slate-500 hover:text-red-600 shrink-0">✕</button>
                                 @endcan
                             </li>
                         @empty
-                            <li class="text-sm text-gray-500">{{ __('Sin archivos.') }}</li>
+                            <li class="text-sm text-slate-500 dark:text-slate-400">{{ __('Sin archivos.') }}</li>
                         @endforelse
                     </ul>
 
                     @can('manage', $lead)
-                        <form wire:submit="addAttachment" class="border-t border-gray-100 pt-3">
-                            <input type="file" wire:model="upload" class="block w-full text-xs text-gray-600 file:mr-2 file:rounded file:border-0 file:bg-gray-800 file:px-3 file:py-1 file:text-white" />
+                        <form wire:submit="addAttachment" class="border-t border-slate-100 dark:border-slate-800 pt-3">
+                            <input type="file" wire:model="upload" class="block w-full text-xs text-slate-600 dark:text-slate-300 file:mr-2 file:rounded file:border-0 file:bg-gray-800 file:px-3 file:py-1 file:text-white" />
                             <x-input-error :messages="$errors->get('upload')" class="mt-1" />
-                            <div wire:loading wire:target="upload" class="text-xs text-gray-500 mt-1">{{ __('Subiendo…') }}</div>
+                            <div wire:loading wire:target="upload" class="text-xs text-slate-500 dark:text-slate-400 mt-1">{{ __('Subiendo…') }}</div>
                             @if ($upload)
                                 <x-primary-button class="mt-2">{{ __('Adjuntar') }}</x-primary-button>
                             @endif
@@ -356,10 +361,10 @@ new #[Layout('layouts.app')] class extends Component
 
                 {{-- Cambio de estatus (§7, §10) --}}
                 @can('manage', $lead)
-                    <div class="bg-white shadow-sm sm:rounded-lg p-5">
-                        <h3 class="font-semibold text-gray-700 mb-3 text-sm">{{ __('Cambiar estatus') }}</h3>
+                    <div class="card p-5">
+                        <h3 class="font-semibold text-slate-700 dark:text-slate-300 mb-3 text-sm">{{ __('Cambiar estatus') }}</h3>
                         <form wire:submit="changeStatus" class="space-y-3">
-                            <select wire:model.live="new_status_id" class="block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
+                            <select wire:model.live="new_status_id" class="select text-sm">
                                 @foreach ($this->statuses as $status)
                                     <option value="{{ $status->id }}">{{ $status->name }}</option>
                                 @endforeach
@@ -368,7 +373,7 @@ new #[Layout('layouts.app')] class extends Component
                             @php($selected = $this->statuses->firstWhere('id', $new_status_id))
                             @if ($selected && $selected->is_final && ! $selected->is_won)
                                 <div>
-                                    <select wire:model="discard_reason_id" class="block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
+                                    <select wire:model="discard_reason_id" class="select text-sm">
                                         <option value="">{{ __('— Motivo de descarte —') }}</option>
                                         @foreach ($this->discardReasons as $reason)
                                             <option value="{{ $reason->id }}">{{ $reason->name }}</option>
@@ -386,7 +391,7 @@ new #[Layout('layouts.app')] class extends Component
                             @endif
 
                             <div>
-                                <textarea wire:model="status_comment" rows="2" placeholder="{{ __('Comentario') }}" class="block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm"></textarea>
+                                <textarea wire:model="status_comment" rows="2" placeholder="{{ __('Comentario') }}" class="select text-sm"></textarea>
                                 <x-input-error :messages="$errors->get('status_comment')" class="mt-1" />
                             </div>
 
@@ -400,13 +405,13 @@ new #[Layout('layouts.app')] class extends Component
             <div class="lg:col-span-2 space-y-6">
                 {{-- Registrar actividad (§6) --}}
                 @can('manage', $lead)
-                    <div class="bg-white shadow-sm sm:rounded-lg p-5">
-                        <h3 class="font-semibold text-gray-700 mb-3 text-sm">{{ __('Registrar actividad') }}</h3>
+                    <div class="card p-5">
+                        <h3 class="font-semibold text-slate-700 dark:text-slate-300 mb-3 text-sm">{{ __('Registrar actividad') }}</h3>
                         <form wire:submit="addActivity" class="space-y-3">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
                                     <x-input-label for="type" :value="__('Tipo de contacto')" />
-                                    <select wire:model="type" id="type" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
+                                    <select wire:model="type" id="type" class="select mt-1 text-sm">
                                         @foreach ($this->activityTypes() as $key => $label)
                                             <option value="{{ $key }}">{{ $label }}</option>
                                         @endforeach
@@ -419,7 +424,7 @@ new #[Layout('layouts.app')] class extends Component
                             </div>
                             <div>
                                 <x-input-label for="comment" :value="__('Comentario *')" />
-                                <textarea wire:model="comment" id="comment" rows="2" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm"></textarea>
+                                <textarea wire:model="comment" id="comment" rows="2" class="select mt-1 text-sm"></textarea>
                                 <x-input-error :messages="$errors->get('comment')" class="mt-1" />
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -438,33 +443,32 @@ new #[Layout('layouts.app')] class extends Component
                 @endcan
 
                 {{-- Línea de tiempo completa (§5) --}}
-                <div class="bg-white shadow-sm sm:rounded-lg p-5">
-                    <h3 class="font-semibold text-gray-700 mb-4 text-sm">{{ __('Línea de tiempo') }}</h3>
-                    <ol class="relative border-s border-gray-200 ms-3 space-y-6">
+                <div class="card p-5">
+                    <h3 class="font-semibold text-slate-700 dark:text-slate-300 mb-4 text-sm">{{ __('Línea de tiempo') }}</h3>
+                    <ol class="relative ms-3 space-y-6 border-s border-slate-200 dark:border-slate-700">
                         @forelse ($this->timeline as $event)
                             <li class="ms-6">
-                                <span class="absolute -start-2.5 flex h-5 w-5 items-center justify-center rounded-full bg-indigo-100 ring-4 ring-white"></span>
+                                <span class="absolute -start-2.5 flex h-5 w-5 items-center justify-center rounded-full bg-brand-100 ring-4 ring-white dark:bg-brand-900 dark:ring-slate-900"></span>
                                 <div class="flex items-center justify-between">
-                                    <p class="text-sm font-medium text-gray-800">{{ $event->description ?: $event->type }}</p>
-                                    <time class="text-xs text-gray-400">{{ $event->created_at->format('d/m/Y H:i') }}</time>
+                                    <p class="text-sm font-medium text-slate-800 dark:text-slate-100">{{ $event->description ?: $event->type }}</p>
+                                    <time class="text-xs text-slate-400 dark:text-slate-500">{{ $event->created_at->format('d/m/Y H:i') }}</time>
                                 </div>
                                 @if ($event->data)
-                                    <p class="text-xs text-gray-500 mt-1">
+                                    <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
                                         @foreach ($event->data as $k => $v)
                                             <span class="mr-2">{{ $k }}: <strong>{{ is_bool($v) ? ($v ? 'sí' : 'no') : $v }}</strong></span>
                                         @endforeach
                                     </p>
                                 @endif
                                 @if ($event->user)
-                                    <p class="text-xs text-gray-400 mt-0.5">{{ $event->user->name }}</p>
+                                    <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{{ $event->user->name }}</p>
                                 @endif
                             </li>
                         @empty
-                            <li class="ms-6 text-sm text-gray-500">{{ __('Sin eventos todavía.') }}</li>
+                            <li class="ms-6 text-sm text-slate-500 dark:text-slate-400">{{ __('Sin eventos todavía.') }}</li>
                         @endforelse
                     </ol>
                 </div>
             </div>
         </div>
     </div>
-</div>

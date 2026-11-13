@@ -108,8 +108,8 @@ new #[Layout('layouts.app')] class extends Component
 <div class="py-8">
     <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
         <div class="mb-6 flex items-center justify-between">
-            <h2 class="text-xl font-semibold text-gray-800">{{ __('Usuarios') }}</h2>
-            <a href="{{ route('catalogs.index') }}" wire:navigate class="text-sm text-gray-600 hover:text-gray-900">
+            <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100">{{ __('Usuarios') }}</h2>
+            <a href="{{ route('catalogs.index') }}" wire:navigate class="text-sm text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:text-slate-100">
                 &larr; {{ __('Configuración') }}
             </a>
         </div>
@@ -118,8 +118,8 @@ new #[Layout('layouts.app')] class extends Component
             <div class="mb-4 rounded-md border border-green-300 bg-green-50 p-3 text-sm text-green-800">{{ session('user_status') }}</div>
         @endif
 
-        <form wire:submit="save" class="bg-white shadow-sm sm:rounded-lg p-5 mb-6">
-            <p class="text-sm font-semibold text-gray-700 mb-3">{{ $editingId ? __('Editar usuario') : __('Nuevo usuario') }}</p>
+        <form wire:submit="save" class="card p-5 mb-6">
+            <p class="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">{{ $editingId ? __('Editar usuario') : __('Nuevo usuario') }}</p>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <x-input-label :value="__('Nombre')" />
@@ -150,15 +150,15 @@ new #[Layout('layouts.app')] class extends Component
             <div class="flex gap-2 mt-4">
                 <x-primary-button>{{ $editingId ? __('Guardar') : __('Crear usuario') }}</x-primary-button>
                 @if ($editingId)
-                    <button type="button" wire:click="cancel" class="text-sm text-gray-600 hover:text-gray-900 px-3">{{ __('Cancelar') }}</button>
+                    <button type="button" wire:click="cancel" class="text-sm text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:text-slate-100 px-3">{{ __('Cancelar') }}</button>
                 @endif
             </div>
         </form>
 
-        <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200 text-sm">
-                <thead class="bg-gray-50">
-                    <tr class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        <div class="card overflow-hidden">
+            <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700 text-sm">
+                <thead class="surface-muted">
+                    <tr class="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                         <th class="px-4 py-3">{{ __('Nombre') }}</th>
                         <th class="px-4 py-3">{{ __('Correo') }}</th>
                         <th class="px-4 py-3">{{ __('Rol') }}</th>
@@ -166,21 +166,21 @@ new #[Layout('layouts.app')] class extends Component
                         <th class="px-4 py-3 text-right">{{ __('Acciones') }}</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100">
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                     @foreach ($this->users as $user)
-                        <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-3 text-gray-900">{{ $user->name }}</td>
-                            <td class="px-4 py-3 text-gray-700">{{ $user->email }}</td>
-                            <td class="px-4 py-3 text-gray-700">{{ ucfirst($user->roles->first()?->name ?? '—') }}</td>
+                        <tr class="hover:bg-slate-100 dark:hover:bg-slate-800/50">
+                            <td class="px-4 py-3 text-slate-900 dark:text-slate-100">{{ $user->name }}</td>
+                            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">{{ $user->email }}</td>
+                            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">{{ ucfirst($user->roles->first()?->name ?? '—') }}</td>
                             <td class="px-4 py-3">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {{ $user->active ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500' }}">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {{ $user->active ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-slate-500 dark:text-slate-400' }}">
                                     {{ $user->active ? __('Activo') : __('Inactivo') }}
                                 </span>
                             </td>
                             <td class="px-4 py-3 text-right whitespace-nowrap">
                                 <button wire:click="edit({{ $user->id }})" class="text-indigo-600 hover:text-indigo-800 text-xs">{{ __('Editar') }}</button>
                                 @if ($user->id !== auth()->id())
-                                    <button wire:click="toggle({{ $user->id }})" class="text-gray-600 hover:text-gray-900 text-xs ml-3">
+                                    <button wire:click="toggle({{ $user->id }})" class="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:text-slate-100 text-xs ml-3">
                                         {{ $user->active ? __('Desactivar') : __('Activar') }}
                                     </button>
                                 @endif

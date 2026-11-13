@@ -119,29 +119,29 @@ new #[Layout('layouts.app')] class extends Component
 
         <div class="mb-6">
             <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#0891b2]">Supervisión</p>
-            <h2 class="mt-1 text-2xl font-bold text-gray-900">Panel de equipo</h2>
-            <p class="text-sm text-gray-500">Carga, pendientes y respuestas de clientes por vendedor.</p>
+            <h2 class="mt-1 text-2xl font-bold text-slate-900 dark:text-slate-100">Panel de equipo</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Carga, pendientes y respuestas de clientes por vendedor.</p>
         </div>
 
         {{-- Selector de vendedores --}}
         @php($vendors = $this->vendors())
         @if ($vendors->isEmpty())
-            <div class="rounded-2xl border border-gray-100 bg-white p-8 text-center text-gray-500 shadow-sm">
+            <div class="card p-8 text-center text-slate-500 dark:text-slate-400 shadow-sm">
                 No hay vendedores activos todavía.
             </div>
         @else
             <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
                 @foreach ($vendors as $v)
                     <button wire:click="$set('vendorId', {{ $v['id'] }})"
-                            class="rounded-2xl border p-4 text-left transition {{ $vendorId === $v['id'] ? 'border-[#0e7490] bg-[#0e7490]/5 ring-1 ring-[#0e7490]' : 'border-gray-100 bg-white hover:border-gray-200' }} shadow-sm">
+                            class="rounded-2xl border p-4 text-left transition {{ $vendorId === $v['id'] ? 'border-[#0e7490] bg-[#0e7490]/5 ring-1 ring-[#0e7490]' : 'border-slate-100 dark:border-slate-800 bg-white hover:border-slate-200 dark:border-slate-700' }} shadow-sm">
                         <div class="flex items-center gap-2">
                             <span class="flex h-8 w-8 items-center justify-center rounded-full bg-[#0e7490] text-xs font-semibold text-white">
                                 {{ Str::of($v['name'])->explode(' ')->take(2)->map(fn ($w) => Str::substr($w, 0, 1))->implode('') }}
                             </span>
-                            <span class="truncate text-sm font-semibold text-gray-800">{{ $v['name'] }}</span>
+                            <span class="truncate text-sm font-semibold text-slate-800 dark:text-slate-100">{{ $v['name'] }}</span>
                         </div>
                         <div class="mt-3 flex items-center gap-3 text-xs">
-                            <span class="text-gray-500">{{ $v['asignados'] }} activos</span>
+                            <span class="text-slate-500 dark:text-slate-400">{{ $v['asignados'] }} activos</span>
                             @if ($v['vencidos'] > 0)
                                 <span class="rounded-full bg-rose-50 px-2 py-0.5 font-semibold text-rose-600">{{ $v['vencidos'] }} vencidos</span>
                             @elseif ($v['pendientes'] > 0)
@@ -165,79 +165,79 @@ new #[Layout('layouts.app')] class extends Component
                         ['Pendientes hoy/vencidos', $s['pendientes'], 'seguimientos por hacer'],
                         ['Ventas cerradas', $s['ventas'], 'ganados'],
                     ] as [$label, $value, $hint])
-                        <div class="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
-                            <p class="text-3xl font-bold text-gray-900">{{ $value }}</p>
-                            <p class="mt-1 text-sm font-medium text-gray-600">{{ $label }}</p>
-                            <p class="text-xs text-gray-400">{{ $hint }}</p>
+                        <div class="card p-5 shadow-sm">
+                            <p class="text-3xl font-bold text-slate-900 dark:text-slate-100">{{ $value }}</p>
+                            <p class="mt-1 text-sm font-medium text-slate-600 dark:text-slate-300">{{ $label }}</p>
+                            <p class="text-xs text-slate-400 dark:text-slate-500">{{ $hint }}</p>
                         </div>
                     @endforeach
                 </div>
 
                 <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
                     {{-- Leads asignados --}}
-                    <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-                        <h3 class="font-semibold text-gray-800">Leads asignados</h3>
-                        <p class="text-xs text-gray-400">Lo que se le asignó</p>
-                        <div class="mt-3 divide-y divide-gray-100">
+                    <div class="card p-6 shadow-sm">
+                        <h3 class="font-semibold text-slate-800 dark:text-slate-100">Leads asignados</h3>
+                        <p class="text-xs text-slate-400 dark:text-slate-500">Lo que se le asignó</p>
+                        <div class="mt-3 divide-y divide-slate-100 dark:divide-slate-800">
                             @forelse ($this->assignedLeads() as $lead)
-                                <a href="{{ route('leads.show', $lead) }}" wire:navigate class="flex items-center justify-between gap-2 py-2.5 hover:bg-gray-50">
+                                <a href="{{ route('leads.show', $lead) }}" wire:navigate class="flex items-center justify-between gap-2 py-2.5 hover:bg-slate-100 dark:hover:bg-slate-800/50">
                                     <div class="min-w-0">
-                                        <p class="truncate text-sm font-medium text-gray-900">{{ $lead->full_name }}</p>
-                                        <p class="truncate text-xs text-gray-400">{{ $lead->source?->name ?? 'Sin origen' }}</p>
+                                        <p class="truncate text-sm font-medium text-slate-900 dark:text-slate-100">{{ $lead->full_name }}</p>
+                                        <p class="truncate text-xs text-slate-400 dark:text-slate-500">{{ $lead->source?->name ?? 'Sin origen' }}</p>
                                     </div>
                                     <span class="shrink-0 rounded-full bg-[#0891b2]/10 px-2 py-0.5 text-xs font-medium text-[#0e7490]">{{ $lead->status->name }}</span>
                                 </a>
                             @empty
-                                <p class="py-6 text-center text-sm text-gray-400">Sin leads asignados.</p>
+                                <p class="py-6 text-center text-sm text-slate-400 dark:text-slate-500">Sin leads asignados.</p>
                             @endforelse
                         </div>
                     </div>
 
                     {{-- Pendientes --}}
-                    <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-                        <h3 class="font-semibold text-gray-800">Actividades pendientes</h3>
-                        <p class="text-xs text-gray-400">Por hacer (hoy y vencidas)</p>
-                        <div class="mt-3 divide-y divide-gray-100">
+                    <div class="card p-6 shadow-sm">
+                        <h3 class="font-semibold text-slate-800 dark:text-slate-100">Actividades pendientes</h3>
+                        <p class="text-xs text-slate-400 dark:text-slate-500">Por hacer (hoy y vencidas)</p>
+                        <div class="mt-3 divide-y divide-slate-100 dark:divide-slate-800">
                             @forelse ($this->pendingActivities() as $act)
                                 @php($vencida = $act->follow_up_at->isPast() && ! $act->follow_up_at->isToday())
-                                <a href="{{ route('leads.show', $act->lead) }}" wire:navigate class="block py-2.5 hover:bg-gray-50">
+                                <a href="{{ route('leads.show', $act->lead) }}" wire:navigate class="block py-2.5 hover:bg-slate-100 dark:hover:bg-slate-800/50">
                                     <div class="flex items-center justify-between gap-2">
-                                        <p class="truncate text-sm font-medium text-gray-900">{{ $act->lead->full_name }}</p>
+                                        <p class="truncate text-sm font-medium text-slate-900 dark:text-slate-100">{{ $act->lead->full_name }}</p>
                                         <span class="shrink-0 text-xs font-medium {{ $vencida ? 'text-rose-600' : 'text-amber-600' }}">
                                             {{ $act->follow_up_at->isToday() ? 'Hoy' : $act->follow_up_at->translatedFormat('d/m') }}
                                         </span>
                                     </div>
-                                    <p class="truncate text-xs text-gray-500">
+                                    <p class="truncate text-xs text-slate-500 dark:text-slate-400">
                                         {{ $this->typeLabels()[$act->type] ?? $act->type }}{{ $act->next_action ? ' · '.$act->next_action : '' }}
                                     </p>
                                 </a>
                             @empty
-                                <p class="py-6 text-center text-sm text-gray-400">Sin pendientes. 🎉</p>
+                                <p class="py-6 text-center text-sm text-slate-400 dark:text-slate-500">Sin pendientes. 🎉</p>
                             @endforelse
                         </div>
                     </div>
 
                     {{-- Actividad reciente / respuestas --}}
-                    <div class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-                        <h3 class="font-semibold text-gray-800">Respuestas y actividad</h3>
-                        <p class="text-xs text-gray-400">Últimas interacciones con clientes</p>
+                    <div class="card p-6 shadow-sm">
+                        <h3 class="font-semibold text-slate-800 dark:text-slate-100">Respuestas y actividad</h3>
+                        <p class="text-xs text-slate-400 dark:text-slate-500">Últimas interacciones con clientes</p>
                         <div class="mt-3 space-y-3">
                             @forelse ($this->recentActivities() as $act)
-                                <div class="border-b border-gray-100 pb-3 last:border-0">
+                                <div class="border-b border-slate-100 dark:border-slate-800 pb-3 last:border-0">
                                     <div class="flex items-center justify-between gap-2">
-                                        <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">{{ $this->typeLabels()[$act->type] ?? $act->type }}</span>
-                                        <span class="text-xs text-gray-400">{{ $act->created_at->diffForHumans() }}</span>
+                                        <span class="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:text-slate-300">{{ $this->typeLabels()[$act->type] ?? $act->type }}</span>
+                                        <span class="text-xs text-slate-400 dark:text-slate-500">{{ $act->created_at->diffForHumans() }}</span>
                                     </div>
-                                    <p class="mt-1 truncate text-sm font-medium text-gray-800">{{ $act->lead->full_name }}</p>
+                                    <p class="mt-1 truncate text-sm font-medium text-slate-800 dark:text-slate-100">{{ $act->lead->full_name }}</p>
                                     @if ($act->result)
-                                        <p class="text-xs text-gray-500"><span class="font-medium text-gray-600">Respuesta:</span> {{ $act->result }}</p>
+                                        <p class="text-xs text-slate-500 dark:text-slate-400"><span class="font-medium text-slate-600 dark:text-slate-300">Respuesta:</span> {{ $act->result }}</p>
                                     @endif
                                     @if ($act->comment)
-                                        <p class="line-clamp-2 text-xs text-gray-500">{{ $act->comment }}</p>
+                                        <p class="line-clamp-2 text-xs text-slate-500 dark:text-slate-400">{{ $act->comment }}</p>
                                     @endif
                                 </div>
                             @empty
-                                <p class="py-6 text-center text-sm text-gray-400">Sin actividad registrada.</p>
+                                <p class="py-6 text-center text-sm text-slate-400 dark:text-slate-500">Sin actividad registrada.</p>
                             @endforelse
                         </div>
                     </div>

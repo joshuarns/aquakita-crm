@@ -161,14 +161,14 @@ new #[Layout('layouts.app')] class extends Component
 <div class="py-8">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-3">
-            <h2 class="text-xl font-semibold text-gray-800">{{ __('Panel administrativo') }}</h2>
+            <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100">{{ __('Panel administrativo') }}</h2>
             <div class="flex items-end gap-2">
                 <div>
-                    <label class="block text-xs text-gray-500">{{ __('Desde') }}</label>
+                    <label class="block text-xs text-slate-500 dark:text-slate-400">{{ __('Desde') }}</label>
                     <x-text-input wire:model.live="from" type="date" class="text-sm" />
                 </div>
                 <div>
-                    <label class="block text-xs text-gray-500">{{ __('Hasta') }}</label>
+                    <label class="block text-xs text-slate-500 dark:text-slate-400">{{ __('Hasta') }}</label>
                     <x-text-input wire:model.live="to" type="date" class="text-sm" />
                 </div>
             </div>
@@ -190,9 +190,9 @@ new #[Layout('layouts.app')] class extends Component
                 $tone = ['amber' => 'text-amber-600', 'red' => 'text-red-600', 'green' => 'text-green-600'];
             @endphp
             @foreach ($cards as [$label, $value, $color])
-                <div class="bg-white shadow-sm rounded-lg p-5">
-                    <p class="text-3xl font-semibold {{ $color ? $tone[$color] : 'text-gray-900' }}">{{ $value }}</p>
-                    <p class="text-sm text-gray-500 mt-1">{{ __($label) }}</p>
+                <div class="card p-5">
+                    <p class="text-3xl font-semibold {{ $color ? $tone[$color] : 'text-slate-900 dark:text-slate-100' }}">{{ $value }}</p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">{{ __($label) }}</p>
                 </div>
             @endforeach
         </div>
@@ -219,28 +219,28 @@ new #[Layout('layouts.app')] class extends Component
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {{-- Volumen por fuente (§8) --}}
-            <div class="bg-white shadow-sm rounded-lg p-5">
-                <h3 class="font-semibold text-gray-700 mb-4 text-sm">{{ __('Volumen por fuente') }}</h3>
+            <div class="card p-5">
+                <h3 class="font-semibold text-slate-700 dark:text-slate-300 mb-4 text-sm">{{ __('Volumen por fuente') }}</h3>
                 <ul class="space-y-2 text-sm">
                     @forelse ($this->bySource as $row)
                         <li class="flex items-center justify-between">
-                            <span class="text-gray-700">{{ $row->name }}</span>
-                            <span class="font-medium text-gray-900">{{ $row->total }}</span>
+                            <span class="text-slate-700 dark:text-slate-300">{{ $row->name }}</span>
+                            <span class="font-medium text-slate-900 dark:text-slate-100">{{ $row->total }}</span>
                         </li>
                     @empty
-                        <li class="text-gray-500">{{ __('Sin datos en el periodo.') }}</li>
+                        <li class="text-slate-500 dark:text-slate-400">{{ __('Sin datos en el periodo.') }}</li>
                     @endforelse
                 </ul>
             </div>
 
             {{-- Distribución por estatus (§8 resultados) --}}
-            <div class="bg-white shadow-sm rounded-lg p-5">
-                <h3 class="font-semibold text-gray-700 mb-4 text-sm">{{ __('Leads por estatus') }}</h3>
+            <div class="card p-5">
+                <h3 class="font-semibold text-slate-700 dark:text-slate-300 mb-4 text-sm">{{ __('Leads por estatus') }}</h3>
                 <ul class="space-y-2 text-sm">
                     @foreach ($this->byStatus as $row)
                         <li class="flex items-center justify-between">
-                            <span class="text-gray-700">{{ $row->name }}</span>
-                            <span class="font-medium text-gray-900">{{ $row->total }}</span>
+                            <span class="text-slate-700 dark:text-slate-300">{{ $row->name }}</span>
+                            <span class="font-medium text-slate-900 dark:text-slate-100">{{ $row->total }}</span>
                         </li>
                     @endforeach
                 </ul>
@@ -248,28 +248,28 @@ new #[Layout('layouts.app')] class extends Component
         </div>
 
         {{-- Desempeño por vendedor (§8) --}}
-        <div class="bg-white shadow-sm rounded-lg p-5 mt-6">
-            <h3 class="font-semibold text-gray-700 mb-4 text-sm">{{ __('Desempeño por vendedor') }}</h3>
+        <div class="card p-5 mt-6">
+            <h3 class="font-semibold text-slate-700 dark:text-slate-300 mb-4 text-sm">{{ __('Desempeño por vendedor') }}</h3>
             <div class="overflow-x-auto">
                 <table class="min-w-full text-sm">
                     <thead>
-                        <tr class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider border-b border-gray-100">
+                        <tr class="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider border-b border-slate-100 dark:border-slate-800">
                             <th class="py-2 pr-4">{{ __('Vendedor') }}</th>
                             <th class="py-2 pr-4">{{ __('Asignados') }}</th>
                             <th class="py-2 pr-4">{{ __('Ventas') }}</th>
                             <th class="py-2">{{ __('Conversión') }}</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100">
+                    <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                         @forelse ($this->byVendor as $row)
                             <tr>
-                                <td class="py-2 pr-4 text-gray-900">{{ $row->name }}</td>
-                                <td class="py-2 pr-4 text-gray-700">{{ $row->asignados }}</td>
-                                <td class="py-2 pr-4 text-gray-700">{{ $row->ventas }}</td>
-                                <td class="py-2 text-gray-700">{{ $row->conversion }}%</td>
+                                <td class="py-2 pr-4 text-slate-900 dark:text-slate-100">{{ $row->name }}</td>
+                                <td class="py-2 pr-4 text-slate-700 dark:text-slate-300">{{ $row->asignados }}</td>
+                                <td class="py-2 pr-4 text-slate-700 dark:text-slate-300">{{ $row->ventas }}</td>
+                                <td class="py-2 text-slate-700 dark:text-slate-300">{{ $row->conversion }}%</td>
                             </tr>
                         @empty
-                            <tr><td colspan="4" class="py-3 text-gray-500">{{ __('No hay vendedores.') }}</td></tr>
+                            <tr><td colspan="4" class="py-3 text-slate-500 dark:text-slate-400">{{ __('No hay vendedores.') }}</td></tr>
                         @endforelse
                     </tbody>
                 </table>

@@ -141,42 +141,54 @@ new #[Layout('layouts.app')] class extends Component
     }
 }; ?>
 
-<div class="py-8">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <div class="mb-6 flex items-center justify-between">
-            <h2 class="text-xl font-semibold text-gray-800">{{ __('Bandeja de leads') }}</h2>
-            @can('leads.capture')
-                <a href="{{ route('leads.create') }}" wire:navigate
-                   class="inline-flex items-center px-4 py-2 bg-gray-800 text-white text-xs font-semibold uppercase tracking-widest rounded-md hover:bg-gray-700">
-                    {{ __('Capturar lead') }}
-                </a>
-            @endcan
+@php
+    $avatarPalette = ['bg-brand-600', 'bg-indigo-500', 'bg-emerald-500', 'bg-amber-500', 'bg-rose-500', 'bg-sky-500'];
+    $statusBadge = fn ($s) => $s?->is_won ? 'badge-success' : ($s?->is_final ? 'badge-neutral' : 'badge-brand');
+@endphp
+
+<div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div>
+            <p class="eyebrow">Cartera</p>
+            <h2 class="mt-1 text-2xl font-bold text-slate-900 dark:text-white">{{ __('Bandeja de leads') }}</h2>
+            <p class="text-sm text-muted">{{ $this->leads->total() }} {{ Str::plural('lead', $this->leads->total()) }} en total</p>
         </div>
+        @can('leads.capture')
+            <a href="{{ route('leads.create') }}" wire:navigate class="btn-primary">
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+                {{ __('Capturar lead') }}
+            </a>
+        @endcan
+    </div>
 
-        @if (session('status'))
-            <div class="mb-4 rounded-md border border-green-300 bg-green-50 p-3 text-sm text-green-800">
-                {{ session('status') }}
-            </div>
-        @endif
+    @if (session('status'))
+        <div class="mb-4 flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300">
+            <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            {{ session('status') }}
+        </div>
+    @endif
 
-        {{-- Búsqueda y filtros (§4.1) --}}
-        <div class="mb-4 flex flex-col sm:flex-row gap-3">
+    {{-- Búsqueda y filtros (§4.1) --}}
+    <div class="mb-4 flex flex-col gap-3 sm:flex-row">
+        <div class="relative w-full sm:max-w-md">
+            <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.3-4.3M11 18a7 7 0 100-14 7 7 0 000 14z"/></svg>
             <input type="text" wire:model.live.debounce.400ms="search"
                    placeholder="{{ __('Buscar por nombre, empresa, correo o teléfono') }}"
-                   class="w-full sm:max-w-md border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm" />
-            <select wire:model.live="statusFilter"
-                    class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
-                <option value="">{{ __('Todos los estatus') }}</option>
-                @foreach ($this->statuses as $status)
-                    <option value="{{ $status->id }}">{{ $status->name }}</option>
-                @endforeach
-            </select>
+                   class="input pl-9" />
         </div>
+        <select wire:model.live="statusFilter" class="select sm:w-56">
+            <option value="">{{ __('Todos los estatus') }}</option>
+            @foreach ($this->statuses as $status)
+                <option value="{{ $status->id }}">{{ $status->name }}</option>
+            @endforeach
+        </select>
+    </div>
 
-        <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200 text-sm">
-                <thead class="bg-gray-50">
-                    <tr class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+    <div class="card overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200 text-sm dark:divide-slate-800">
+                <thead class="surface-muted">
+                    <tr class="text-left text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                         <th class="px-4 py-3">{{ __('Prospecto') }}</th>
                         <th class="px-4 py-3">{{ __('Empresa') }}</th>
                         <th class="px-4 py-3">{{ __('País / Fuente') }}</th>
@@ -190,30 +202,34 @@ new #[Layout('layouts.app')] class extends Component
                         @endrole
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100">
-                    @forelse ($this->leads as $lead)
-                        <tr class="hover:bg-gray-50">
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
+                    @forelse ($this->leads as $i => $lead)
+                        <tr class="transition hover:bg-slate-50 dark:hover:bg-slate-800/50">
                             <td class="px-4 py-3">
-                                <a href="{{ route('leads.show', $lead) }}" wire:navigate class="font-medium text-indigo-600 hover:text-indigo-800">
-                                    {{ $lead->full_name }}
-                                </a>
-                                <div class="text-xs text-gray-500">{{ $lead->email ?: $lead->phone }}</div>
+                                <div class="flex items-center gap-3">
+                                    <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full text-xs font-semibold text-white {{ $avatarPalette[$i % count($avatarPalette)] }}">
+                                        {{ Str::of($lead->full_name)->explode(' ')->take(2)->map(fn ($w) => Str::substr($w, 0, 1))->implode('') ?: '?' }}
+                                    </span>
+                                    <div class="min-w-0">
+                                        <a href="{{ route('leads.show', $lead) }}" wire:navigate class="font-medium text-slate-900 hover:text-brand-700 dark:text-slate-100 dark:hover:text-brand-400">
+                                            {{ $lead->full_name }}
+                                        </a>
+                                        <div class="truncate text-xs text-slate-500 dark:text-slate-400">{{ $lead->email ?: $lead->phone ?: '—' }}</div>
+                                    </div>
+                                </div>
                             </td>
-                            <td class="px-4 py-3 text-gray-700">{{ $lead->company ?: '—' }}</td>
-                            <td class="px-4 py-3 text-gray-700">
+                            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">{{ $lead->company ?: '—' }}</td>
+                            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
                                 {{ $lead->country?->name ?: '—' }}
-                                <div class="text-xs text-gray-500">{{ $lead->source?->name }}</div>
+                                <div class="text-xs text-slate-500 dark:text-slate-400">{{ $lead->source?->name }}</div>
                             </td>
                             <td class="px-4 py-3">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-50 text-indigo-700">
-                                    {{ $lead->status?->name }}
-                                </span>
+                                <span class="{{ $statusBadge($lead->status) }}">{{ $lead->status?->name }}</span>
                             </td>
-                            <td class="px-4 py-3 text-gray-700">{{ $lead->vendor?->name ?: '—' }}</td>
+                            <td class="px-4 py-3 text-slate-700 dark:text-slate-300">{{ $lead->vendor?->name ?: '—' }}</td>
                             @can('leads.assign')
                                 <td class="px-4 py-3">
-                                    <select wire:change="assign({{ $lead->id }}, $event.target.value)"
-                                            class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-xs">
+                                    <select wire:change="assign({{ $lead->id }}, $event.target.value)" class="select text-xs">
                                         <option value="">{{ __('— Asignar —') }}</option>
                                         @foreach ($this->vendors as $vendor)
                                             <option value="{{ $vendor->id }}" @selected($lead->vendor_id === $vendor->id)>
@@ -227,25 +243,26 @@ new #[Layout('layouts.app')] class extends Component
                                 <td class="px-4 py-3 text-right">
                                     <button wire:click="deleteLead({{ $lead->id }})"
                                             wire:confirm="¿Eliminar a «{{ $lead->full_name }}»? Esta acción no se puede deshacer: borra también su historial, actividades y adjuntos."
-                                            class="text-sm font-medium text-red-600 hover:text-red-800">
-                                        {{ __('Eliminar') }}
+                                            class="btn-danger-ghost btn-sm" title="{{ __('Eliminar') }}">
+                                        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 7h12M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m-7 0v12a1 1 0 001 1h6a1 1 0 001-1V7"/></svg>
                                     </button>
                                 </td>
                             @endcan
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-4 py-8 text-center text-gray-500">
-                                {{ __('No hay leads que coincidan.') }}
+                            <td colspan="7" class="px-4 py-16 text-center">
+                                <svg class="mx-auto h-10 w-10 text-slate-300 dark:text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2h7M16 3v4M8 3v4M4 11h16"/></svg>
+                                <p class="mt-3 text-sm text-muted">{{ __('No hay leads que coincidan.') }}</p>
                             </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
+    </div>
 
-        <div class="mt-4">
-            {{ $this->leads->links() }}
-        </div>
+    <div class="mt-4">
+        {{ $this->leads->links() }}
     </div>
 </div>

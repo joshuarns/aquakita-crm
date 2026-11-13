@@ -92,7 +92,7 @@ new #[Layout('layouts.app')] class extends Component
 
 <div class="py-8">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-        <h2 class="text-xl font-semibold text-gray-800 mb-6">{{ __('Mi panel') }}</h2>
+        <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-6">{{ __('Mi panel') }}</h2>
 
         @if (session('panel_status'))
             <div class="mb-4 rounded-md border border-green-300 bg-green-50 p-3 text-sm text-green-800">
@@ -102,41 +102,41 @@ new #[Layout('layouts.app')] class extends Component
 
         {{-- Indicadores (§4.2) --}}
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <div class="bg-white shadow-sm rounded-lg p-5">
-                <p class="text-3xl font-semibold text-gray-900">{{ $this->stats['sin_contactar'] }}</p>
-                <p class="text-sm text-gray-500 mt-1">{{ __('Sin contactar') }}</p>
+            <div class="card p-5">
+                <p class="text-3xl font-semibold text-slate-900 dark:text-slate-100">{{ $this->stats['sin_contactar'] }}</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">{{ __('Sin contactar') }}</p>
             </div>
-            <div class="bg-white shadow-sm rounded-lg p-5">
-                <p class="text-3xl font-semibold text-gray-900">{{ $this->stats['en_seguimiento'] }}</p>
-                <p class="text-sm text-gray-500 mt-1">{{ __('En seguimiento') }}</p>
+            <div class="card p-5">
+                <p class="text-3xl font-semibold text-slate-900 dark:text-slate-100">{{ $this->stats['en_seguimiento'] }}</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">{{ __('En seguimiento') }}</p>
             </div>
-            <div class="bg-white shadow-sm rounded-lg p-5 {{ $this->stats['vencidos'] > 0 ? 'ring-1 ring-red-200' : '' }}">
-                <p class="text-3xl font-semibold {{ $this->stats['vencidos'] > 0 ? 'text-red-600' : 'text-gray-900' }}">{{ $this->stats['vencidos'] }}</p>
-                <p class="text-sm text-gray-500 mt-1">{{ __('Seguimientos vencidos') }}</p>
+            <div class="card p-5 {{ $this->stats['vencidos'] > 0 ? 'ring-1 ring-red-200' : '' }}">
+                <p class="text-3xl font-semibold {{ $this->stats['vencidos'] > 0 ? 'text-red-600' : 'text-slate-900 dark:text-slate-100' }}">{{ $this->stats['vencidos'] }}</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">{{ __('Seguimientos vencidos') }}</p>
             </div>
-            <div class="bg-white shadow-sm rounded-lg p-5">
-                <p class="text-3xl font-semibold text-gray-900">{{ $this->stats['ventas'] }}</p>
-                <p class="text-sm text-gray-500 mt-1">{{ __('Ventas cerradas') }}</p>
+            <div class="card p-5">
+                <p class="text-3xl font-semibold text-slate-900 dark:text-slate-100">{{ $this->stats['ventas'] }}</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">{{ __('Ventas cerradas') }}</p>
             </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {{-- Seguimientos vencidos (§6) --}}
-            <div class="bg-white shadow-sm rounded-lg p-5">
-                <h3 class="font-semibold text-gray-700 mb-4 text-sm flex items-center gap-2">
+            <div class="card p-5">
+                <h3 class="font-semibold text-slate-700 dark:text-slate-300 mb-4 text-sm flex items-center gap-2">
                     {{ __('Seguimientos vencidos') }}
                     @if ($this->overdue->isNotEmpty())
                         <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">{{ $this->overdue->count() }}</span>
                     @endif
                 </h3>
-                <ul class="divide-y divide-gray-100">
+                <ul class="divide-y divide-slate-100 dark:divide-slate-800">
                     @forelse ($this->overdue as $activity)
                         <li class="py-3 flex items-center justify-between gap-3">
                             <div class="min-w-0">
                                 <a href="{{ route('leads.show', $activity->lead) }}" wire:navigate class="text-sm font-medium text-indigo-600 hover:text-indigo-800">
                                     {{ $activity->lead->full_name }}
                                 </a>
-                                <p class="text-xs text-gray-500 truncate">
+                                <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
                                     {{ \App\Models\Activity::TYPES[$activity->type] ?? $activity->type }} ·
                                     {{ __('venció') }} {{ $activity->follow_up_at->format('d/m/Y H:i') }}
                                 </p>
@@ -147,22 +147,22 @@ new #[Layout('layouts.app')] class extends Component
                             </button>
                         </li>
                     @empty
-                        <li class="py-3 text-sm text-gray-500">{{ __('Sin seguimientos vencidos.') }}</li>
+                        <li class="py-3 text-sm text-slate-500 dark:text-slate-400">{{ __('Sin seguimientos vencidos.') }}</li>
                     @endforelse
                 </ul>
             </div>
 
             {{-- Agenda del día (§4.2) --}}
-            <div class="bg-white shadow-sm rounded-lg p-5">
-                <h3 class="font-semibold text-gray-700 mb-4 text-sm">{{ __('Agenda de hoy') }}</h3>
-                <ul class="divide-y divide-gray-100">
+            <div class="card p-5">
+                <h3 class="font-semibold text-slate-700 dark:text-slate-300 mb-4 text-sm">{{ __('Agenda de hoy') }}</h3>
+                <ul class="divide-y divide-slate-100 dark:divide-slate-800">
                     @forelse ($this->agenda as $activity)
                         <li class="py-3 flex items-center justify-between gap-3">
                             <div class="min-w-0">
                                 <a href="{{ route('leads.show', $activity->lead) }}" wire:navigate class="text-sm font-medium text-indigo-600 hover:text-indigo-800">
                                     {{ $activity->lead->full_name }}
                                 </a>
-                                <p class="text-xs text-gray-500 truncate">
+                                <p class="text-xs text-slate-500 dark:text-slate-400 truncate">
                                     {{ \App\Models\Activity::TYPES[$activity->type] ?? $activity->type }} ·
                                     {{ $activity->follow_up_at->format('H:i') }}
                                 </p>
@@ -173,28 +173,28 @@ new #[Layout('layouts.app')] class extends Component
                             </button>
                         </li>
                     @empty
-                        <li class="py-3 text-sm text-gray-500">{{ __('Nada agendado para hoy.') }}</li>
+                        <li class="py-3 text-sm text-slate-500 dark:text-slate-400">{{ __('Nada agendado para hoy.') }}</li>
                     @endforelse
                 </ul>
             </div>
         </div>
 
         {{-- Mis leads (§4.2 acceso a la ficha) --}}
-        <div class="bg-white shadow-sm rounded-lg p-5 mt-6">
-            <h3 class="font-semibold text-gray-700 mb-4 text-sm">{{ __('Mis leads') }}</h3>
-            <ul class="divide-y divide-gray-100">
+        <div class="card p-5 mt-6">
+            <h3 class="font-semibold text-slate-700 dark:text-slate-300 mb-4 text-sm">{{ __('Mis leads') }}</h3>
+            <ul class="divide-y divide-slate-100 dark:divide-slate-800">
                 @forelse ($this->recentLeads as $lead)
                     <li class="py-3 flex items-center justify-between">
                         <a href="{{ route('leads.show', $lead) }}" wire:navigate class="text-sm font-medium text-indigo-600 hover:text-indigo-800">
                             {{ $lead->full_name }}
-                            <span class="text-gray-500 font-normal">· {{ $lead->company ?: '—' }}</span>
+                            <span class="text-slate-500 dark:text-slate-400 font-normal">· {{ $lead->company ?: '—' }}</span>
                         </a>
                         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-indigo-50 text-indigo-700">
                             {{ $lead->status?->name }}
                         </span>
                     </li>
                 @empty
-                    <li class="py-3 text-sm text-gray-500">{{ __('Aún no tienes leads asignados.') }}</li>
+                    <li class="py-3 text-sm text-slate-500 dark:text-slate-400">{{ __('Aún no tienes leads asignados.') }}</li>
                 @endforelse
             </ul>
         </div>

@@ -49,7 +49,7 @@ new class extends Component
 }; ?>
 
 <div class="relative" x-data="{ open: false }" wire:poll.30s>
-    <button @click="open = ! open" class="relative inline-flex items-center p-2 text-gray-500 hover:text-gray-700 focus:outline-none">
+    <button @click="open = ! open" class="relative inline-flex items-center rounded-lg p-2 text-slate-300 hover:bg-white/10 hover:text-white focus:outline-none">
         <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -63,8 +63,8 @@ new class extends Component
 
     <div x-show="open" @click.outside="open = false" x-cloak
          class="absolute end-0 mt-2 w-80 bg-white rounded-md shadow-lg ring-1 ring-black/5 z-50">
-        <div class="flex items-center justify-between px-4 py-2 border-b border-gray-100">
-            <span class="text-sm font-semibold text-gray-700">{{ __('Notificaciones') }}</span>
+        <div class="flex items-center justify-between px-4 py-2 border-b border-slate-100 dark:border-slate-800">
+            <span class="text-sm font-semibold text-slate-700 dark:text-slate-300">{{ __('Notificaciones') }}</span>
             @if ($this->unreadCount > 0)
                 <button wire:click="markAllRead" class="text-xs text-indigo-600 hover:text-indigo-800">
                     {{ __('Marcar todas leídas') }}
@@ -74,13 +74,13 @@ new class extends Component
         <ul class="max-h-80 overflow-y-auto divide-y divide-gray-50">
             @forelse ($this->unread as $notification)
                 <li>
-                    <button wire:click="open({{ $notification->id }})" class="w-full text-left px-4 py-3 hover:bg-gray-50">
-                        <p class="text-sm text-gray-800">{{ $notification->message }}</p>
-                        <p class="text-xs text-gray-400 mt-0.5">{{ $notification->created_at->diffForHumans() }}</p>
+                    <button wire:click="open({{ $notification->id }})" class="w-full text-left px-4 py-3 hover:bg-slate-100 dark:hover:bg-slate-800/50">
+                        <p class="text-sm text-slate-800 dark:text-slate-100">{{ $notification->message }}</p>
+                        <p class="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{{ $notification->created_at->diffForHumans() }}</p>
                     </button>
                 </li>
             @empty
-                <li class="px-4 py-6 text-center text-sm text-gray-500">{{ __('Sin notificaciones nuevas.') }}</li>
+                <li class="px-4 py-6 text-center text-sm text-slate-500 dark:text-slate-400">{{ __('Sin notificaciones nuevas.') }}</li>
             @endforelse
         </ul>
     </div>

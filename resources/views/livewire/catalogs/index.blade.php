@@ -29,14 +29,14 @@ new #[Layout('layouts.app')] class extends Component
 
 <div class="py-8">
     <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
-        <h2 class="text-xl font-semibold text-gray-800 mb-6">{{ __('Configuración') }}</h2>
+        <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-6">{{ __('Configuración') }}</h2>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             @foreach ($this->sections() as $section)
                 <a href="{{ route($section['route'], $section['param']) }}" wire:navigate
-                   class="block bg-white shadow-sm rounded-lg p-5 hover:shadow-md transition">
-                    <p class="font-semibold text-gray-800">{{ $section['title'] }}</p>
-                    <p class="text-sm text-gray-500 mt-1">{{ $section['desc'] }}</p>
+                   class="block card p-5 hover:shadow-md transition">
+                    <p class="font-semibold text-slate-800 dark:text-slate-100">{{ $section['title'] }}</p>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">{{ $section['desc'] }}</p>
                 </a>
             @endforeach
         </div>
