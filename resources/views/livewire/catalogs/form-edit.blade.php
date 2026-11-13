@@ -208,9 +208,9 @@ new #[Layout('layouts.app')] class extends Component
 <div class="py-8" x-data="{ copied: null, copy(text, id) { navigator.clipboard.writeText(text).then(() => { this.copied = id; setTimeout(() => this.copied = null, 1500); }); } }">
     <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
         @if ($form->isFloating())
-            <a href="{{ route('widgets.index') }}" wire:navigate class="text-sm text-gray-500 hover:text-gray-700">&larr; Widgets flotantes</a>
+            <a href="{{ route('widgets.index') }}" wire:navigate class="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-300">&larr; Widgets flotantes</a>
         @else
-            <a href="{{ route('forms.index') }}" wire:navigate class="text-sm text-gray-500 hover:text-gray-700">&larr; Formularios web</a>
+            <a href="{{ route('forms.index') }}" wire:navigate class="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-300">&larr; Formularios web</a>
         @endif
 
         @if (session('status'))
@@ -220,15 +220,15 @@ new #[Layout('layouts.app')] class extends Component
         <div class="mt-3 grid grid-cols-1 lg:grid-cols-3 gap-6">
             {{-- Configuración --}}
             <form wire:submit="save" class="lg:col-span-2 space-y-6">
-                <div class="bg-white shadow-sm rounded-lg p-6 space-y-4">
+                <div class="card p-6 space-y-4">
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div class="sm:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700">Nombre del formulario</label>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Nombre del formulario</label>
                             <input type="text" wire:model="name" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
                             @error('name') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Idioma</label>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Idioma</label>
                             <select wire:model="locale" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
                                 @foreach (\App\Models\LeadForm::availableLocales() as $code => $label)
                                     <option value="{{ $code }}">{{ $label }}</option>
@@ -239,7 +239,7 @@ new #[Layout('layouts.app')] class extends Component
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Origen (Source)</label>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Origen (Source)</label>
                             <select wire:model="source_id" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
                                 <option value="">— Sin origen —</option>
                                 @foreach ($this->sources() as $source)
@@ -248,7 +248,7 @@ new #[Layout('layouts.app')] class extends Component
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Campaña</label>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Campaña</label>
                             <select wire:model="campaign_id" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
                                 <option value="">— Sin campaña —</option>
                                 @foreach ($this->campaigns() as $campaign)
@@ -260,11 +260,11 @@ new #[Layout('layouts.app')] class extends Component
                 </div>
 
                 {{-- Campos --}}
-                <div class="bg-white shadow-sm rounded-lg p-6">
-                    <h3 class="font-semibold text-gray-800">Campos del formulario</h3>
-                    <p class="text-sm text-gray-500 mb-4">Activa los campos, márcalos como obligatorios y personaliza su etiqueta.</p>
+                <div class="card p-6">
+                    <h3 class="font-semibold text-slate-800 dark:text-slate-100">Campos del formulario</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Activa los campos, márcalos como obligatorios y personaliza su etiqueta.</p>
                     <div class="space-y-2">
-                        <div class="hidden sm:grid grid-cols-12 gap-2 text-xs font-medium text-gray-400 px-1">
+                        <div class="hidden sm:grid grid-cols-12 gap-2 text-xs font-medium text-slate-400 dark:text-slate-500 px-1">
                             <span class="col-span-2">Activo</span>
                             <span class="col-span-6">Etiqueta</span>
                             <span class="col-span-4">Obligatorio</span>
@@ -275,7 +275,7 @@ new #[Layout('layouts.app')] class extends Component
                             'country_id' => '📍', 'description' => '💬',
                         ])
                         @foreach ($this->availableFields() as $key => $meta)
-                            <div class="grid grid-cols-12 gap-2 items-center rounded-lg border border-gray-100 px-3 py-2">
+                            <div class="grid grid-cols-12 gap-2 items-center rounded-lg border border-slate-100 dark:border-slate-800 px-3 py-2">
                                 <div class="col-span-2">
                                     <input type="checkbox" wire:model="fields.{{ $key }}.enabled"
                                            @disabled(! empty($meta['locked']))
@@ -284,13 +284,13 @@ new #[Layout('layouts.app')] class extends Component
                                 <div class="col-span-6">
                                     <input type="text" wire:model="fields.{{ $key }}.label"
                                            class="block w-full rounded-md border-gray-300 text-sm focus:border-[#0e7490] focus:ring-[#0e7490]">
-                                    <p class="mt-1 text-xs text-gray-400">{{ $fieldIcons[$key] ?? '🔤' }} {{ $meta['label'] }}</p>
+                                    <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">{{ $fieldIcons[$key] ?? '🔤' }} {{ $meta['label'] }}</p>
                                 </div>
                                 <div class="col-span-4 flex items-center gap-2">
                                     <input type="checkbox" wire:model="fields.{{ $key }}.required"
                                            @disabled(! empty($meta['locked']))
                                            class="rounded border-gray-300 text-[#0e7490] focus:ring-[#0e7490]">
-                                    <span class="text-xs text-gray-500">Obligatorio</span>
+                                    <span class="text-xs text-slate-500 dark:text-slate-400">Obligatorio</span>
                                 </div>
                             </div>
                         @endforeach
@@ -298,32 +298,32 @@ new #[Layout('layouts.app')] class extends Component
                 </div>
 
                 {{-- Comportamiento --}}
-                <div class="bg-white shadow-sm rounded-lg p-6 space-y-4">
+                <div class="card p-6 space-y-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Mensaje de éxito</label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Mensaje de éxito</label>
                         <textarea wire:model="success_message" rows="2" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]"
                                   placeholder="¡Gracias! Te contactaremos pronto."></textarea>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Texto del botón de envío</label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Texto del botón de envío</label>
                         <input type="text" wire:model="submit_label" maxlength="60"
                                placeholder="{{ \App\Models\LeadForm::strings($locale)['submit'] }}"
                                class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
-                        <p class="mt-1 text-xs text-gray-400">Vacío = usa el texto por idioma («{{ \App\Models\LeadForm::strings($locale)['submit'] }}»). Aplica al formulario y al widget flotante.</p>
+                        <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">Vacío = usa el texto por idioma («{{ \App\Models\LeadForm::strings($locale)['submit'] }}»). Aplica al formulario y al widget flotante.</p>
                         @error('submit_label') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                     </div>
-                    <div class="border-t border-gray-100 pt-4">
-                        <h4 class="text-sm font-semibold text-gray-700">Correo de "gracias" al cliente</h4>
-                        <p class="text-xs text-gray-500">Se envía al cliente cuando llena el formulario (si dejó su correo). Vacío = usa la plantilla general de la empresa. Comodines: <code>@{{lead}}</code> (nombre) y <code>@{{negocio}}</code> (empresa).</p>
+                    <div class="border-t border-slate-100 dark:border-slate-800 pt-4">
+                        <h4 class="text-sm font-semibold text-slate-700 dark:text-slate-300">Correo de "gracias" al cliente</h4>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Se envía al cliente cuando llena el formulario (si dejó su correo). Vacío = usa la plantilla general de la empresa. Comodines: <code>@{{lead}}</code> (nombre) y <code>@{{negocio}}</code> (empresa).</p>
                         <div class="mt-3">
-                            <label class="block text-sm font-medium text-gray-700">Asunto</label>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Asunto</label>
                             <input type="text" wire:model="confirmation_subject" maxlength="255"
                                    placeholder="¡Gracias por contactarnos! — @{{negocio}}"
                                    class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
                             @error('confirmation_subject') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                         </div>
                         <div class="mt-3">
-                            <label class="block text-sm font-medium text-gray-700">Mensaje</label>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Mensaje</label>
                             <textarea wire:model="confirmation_body" rows="5" maxlength="2000"
                                       placeholder="Hola @{{lead}},&#10;&#10;Gracias por contactarnos. Uno de nuestros asesores se pondrá en contacto contigo muy pronto.&#10;&#10;Saludos,&#10;Equipo @{{negocio}}"
                                       class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]"></textarea>
@@ -331,67 +331,67 @@ new #[Layout('layouts.app')] class extends Component
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Redirección tras enviar (opcional)</label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Redirección tras enviar (opcional)</label>
                         <input type="url" wire:model="redirect_url" placeholder="https://tusitio.com/gracias"
                                class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
                         @error('redirect_url') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700">Dominios permitidos (uno por línea)</label>
+                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Dominios permitidos (uno por línea)</label>
                         <textarea wire:model="allowed_domains" rows="2" placeholder="tusitio.com&#10;www.tusitio.com"
                                   class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]"></textarea>
-                        <p class="mt-1 text-xs text-gray-400">Vacío = permitir en cualquier sitio.</p>
+                        <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">Vacío = permitir en cualquier sitio.</p>
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Color</label>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Color</label>
                             <input type="color" wire:model="accent_color" class="mt-1 h-10 w-16 rounded border-gray-300">
                         </div>
                         <label class="flex items-center gap-2 mt-6">
                             <input type="checkbox" wire:model="active" class="rounded border-gray-300 text-[#0e7490] focus:ring-[#0e7490]">
-                            <span class="text-sm text-gray-700">Formulario activo</span>
+                            <span class="text-sm text-slate-700 dark:text-slate-300">Formulario activo</span>
                         </label>
                     </div>
                 </div>
 
                 {{-- Botón de WhatsApp en la pantalla de "gracias" (todos los formularios) --}}
-                <div class="bg-white shadow-sm rounded-lg p-6 space-y-4">
+                <div class="card p-6 space-y-4">
                     <div>
-                        <h3 class="font-semibold text-gray-800">Botón de WhatsApp al terminar</h3>
-                        <p class="text-xs text-gray-500">Al enviar, el cliente ve un botón que abre un chat de WhatsApp hacia tu número con sus datos ya escritos. Déjalo vacío para no mostrarlo.</p>
+                        <h3 class="font-semibold text-slate-800 dark:text-slate-100">Botón de WhatsApp al terminar</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Al enviar, el cliente ve un botón que abre un chat de WhatsApp hacia tu número con sus datos ya escritos. Déjalo vacío para no mostrarlo.</p>
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Número de WhatsApp</label>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Número de WhatsApp</label>
                             <input type="text" wire:model="whatsapp_number" placeholder="+52 1 55 1234 5678"
                                    class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
                             @error('whatsapp_number') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                            <p class="mt-1 text-xs text-gray-400">Con lada internacional (ej. +52...).</p>
+                            <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">Con lada internacional (ej. +52...).</p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Texto del botón</label>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Texto del botón</label>
                             <input type="text" wire:model="whatsapp_label" maxlength="60"
                                    placeholder="{{ \App\Models\LeadForm::strings($locale)['whatsapp'] }}"
                                    class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
                             @error('whatsapp_label') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                            <p class="mt-1 text-xs text-gray-400">Vacío = «{{ \App\Models\LeadForm::strings($locale)['whatsapp'] }}». Ej: «Enviar mis datos por WhatsApp».</p>
+                            <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">Vacío = «{{ \App\Models\LeadForm::strings($locale)['whatsapp'] }}». Ej: «Enviar mis datos por WhatsApp».</p>
                         </div>
                     </div>
                 </div>
 
                 @if ($form->isFloating())
                     {{-- Ajustes del widget flotante --}}
-                    <div class="bg-white shadow-sm rounded-lg p-6 space-y-4">
-                        <h3 class="font-semibold text-gray-800">Botón flotante</h3>
+                    <div class="card p-6 space-y-4">
+                        <h3 class="font-semibold text-slate-800 dark:text-slate-100">Botón flotante</h3>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">Mensaje de saludo</label>
+                                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Mensaje de saludo</label>
                                 <input type="text" wire:model="launcher_label" maxlength="60" placeholder="¿En qué podemos ayudarte?"
                                        class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
-                                <p class="mt-1 text-xs text-gray-400">Aparece en el globo junto al botón.</p>
+                                <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">Aparece en el globo junto al botón.</p>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700">Posición</label>
+                                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Posición</label>
                                 <select wire:model="launcher_position" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
                                     <option value="right">Abajo a la derecha</option>
                                     <option value="left">Abajo a la izquierda</option>
@@ -399,11 +399,11 @@ new #[Layout('layouts.app')] class extends Component
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Avatar — URL de imagen (opcional)</label>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Avatar — URL de imagen (opcional)</label>
                             <input type="url" wire:model="launcher_avatar" placeholder="https://tusitio.com/agente.jpg"
                                    class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
                             @error('launcher_avatar') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                            <p class="mt-1 text-xs text-gray-400">Foto de un asesor (recomendado, genera más confianza). Si lo dejas vacío, se usa el logo.</p>
+                            <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">Foto de un asesor (recomendado, genera más confianza). Si lo dejas vacío, se usa el logo.</p>
                         </div>
                     </div>
                 @endif
@@ -416,22 +416,22 @@ new #[Layout('layouts.app')] class extends Component
             {{-- Código para incrustar --}}
             <div class="space-y-6">
                 {{-- Notificaciones y medición --}}
-                <div class="bg-white shadow-sm rounded-lg p-6">
-                    <h3 class="font-semibold text-gray-800">Notificaciones y medición</h3>
+                <div class="card p-6">
+                    <h3 class="font-semibold text-slate-800 dark:text-slate-100">Notificaciones y medición</h3>
                     <div class="mt-4 space-y-4">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Destinatarios del aviso por correo (uno por línea)</label>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Destinatarios del aviso por correo (uno por línea)</label>
                             <textarea wire:model="notify_emails" rows="2" placeholder="ventas@aquakita.com&#10;gerente@aquakita.com"
                                       class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]"></textarea>
                             @error('notify_emails') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                            <p class="mt-1 text-xs text-gray-400">A quién llega el correo con los datos del lead. Vacío = administradores y supervisores.</p>
+                            <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">A quién llega el correo con los datos del lead. Vacío = administradores y supervisores.</p>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">ID de Google Analytics / GTM (opcional)</label>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">ID de Google Analytics / GTM (opcional)</label>
                             <input type="text" wire:model="analytics_id" placeholder="G-XXXXXXXXXX  o  GTM-XXXXXXX"
                                    class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
                             @error('analytics_id') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                            <p class="mt-1 text-xs text-gray-400">Carga Analytics en la página del formulario y mide el envío (útil para el enlace directo). Si GA ya está en tu sitio, puedes dejarlo vacío.</p>
+                            <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">Carga Analytics en la página del formulario y mide el envío (útil para el enlace directo). Si GA ya está en tu sitio, puedes dejarlo vacío.</p>
                         </div>
                         <button type="button" wire:click="save"
                                 class="rounded-lg bg-[#0e7490] px-4 py-2 text-sm font-semibold text-white hover:bg-[#155e75]">
@@ -440,12 +440,12 @@ new #[Layout('layouts.app')] class extends Component
                     </div>
                 </div>
 
-                <div class="bg-white shadow-sm rounded-lg p-6">
-                    <h3 class="font-semibold text-gray-800">Código para incrustar</h3>
-                    <p class="text-sm text-gray-500 mb-4">Pega este código en tu sitio web.</p>
+                <div class="card p-6">
+                    <h3 class="font-semibold text-slate-800 dark:text-slate-100">Código para incrustar</h3>
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Pega este código en tu sitio web.</p>
 
                     @if ($form->isFloating())
-                        <p class="text-xs font-medium text-gray-500 mb-1">Botón flotante</p>
+                        <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Botón flotante</p>
                         <div class="relative">
                             <pre class="rounded-lg bg-gray-900 p-3 text-xs text-gray-100 overflow-x-auto"><code>{{ $widgetSnippet }}</code></pre>
                             <button type="button" @click="copy(@js($widgetSnippet), 'widget')"
@@ -454,9 +454,9 @@ new #[Layout('layouts.app')] class extends Component
                                 <span x-show="copied === 'widget'" x-cloak>¡Copiado!</span>
                             </button>
                         </div>
-                        <p class="mt-3 text-xs text-gray-400">Pégalo antes de <code>&lt;/body&gt;</code>. Aparecerá el botón flotante en todo el sitio.</p>
+                        <p class="mt-3 text-xs text-slate-400 dark:text-slate-500">Pégalo antes de <code>&lt;/body&gt;</code>. Aparecerá el botón flotante en todo el sitio.</p>
                     @else
-                        <p class="text-xs font-medium text-gray-500 mb-1">Opción 1 — Script (recomendado)</p>
+                        <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Opción 1 — Script (recomendado)</p>
                         <div class="relative">
                             <pre class="rounded-lg bg-gray-900 p-3 text-xs text-gray-100 overflow-x-auto"><code>{{ $scriptSnippet }}</code></pre>
                             <button type="button" @click="copy(@js($scriptSnippet), 'script')"
@@ -466,7 +466,7 @@ new #[Layout('layouts.app')] class extends Component
                             </button>
                         </div>
 
-                        <p class="text-xs font-medium text-gray-500 mt-4 mb-1">Opción 2 — iframe</p>
+                        <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mt-4 mb-1">Opción 2 — iframe</p>
                         <div class="relative">
                             <pre class="rounded-lg bg-gray-900 p-3 text-xs text-gray-100 overflow-x-auto"><code>{{ $iframeSnippet }}</code></pre>
                             <button type="button" @click="copy(@js($iframeSnippet), 'iframe')"

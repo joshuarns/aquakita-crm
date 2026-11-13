@@ -114,12 +114,12 @@ new #[Layout('layouts.app')] class extends Component
 
 <div class="py-8">
     <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-        <h2 class="text-xl font-semibold text-gray-800 mb-2">{{ __('Exportar contactos') }}</h2>
-        <p class="text-sm text-gray-500 mb-6">
+        <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-2">{{ __('Exportar contactos') }}</h2>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">
             {{ __('Prepara una base limpia en CSV para cargarla en Mailchimp u otra plataforma de correo masivo. La exportación no envía correos.') }}
         </p>
 
-        <div class="bg-white shadow-sm sm:rounded-lg p-6 space-y-6">
+        <div class="card p-6 space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <x-input-label :value="__('País')" />
@@ -172,8 +172,8 @@ new #[Layout('layouts.app')] class extends Component
                 </div>
             </div>
 
-            <div class="rounded-md bg-gray-50 border border-gray-200 p-4 text-sm text-gray-600">
-                <p class="font-medium text-gray-800">{{ __('Se exportarán') }}: {{ $this->preview }} {{ __('contactos') }}</p>
+            <div class="rounded-md surface-muted border border-slate-200 dark:border-slate-700 p-4 text-sm text-slate-600 dark:text-slate-300">
+                <p class="font-medium text-slate-800 dark:text-slate-100">{{ __('Se exportarán') }}: {{ $this->preview }} {{ __('contactos') }}</p>
                 <p class="mt-1 text-xs">
                     {{ __('Excluidos automáticamente (§9): sin correo, duplicados, marcados «No enviar publicidad» y quienes solicitaron darse de baja.') }}
                 </p>
@@ -181,7 +181,7 @@ new #[Layout('layouts.app')] class extends Component
 
             <div class="flex items-center justify-end gap-3">
                 <div>
-                    <label class="block text-xs text-gray-500">{{ __('Formato') }}</label>
+                    <label class="block text-xs text-slate-500 dark:text-slate-400">{{ __('Formato') }}</label>
                     <select wire:model="format" class="mt-1 border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm text-sm">
                         <option value="csv">CSV</option>
                         <option value="xlsx">Excel (.xlsx)</option>

@@ -62,41 +62,41 @@ new #[Layout('layouts.app')] class extends Component
 
 <div class="py-8">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <a href="{{ route('catalogs.index') }}" wire:navigate class="text-sm text-gray-500 hover:text-gray-700">&larr; Configuración</a>
-        <h2 class="mt-1 text-xl font-semibold text-gray-800">Mi empresa</h2>
-        <p class="text-sm text-gray-500 mb-6">Tu marca en correos, formularios y el sistema.</p>
+        <a href="{{ route('catalogs.index') }}" wire:navigate class="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-300">&larr; Configuración</a>
+        <h2 class="mt-1 text-xl font-semibold text-slate-800 dark:text-slate-100">Mi empresa</h2>
+        <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Tu marca en correos, formularios y el sistema.</p>
 
         @if (session('status'))
             <div class="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-800">{{ session('status') }}</div>
         @endif
 
-        <form wire:submit="save" class="space-y-6 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
+        <form wire:submit="save" class="space-y-6 card p-6 shadow-sm">
             <div class="flex items-center gap-4">
-                <img src="{{ $company->logoUrl() }}" alt="" class="h-16 w-16 rounded-xl object-contain bg-gray-50 border border-gray-100">
+                <img src="{{ $company->logoUrl() }}" alt="" class="h-16 w-16 rounded-xl object-contain surface-muted border border-slate-100 dark:border-slate-800">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Logo (PNG/JPG, máx. 1 MB)</label>
-                    <input type="file" wire:model="logoFile" accept="image/*" class="mt-1 block text-sm text-gray-600">
-                    <div wire:loading wire:target="logoFile" class="text-xs text-gray-400">Subiendo…</div>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Logo (PNG/JPG, máx. 1 MB)</label>
+                    <input type="file" wire:model="logoFile" accept="image/*" class="mt-1 block text-sm text-slate-600 dark:text-slate-300">
+                    <div wire:loading wire:target="logoFile" class="text-xs text-slate-400 dark:text-slate-500">Subiendo…</div>
                     @error('logoFile') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                 </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Nombre de la empresa</label>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Nombre de la empresa</label>
                     <input type="text" wire:model="name" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
                     @error('name') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Color de marca</label>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Color de marca</label>
                     <input type="color" wire:model="brand_color" class="mt-1 h-10 w-16 rounded border-gray-300">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Zona horaria</label>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Zona horaria</label>
                     <input type="text" wire:model="timezone" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700">Idioma</label>
+                    <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Idioma</label>
                     <select wire:model="locale" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
                         <option value="es">Español</option>
                         <option value="en">English</option>
@@ -105,12 +105,12 @@ new #[Layout('layouts.app')] class extends Component
                 </div>
             </div>
 
-            <div class="border-t border-gray-100 pt-5">
-                <label class="block text-sm font-medium text-gray-700">Correo del remitente (opcional)</label>
+            <div class="border-t border-slate-100 dark:border-slate-800 pt-5">
+                <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Correo del remitente (opcional)</label>
                 <input type="email" wire:model="from_email" placeholder="{{ config('mail.from.address') }}"
                        class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
                 @error('from_email') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                <p class="mt-1 text-xs text-gray-500">
+                <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
                     Los correos salen con el <strong>nombre de tu empresa</strong>. Aquí puedes poner también tu propio correo «De».
                     <span class="text-amber-700">Importante:</span> el dominio de ese correo debe autorizar a este servidor (registro SPF); si no, los correos pueden caer en spam.
                     Déjalo vacío para usar el correo de la plataforma ({{ config('mail.from.address') }}).

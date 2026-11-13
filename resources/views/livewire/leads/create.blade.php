@@ -165,8 +165,8 @@ new #[Layout('layouts.app')] class extends Component
 <div class="py-8">
     <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
         <div class="mb-6 flex items-center justify-between">
-            <h2 class="text-xl font-semibold text-gray-800">{{ __('Capturar lead') }}</h2>
-            <a href="{{ route('leads.index') }}" wire:navigate class="text-sm text-gray-600 hover:text-gray-900">
+            <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100">{{ __('Capturar lead') }}</h2>
+            <a href="{{ route('leads.index') }}" wire:navigate class="text-sm text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:text-slate-100">
                 &larr; {{ __('Volver a la bandeja') }}
             </a>
         </div>
@@ -193,10 +193,10 @@ new #[Layout('layouts.app')] class extends Component
             </div>
         @endif
 
-        <form wire:submit="save" class="bg-white shadow-sm sm:rounded-lg p-6 space-y-8">
+        <form wire:submit="save" class="card p-6 space-y-8">
             {{-- Contacto y empresa --}}
             <section>
-                <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">{{ __('Contacto') }}</h3>
+                <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-4">{{ __('Contacto') }}</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <x-input-label for="first_name" :value="__('Nombre *')" />
@@ -229,7 +229,7 @@ new #[Layout('layouts.app')] class extends Component
 
             {{-- Ubicación e idioma --}}
             <section>
-                <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">{{ __('Ubicación e idioma') }}</h3>
+                <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-4">{{ __('Ubicación e idioma') }}</h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <x-input-label for="country_id" :value="__('País')" />
@@ -266,7 +266,7 @@ new #[Layout('layouts.app')] class extends Component
 
             {{-- Origen --}}
             <section>
-                <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">{{ __('Origen') }}</h3>
+                <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-4">{{ __('Origen') }}</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <x-input-label for="source_id" :value="__('Fuente de llegada')" />
@@ -303,7 +303,7 @@ new #[Layout('layouts.app')] class extends Component
 
             {{-- Proyecto --}}
             <section>
-                <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-4">{{ __('Proyecto') }}</h3>
+                <h3 class="text-sm font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-4">{{ __('Proyecto') }}</h3>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
                         <x-input-label for="project_type_id" :value="__('Tipo de proyecto')" />
@@ -334,7 +334,7 @@ new #[Layout('layouts.app')] class extends Component
             </section>
 
             <div class="flex items-center justify-end gap-4">
-                <a href="{{ route('leads.index') }}" wire:navigate class="text-sm text-gray-600 hover:text-gray-900">{{ __('Cancelar') }}</a>
+                <a href="{{ route('leads.index') }}" wire:navigate class="text-sm text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:text-slate-100">{{ __('Cancelar') }}</a>
                 <x-primary-button>{{ __('Guardar lead') }}</x-primary-button>
             </div>
         </form>

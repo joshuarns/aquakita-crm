@@ -53,8 +53,8 @@ new #[Layout('layouts.app')] class extends Component
 <div class="py-8">
     <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
         <div class="mb-6 flex items-center justify-between">
-            <h2 class="text-xl font-semibold text-gray-800">{{ __('Plantillas de correo') }}</h2>
-            <a href="{{ route('catalogs.index') }}" wire:navigate class="text-sm text-gray-600 hover:text-gray-900">
+            <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100">{{ __('Plantillas de correo') }}</h2>
+            <a href="{{ route('catalogs.index') }}" wire:navigate class="text-sm text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:text-slate-100">
                 &larr; {{ __('Configuración') }}
             </a>
         </div>
@@ -64,8 +64,8 @@ new #[Layout('layouts.app')] class extends Component
         @endif
 
         @if ($editingId)
-            <form wire:submit="save" class="bg-white shadow-sm sm:rounded-lg p-5 mb-6 space-y-4">
-                <p class="text-xs text-gray-500">
+            <form wire:submit="save" class="card p-5 mb-6 space-y-4">
+                <p class="text-xs text-slate-500 dark:text-slate-400">
                     {{ __('Marcadores disponibles:') }}
                     <code>@{{vendedor}}</code>, <code>@{{lead}}</code>, <code>@{{fecha}}</code>
                 </p>
@@ -81,27 +81,27 @@ new #[Layout('layouts.app')] class extends Component
                 </div>
                 <div class="flex gap-2">
                     <x-primary-button>{{ __('Guardar') }}</x-primary-button>
-                    <button type="button" wire:click="$set('editingId', null)" class="text-sm text-gray-600 hover:text-gray-900 px-3">{{ __('Cancelar') }}</button>
+                    <button type="button" wire:click="$set('editingId', null)" class="text-sm text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:text-slate-100 px-3">{{ __('Cancelar') }}</button>
                 </div>
             </form>
         @endif
 
         <div class="space-y-3">
             @foreach ($this->templates as $template)
-                <div class="bg-white shadow-sm sm:rounded-lg p-5">
+                <div class="card p-5">
                     <div class="flex items-start justify-between">
                         <div class="min-w-0">
-                            <p class="text-xs font-mono text-gray-400">{{ $template->key }}</p>
-                            <p class="font-medium text-gray-900 mt-0.5">{{ $template->subject }}</p>
-                            <p class="text-sm text-gray-600 mt-1">{{ $template->body }}</p>
+                            <p class="text-xs font-mono text-slate-400 dark:text-slate-500">{{ $template->key }}</p>
+                            <p class="font-medium text-slate-900 dark:text-slate-100 mt-0.5">{{ $template->subject }}</p>
+                            <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">{{ $template->body }}</p>
                         </div>
                         <div class="flex flex-col items-end gap-2 shrink-0 ml-4">
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {{ $template->active ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500' }}">
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {{ $template->active ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-slate-500 dark:text-slate-400' }}">
                                 {{ $template->active ? __('Activa') : __('Inactiva') }}
                             </span>
                             <div class="flex gap-3">
                                 <button wire:click="edit({{ $template->id }})" class="text-indigo-600 hover:text-indigo-800 text-xs">{{ __('Editar') }}</button>
-                                <button wire:click="toggle({{ $template->id }})" class="text-gray-600 hover:text-gray-900 text-xs">
+                                <button wire:click="toggle({{ $template->id }})" class="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:text-slate-100 text-xs">
                                     {{ $template->active ? __('Desactivar') : __('Activar') }}
                                 </button>
                             </div>

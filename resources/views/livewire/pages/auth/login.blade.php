@@ -39,8 +39,8 @@ new #[Layout('layouts.guest')] class extends Component
 
 <div>
     <p class="text-sm font-semibold uppercase tracking-[0.18em] text-[#0891b2]">Bienvenido</p>
-    <h1 class="mt-1 text-3xl font-bold text-gray-900">Inicia sesión</h1>
-    <p class="mt-1 text-gray-500">Accede con el correo de tu cuenta.</p>
+    <h1 class="mt-1 text-3xl font-bold text-slate-900 dark:text-slate-100">Inicia sesión</h1>
+    <p class="mt-1 text-slate-500 dark:text-slate-400">Accede con el correo de tu cuenta.</p>
 
     <!-- Session Status -->
     <x-auth-session-status class="mt-4" :status="session('status')" />
@@ -48,7 +48,7 @@ new #[Layout('layouts.guest')] class extends Component
     <form wire:submit="login" class="mt-8 space-y-5">
         <!-- Email Address -->
         <div>
-            <label for="email" class="block text-sm font-medium text-gray-700">Correo electrónico</label>
+            <label for="email" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Correo electrónico</label>
             <input wire:model="form.email" id="email" type="email" name="email" required autofocus autocomplete="username"
                    class="mt-1.5 block w-full rounded-lg border-gray-300 shadow-sm transition focus:border-[#0891b2] focus:ring-[#0891b2]" />
             <x-input-error :messages="$errors->get('form.email')" class="mt-2" />
@@ -56,7 +56,7 @@ new #[Layout('layouts.guest')] class extends Component
 
         <!-- Password -->
         <div>
-            <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
+            <label for="password" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Contraseña</label>
             <input wire:model="form.password" id="password" type="password" name="password" required autocomplete="current-password"
                    class="mt-1.5 block w-full rounded-lg border-gray-300 shadow-sm transition focus:border-[#0891b2] focus:ring-[#0891b2]" />
             <x-input-error :messages="$errors->get('form.password')" class="mt-2" />
@@ -66,7 +66,7 @@ new #[Layout('layouts.guest')] class extends Component
         <label for="remember" class="inline-flex items-center">
             <input wire:model="form.remember" id="remember" type="checkbox" name="remember"
                    class="rounded border-gray-300 text-[#0891b2] shadow-sm focus:ring-[#0891b2]">
-            <span class="ms-2 text-sm text-gray-600">Mantener sesión iniciada</span>
+            <span class="ms-2 text-sm text-slate-600 dark:text-slate-300">Mantener sesión iniciada</span>
         </label>
 
         <button type="submit"
@@ -88,9 +88,9 @@ new #[Layout('layouts.guest')] class extends Component
     </form>
 
     @if (app()->environment('local'))
-        <div class="mt-8 rounded-xl border border-gray-200 bg-white p-4">
-            <p class="text-sm font-semibold text-gray-900">Demostración local</p>
-            <p class="text-xs text-gray-500">Selecciona un perfil. Los datos son ficticios.</p>
+        <div class="mt-8 rounded-xl border border-slate-200 dark:border-slate-700 bg-white p-4">
+            <p class="text-sm font-semibold text-slate-900 dark:text-slate-100">Demostración local</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Selecciona un perfil. Los datos son ficticios.</p>
             <div class="mt-3 flex flex-wrap gap-2">
                 @foreach ([
                     'Administrador' => 'admin@aquakita.test',

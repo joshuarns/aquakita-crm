@@ -139,8 +139,8 @@ new #[Layout('layouts.app')] class extends Component
 <div class="py-8">
     <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
         <div class="mb-6 flex items-center justify-between">
-            <h2 class="text-xl font-semibold text-gray-800">{{ $this->label() }}</h2>
-            <a href="{{ route('catalogs.index') }}" wire:navigate class="text-sm text-gray-600 hover:text-gray-900">
+            <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100">{{ $this->label() }}</h2>
+            <a href="{{ route('catalogs.index') }}" wire:navigate class="text-sm text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:text-slate-100">
                 &larr; {{ __('Configuración') }}
             </a>
         </div>
@@ -150,7 +150,7 @@ new #[Layout('layouts.app')] class extends Component
         @endif
 
         {{-- Formulario alta/edición --}}
-        <form wire:submit="save" class="bg-white shadow-sm sm:rounded-lg p-5 mb-6">
+        <form wire:submit="save" class="card p-5 mb-6">
             <div class="flex flex-col sm:flex-row gap-3 items-end">
                 @foreach ($this->fields() as $field => $flabel)
                     <div class="flex-1 w-full">
@@ -162,17 +162,17 @@ new #[Layout('layouts.app')] class extends Component
                 <div class="flex gap-2">
                     <x-primary-button>{{ $editingId ? __('Guardar') : __('Agregar') }}</x-primary-button>
                     @if ($editingId)
-                        <button type="button" wire:click="cancel" class="text-sm text-gray-600 hover:text-gray-900 px-3">{{ __('Cancelar') }}</button>
+                        <button type="button" wire:click="cancel" class="text-sm text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:text-slate-100 px-3">{{ __('Cancelar') }}</button>
                     @endif
                 </div>
             </div>
         </form>
 
         {{-- Listado --}}
-        <div class="bg-white shadow-sm sm:rounded-lg overflow-hidden">
-            <table class="min-w-full divide-y divide-gray-200 text-sm">
-                <thead class="bg-gray-50">
-                    <tr class="text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+        <div class="card overflow-hidden">
+            <table class="min-w-full divide-y divide-slate-200 dark:divide-slate-700 text-sm">
+                <thead class="surface-muted">
+                    <tr class="text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                         @foreach ($this->fields() as $flabel)
                             <th class="px-4 py-3">{{ $flabel }}</th>
                         @endforeach
@@ -180,26 +180,26 @@ new #[Layout('layouts.app')] class extends Component
                         <th class="px-4 py-3 text-right">{{ __('Acciones') }}</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100">
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                     @forelse ($this->items as $item)
-                        <tr class="hover:bg-gray-50">
+                        <tr class="hover:bg-slate-100 dark:hover:bg-slate-800/50">
                             @foreach (array_keys($this->fields()) as $field)
-                                <td class="px-4 py-3 text-gray-900">{{ $item->{$field} }}</td>
+                                <td class="px-4 py-3 text-slate-900 dark:text-slate-100">{{ $item->{$field} }}</td>
                             @endforeach
                             <td class="px-4 py-3">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {{ $item->active ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-gray-500' }}">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {{ $item->active ? 'bg-green-50 text-green-700' : 'bg-gray-100 text-slate-500 dark:text-slate-400' }}">
                                     {{ $item->active ? __('Activo') : __('Inactivo') }}
                                 </span>
                             </td>
                             <td class="px-4 py-3 text-right whitespace-nowrap">
                                 <button wire:click="edit({{ $item->id }})" class="text-indigo-600 hover:text-indigo-800 text-xs">{{ __('Editar') }}</button>
-                                <button wire:click="toggle({{ $item->id }})" class="text-gray-600 hover:text-gray-900 text-xs ml-3">
+                                <button wire:click="toggle({{ $item->id }})" class="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:text-slate-100 text-xs ml-3">
                                     {{ $item->active ? __('Desactivar') : __('Activar') }}
                                 </button>
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="9" class="px-4 py-8 text-center text-gray-500">{{ __('Sin registros.') }}</td></tr>
+                        <tr><td colspan="9" class="px-4 py-8 text-center text-slate-500 dark:text-slate-400">{{ __('Sin registros.') }}</td></tr>
                     @endforelse
                 </tbody>
             </table>
