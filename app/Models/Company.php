@@ -41,6 +41,23 @@ class Company extends Model
         return $this->brand_color ?: '#0e7490';
     }
 
+    /**
+     * Dirección "De" del correo saliente de la empresa.
+     * Usa el correo propio si está configurado; si no, el global de la plataforma.
+     */
+    public function mailFromAddress(): string
+    {
+        return $this->from_email ?: (string) config('mail.from.address');
+    }
+
+    /**
+     * Nombre "De" visible: el de la empresa.
+     */
+    public function mailFromName(): string
+    {
+        return $this->name ?: (string) config('mail.from.name');
+    }
+
     public function users(): HasMany
     {
         return $this->hasMany(User::class);

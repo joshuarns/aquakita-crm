@@ -5,6 +5,7 @@ namespace App\Mail;
 use App\Models\Company;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -25,7 +26,22 @@ class LeadConfirmationMail extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: $this->subjectLine);
+        return new Envelope(
+            from: $this->companyFrom(),
+            subject: $this->subjectLine,
+        );
+    }
+
+    /**
+     * Remitente con el nombre (y correo opcional) de la empresa.
+     */
+    private function companyFrom(): ?Address
+    {
+        if (! $this->company) {
+            return null;
+        }
+
+        return new Address($this->company->mailFromAddress(), $this->company->mailFromName());
     }
 
     public function content(): Content
