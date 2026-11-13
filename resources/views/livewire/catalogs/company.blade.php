@@ -15,6 +15,7 @@ new #[Layout('layouts.app')] class extends Component
     public string $brand_color = '#0e7490';
     public string $timezone = 'America/Mexico_City';
     public string $locale = 'es';
+    public string $from_email = '';
     public $logoFile = null;
 
     public function mount(): void
@@ -26,6 +27,7 @@ new #[Layout('layouts.app')] class extends Component
         $this->brand_color = $this->company->brand_color ?: '#0e7490';
         $this->timezone = $this->company->timezone ?: 'America/Mexico_City';
         $this->locale = $this->company->locale ?: 'es';
+        $this->from_email = (string) $this->company->from_email;
     }
 
     public function save(): void
@@ -35,6 +37,7 @@ new #[Layout('layouts.app')] class extends Component
             'brand_color' => ['required', 'string', 'max:20'],
             'timezone' => ['required', 'string', 'max:64'],
             'locale' => ['in:es,en,pt'],
+            'from_email' => ['nullable', 'email', 'max:255'],
             'logoFile' => ['nullable', 'image', 'max:1024'], // 1 MB
         ]);
 
@@ -43,6 +46,7 @@ new #[Layout('layouts.app')] class extends Component
             'brand_color' => $this->brand_color,
             'timezone' => $this->timezone,
             'locale' => $this->locale,
+            'from_email' => $this->from_email ?: null,
         ];
 
         if ($this->logoFile) {
@@ -99,6 +103,18 @@ new #[Layout('layouts.app')] class extends Component
                         <option value="pt">Português</option>
                     </select>
                 </div>
+            </div>
+
+            <div class="border-t border-gray-100 pt-5">
+                <label class="block text-sm font-medium text-gray-700">Correo del remitente (opcional)</label>
+                <input type="email" wire:model="from_email" placeholder="{{ config('mail.from.address') }}"
+                       class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
+                @error('from_email') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                <p class="mt-1 text-xs text-gray-500">
+                    Los correos salen con el <strong>nombre de tu empresa</strong>. Aquí puedes poner también tu propio correo «De».
+                    <span class="text-amber-700">Importante:</span> el dominio de ese correo debe autorizar a este servidor (registro SPF); si no, los correos pueden caer en spam.
+                    Déjalo vacío para usar el correo de la plataforma ({{ config('mail.from.address') }}).
+                </p>
             </div>
 
             <button type="submit" class="rounded-lg bg-[#0e7490] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#155e75]">

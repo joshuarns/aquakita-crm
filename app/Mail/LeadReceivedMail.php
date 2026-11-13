@@ -5,6 +5,7 @@ namespace App\Mail;
 use App\Models\Lead;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
@@ -21,7 +22,12 @@ class LeadReceivedMail extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Nuevo lead desde la web: '.$this->lead->full_name);
+        $company = $this->lead->ownerCompany();
+
+        return new Envelope(
+            from: $company ? new Address($company->mailFromAddress(), $company->mailFromName()) : null,
+            subject: 'Nuevo lead desde la web: '.$this->lead->full_name,
+        );
     }
 
     public function content(): Content

@@ -261,6 +261,34 @@ class LeadFormPublicTest extends TestCase
         Mail::assertSent(LeadConfirmationMail::class, fn ($mail) => $mail->hasTo('cliente@example.com'));
     }
 
+    public function test_confirmation_email_sender_uses_company_name_and_email(): void
+    {
+        Mail::fake();
+
+        $company = Company::create([
+            'name' => 'Marca X',
+            'slug' => 'marca-x-test',
+            'brand_color' => '#0e7490',
+            'from_email' => 'hola@marcax.com',
+            'timezone' => 'America/Mexico_City',
+            'locale' => 'es',
+            'active' => true,
+        ]);
+
+        $lead = Lead::factory()->create([
+            'company_id' => $company->id,
+            'email' => 'cliente@example.com',
+        ]);
+
+        app(LeadNotifier::class)->notifyClient($lead);
+
+        Mail::assertSent(LeadConfirmationMail::class, function ($mail) {
+            $from = $mail->envelope()->from;
+
+            return $from && $from->address === 'hola@marcax.com' && $from->name === 'Marca X';
+        });
+    }
+
     public function test_no_confirmation_email_without_client_email(): void
     {
         Mail::fake();
