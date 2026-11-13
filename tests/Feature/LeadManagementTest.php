@@ -156,7 +156,7 @@ class LeadManagementTest extends TestCase
 
         Volt::actingAs($vendorA)
             ->test('leads.index')
-            ->assertSee($mine->first_name)
-            ->assertDontSee($other->first_name);
+            ->assertSee($mine->email)
+            ->assertDontSee($other->email);
     }
 }
