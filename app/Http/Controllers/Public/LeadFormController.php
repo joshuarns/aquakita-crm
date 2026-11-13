@@ -14,6 +14,8 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
@@ -248,6 +250,10 @@ class LeadFormController extends Controller
             return $this->renderForm($form, error: $t['error_nonce'], status: 422);
         }
 
+        if (! $this->turnstilePasses($request)) {
+            return $this->renderForm($form, error: $t['error_captcha'], status: 422);
+        }
+
         try {
             $data = $this->validated($request, $form);
         } catch (ValidationException $e) {
@@ -457,6 +463,41 @@ class LeadFormController extends Controller
         $age = now()->timestamp - $issuedAt;
 
         return $age >= 0 && $age <= 21600;
+    }
+
+    /**
+     * Verifica el token de Cloudflare Turnstile (CAPTCHA invisible).
+     * Si no hay llave secreta configurada, Turnstile está deshabilitado y pasa.
+     * Ante un error de red con Cloudflare, no bloquea (fail-open) para no perder leads reales.
+     */
+    protected function turnstilePasses(Request $request): bool
+    {
+        $secret = config('services.turnstile.secret_key');
+
+        if (blank($secret)) {
+            return true;
+        }
+
+        $token = $request->input('cf-turnstile-response');
+
+        if (blank($token)) {
+            return false;
+        }
+
+        try {
+            $response = Http::asForm()->timeout(5)
+                ->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+                    'secret' => $secret,
+                    'response' => $token,
+                    'remoteip' => $request->ip(),
+                ]);
+
+            return $response->json('success') === true;
+        } catch (\Throwable $e) {
+            Log::warning('Turnstile: verificación no disponible: '.$e->getMessage());
+
+            return true;
+        }
     }
 
     /**

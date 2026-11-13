@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    // Cloudflare Turnstile (CAPTCHA invisible para los formularios públicos).
+    // Si ambas llaves están vacías, Turnstile queda deshabilitado.
+    'turnstile' => [
+        'site_key' => env('TURNSTILE_SITE_KEY'),
+        'secret_key' => env('TURNSTILE_SECRET_KEY'),
+    ],
+
 ];

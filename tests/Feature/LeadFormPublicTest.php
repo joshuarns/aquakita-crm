@@ -14,6 +14,7 @@ use App\Support\LeadNotifier;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
@@ -233,6 +234,37 @@ class LeadFormPublicTest extends TestCase
                 && str_contains($mail->subjectLine, 'Recibido, Ana')
                 && str_contains($mail->body, 'gracias por escribir');
         });
+    }
+
+    public function test_turnstile_blocks_submission_without_token(): void
+    {
+        config(['services.turnstile.secret_key' => 'test-secret', 'services.turnstile.site_key' => 'test-site']);
+        $form = LeadForm::factory()->create();
+
+        $this->post(route('public.forms.submit', $form->token), [
+            '_nonce' => $this->freshNonce(),
+            'first_name' => 'Ana',
+            'email' => 'ana@example.com',
+        ])->assertStatus(422);
+
+        $this->assertDatabaseMissing('leads', ['email' => 'ana@example.com']);
+    }
+
+    public function test_turnstile_allows_submission_with_valid_token(): void
+    {
+        config(['services.turnstile.secret_key' => 'test-secret', 'services.turnstile.site_key' => 'test-site']);
+        Http::fake(['challenges.cloudflare.com/*' => Http::response(['success' => true])]);
+
+        $form = LeadForm::factory()->create();
+
+        $this->post(route('public.forms.submit', $form->token), [
+            '_nonce' => $this->freshNonce(),
+            'first_name' => 'Ana',
+            'email' => 'ana@example.com',
+            'cf-turnstile-response' => 'dummy-token',
+        ])->assertOk();
+
+        $this->assertDatabaseHas('leads', ['email' => 'ana@example.com']);
     }
 
     public function test_confirmation_email_sends_when_lead_has_client_company(): void

@@ -40,6 +40,7 @@
         }
         .aq-textarea { min-height: 96px; resize: vertical; }
         .aq-error { color: #dc2626; font-size: 12px; margin-top: 5px; }
+        .cf-turnstile { margin: 2px 0 4px; }
         .aq-btn {
             width: 100%; padding: 12px 16px; font-size: 14px; font-weight: 600; color: #fff;
             background: var(--accent); border: 0; border-radius: 9px; cursor: pointer; transition: filter .15s;
@@ -59,6 +60,9 @@
         .aq-wa-btn:hover { filter: brightness(0.95); }
         .aq-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
     </style>
+    @if (config('services.turnstile.site_key'))
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    @endif
 </head>
 <body>
     @if ($form->analytics_id && Str::startsWith($form->analytics_id, 'GTM-'))
@@ -141,6 +145,10 @@
                         @endif
                     </div>
                 @endforeach
+
+                @if ($siteKey = config('services.turnstile.site_key'))
+                    <div class="cf-turnstile" data-sitekey="{{ $siteKey }}" data-size="flexible"></div>
+                @endif
 
                 <button type="submit" class="aq-btn">{{ $form->submit_label ?: $t['submit'] }}</button>
             </form>
