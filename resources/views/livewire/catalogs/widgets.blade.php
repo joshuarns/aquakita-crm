@@ -47,15 +47,14 @@ new #[Layout('layouts.app')] class extends Component
 }; ?>
 
 <div class="py-8">
-    <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between mb-6">
             <div>
-                <a href="{{ route('catalogs.index') }}" wire:navigate class="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-300">&larr; Configuración</a>
-                <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100">Widgets flotantes</h2>
+                <p class="eyebrow">Captación</p>
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white">Widgets flotantes</h2>
                 <p class="text-sm text-slate-500 dark:text-slate-400">Botón flotante que abre un formulario en el sitio y avisa por WhatsApp.</p>
             </div>
-            <button wire:click="create"
-                    class="inline-flex items-center gap-2 rounded-lg bg-[#0e7490] px-4 py-2 text-sm font-semibold text-white hover:bg-[#155e75]">
+            <button wire:click="create" class="btn-primary">
                 + Nuevo widget
             </button>
         </div>

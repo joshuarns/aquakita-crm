@@ -68,6 +68,18 @@ new class extends Component
                 </a>
             @endcan
 
+            @can('forms.manage')
+                <p class="px-3 pb-1 pt-4 text-[10px] font-semibold uppercase tracking-wider text-slate-500">Captación</p>
+                <a href="{{ route('forms.index') }}" wire:navigate class="nav-link {{ request()->routeIs('forms.*') ? 'nav-link-active' : '' }}">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M7 4h10a1 1 0 011 1v14a1 1 0 01-1 1H7a1 1 0 01-1-1V5a1 1 0 011-1zM9 9h6M9 13h6M9 17h3"/></svg>
+                    Formularios
+                </a>
+                <a href="{{ route('widgets.index') }}" wire:navigate class="nav-link {{ request()->routeIs('widgets.*') ? 'nav-link-active' : '' }}">
+                    <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M21 15a2 2 0 01-2 2H8l-4 4V5a2 2 0 012-2h13a2 2 0 012 2z"/></svg>
+                    Widgets flotantes
+                </a>
+            @endcan
+
             @can('reports.view')
                 <p class="px-3 pb-1 pt-4 text-[10px] font-semibold uppercase tracking-wider text-slate-500">Análisis</p>
                 <a href="{{ route('reports') }}" wire:navigate class="nav-link {{ request()->routeIs('reports') ? 'nav-link-active' : '' }}">
@@ -78,7 +90,7 @@ new class extends Component
 
             @can('catalogs.manage')
                 <p class="px-3 pb-1 pt-4 text-[10px] font-semibold uppercase tracking-wider text-slate-500">Ajustes</p>
-                <a href="{{ route('catalogs.index') }}" wire:navigate class="nav-link {{ request()->routeIs('catalogs.*') || request()->routeIs('users.*') || request()->routeIs('forms.*') || request()->routeIs('widgets.*') || request()->routeIs('company.settings') ? 'nav-link-active' : '' }}">
+                <a href="{{ route('catalogs.index') }}" wire:navigate class="nav-link {{ request()->routeIs('catalogs.*') || request()->routeIs('users.*') || request()->routeIs('company.settings') ? 'nav-link-active' : '' }}">
                     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M10.3 4.3a2 2 0 013.4 0l.3.6a2 2 0 002.3 1l.7-.2a2 2 0 012.4 2.4l-.2.7a2 2 0 001 2.3l.6.3a2 2 0 010 3.4l-.6.3a2 2 0 00-1 2.3l.2.7a2 2 0 01-2.4 2.4l-.7-.2a2 2 0 00-2.3 1l-.3.6a2 2 0 01-3.4 0l-.3-.6a2 2 0 00-2.3-1l-.7.2a2 2 0 01-2.4-2.4l.2-.7a2 2 0 00-1-2.3l-.6-.3a2 2 0 010-3.4l.6-.3a2 2 0 001-2.3l-.2-.7a2 2 0 012.4-2.4l.7.2a2 2 0 002.3-1z"/><circle cx="12" cy="12" r="3"/></svg>
                     Configuración
                 </a>

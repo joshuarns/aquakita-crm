@@ -113,7 +113,7 @@ new #[Layout('layouts.app')] class extends Component
 }; ?>
 
 <div class="py-8">
-    <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-2">{{ __('Exportar contactos') }}</h2>
         <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">
             {{ __('Prepara una base limpia en CSV para cargarla en Mailchimp u otra plataforma de correo masivo. La exportación no envía correos.') }}

@@ -45,14 +45,13 @@ new #[Layout('layouts.app')] class extends Component
 }; ?>
 
 <div class="py-8">
-    <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between mb-6">
             <div>
-                <a href="{{ route('catalogs.index') }}" wire:navigate class="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-300">&larr; Configuración</a>
-                <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100">Formularios web</h2>
+                <p class="eyebrow">Captación</p>
+                <h2 class="text-xl font-bold text-slate-900 dark:text-white">Formularios web</h2>
             </div>
-            <button wire:click="create"
-                    class="inline-flex items-center gap-2 rounded-lg bg-[#0e7490] px-4 py-2 text-sm font-semibold text-white hover:bg-[#155e75]">
+            <button wire:click="create" class="btn-primary">
                 + Nuevo formulario
             </button>
         </div>

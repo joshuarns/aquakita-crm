@@ -20,15 +20,13 @@ new #[Layout('layouts.app')] class extends Component
             ['route' => 'catalogs.cities', 'param' => [], 'title' => 'Ciudades', 'desc' => 'Ciudades por país.'],
             ['route' => 'catalogs.templates', 'param' => [], 'title' => 'Plantillas de correo', 'desc' => 'Textos de los avisos por correo.'],
             ['route' => 'company.settings', 'param' => [], 'title' => 'Mi empresa', 'desc' => 'Logo, nombre y color de tu marca.'],
-            ['route' => 'forms.index', 'param' => [], 'title' => 'Formularios web', 'desc' => 'Captura leads desde tu sitio web.'],
-            ['route' => 'widgets.index', 'param' => [], 'title' => 'Widgets flotantes', 'desc' => 'Botón flotante + aviso por WhatsApp.'],
             ['route' => 'users.index', 'param' => [], 'title' => 'Usuarios', 'desc' => 'Alta, edición y permisos.'],
         ];
     }
 }; ?>
 
 <div class="py-8">
-    <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100 mb-6">{{ __('Configuración') }}</h2>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
