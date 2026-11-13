@@ -159,7 +159,7 @@ new #[Layout('layouts.app')] class extends Component
 }; ?>
 
 <div class="py-8">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-3">
             <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100">{{ __('Panel administrativo') }}</h2>
             <div class="flex items-end gap-2">

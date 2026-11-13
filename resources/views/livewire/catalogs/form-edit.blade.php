@@ -206,7 +206,7 @@ new #[Layout('layouts.app')] class extends Component
 }; ?>
 
 <div class="py-8" x-data="{ copied: null, copy(text, id) { navigator.clipboard.writeText(text).then(() => { this.copied = id; setTimeout(() => this.copied = null, 1500); }); } }">
-    <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         @if ($form->isFloating())
             <a href="{{ route('widgets.index') }}" wire:navigate class="text-sm text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-300">&larr; Widgets flotantes</a>
         @else

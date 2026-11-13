@@ -137,7 +137,7 @@ new #[Layout('layouts.app')] class extends Component
 }; ?>
 
 <div class="py-8">
-    <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="mb-6 flex items-center justify-between">
             <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-100">{{ $this->label() }}</h2>
             <a href="{{ route('catalogs.index') }}" wire:navigate class="text-sm text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:text-slate-100">
