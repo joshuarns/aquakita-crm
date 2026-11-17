@@ -30,7 +30,7 @@ class FetchLeadReplies extends Command
             'host' => $cfg['imap_host'],
             'port' => $cfg['imap_port'],
             'encryption' => $cfg['imap_encryption'] ?: false,
-            'validate_cert' => true,
+            'validate_cert' => $cfg['imap_validate_cert'],
             'username' => $cfg['imap_username'],
             'password' => $cfg['imap_password'],
             'protocol' => 'imap',

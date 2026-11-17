@@ -53,6 +53,7 @@ return [
         'imap_password' => env('LEADS_IMAP_PASSWORD'),
         'imap_encryption' => env('LEADS_IMAP_ENCRYPTION', 'ssl'),
         'imap_folder' => env('LEADS_IMAP_FOLDER', 'INBOX'),
+        'imap_validate_cert' => (bool) env('LEADS_IMAP_VALIDATE_CERT', false),
     ],
 
 ];
