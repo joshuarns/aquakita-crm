@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 use OwenIt\Auditing\Auditable as AuditableTrait;
 use OwenIt\Auditing\Contracts\Auditable;
 
@@ -100,6 +101,27 @@ class Lead extends Model implements Auditable
     public function ownerCompany(): ?Company
     {
         return $this->company_id ? Company::find($this->company_id) : null;
+    }
+
+    /**
+     * Hilo de correos (salientes y entrantes) con el lead.
+     */
+    public function messages(): HasMany
+    {
+        return $this->hasMany(LeadMessage::class);
+    }
+
+    /**
+     * Token estable para el Reply-To (casa las respuestas entrantes con el lead).
+     * Se genera la primera vez que se necesita.
+     */
+    public function ensureReplyToken(): string
+    {
+        if (blank($this->reply_token)) {
+            $this->forceFill(['reply_token' => Str::lower(Str::random(16))])->save();
+        }
+
+        return $this->reply_token;
     }
 
     // ---- Historial y actividad ----
