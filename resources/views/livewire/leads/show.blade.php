@@ -1,10 +1,13 @@
 <?php
 
+use App\Mail\LeadReplyMail;
 use App\Models\Activity;
 use App\Models\DiscardReason;
 use App\Models\Lead;
 use App\Models\Status;
+use Illuminate\Mail\Mailables\Address;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
@@ -31,6 +34,10 @@ new #[Layout('layouts.app')] class extends Component
 
     // --- Archivos adjuntos (§5) ---
     public $upload = null;
+
+    // --- Conversación por correo ---
+    public string $reply_subject = '';
+    public string $reply_body = '';
 
     /**
      * Al abrir la ficha se registra la apertura del vendedor asignado (§4.3, §5).
@@ -87,6 +94,81 @@ new #[Layout('layouts.app')] class extends Component
     public function activities()
     {
         return $this->lead->activities()->with('performedBy')->latest()->get();
+    }
+
+    #[Computed]
+    public function thread()
+    {
+        return $this->lead->messages()->with('user')->orderBy('created_at')->get();
+    }
+
+    /**
+     * Envía una respuesta por correo al lead y la guarda en el hilo.
+     * El Reply-To lleva un token (leads+TOKEN@dominio) para casar la respuesta
+     * entrante con este lead cuando el IMAP la capture (fase 2).
+     */
+    public function sendReply(): void
+    {
+        $this->authorize('manage', $this->lead);
+
+        $data = $this->validate([
+            'reply_subject' => ['nullable', 'string', 'max:200'],
+            'reply_body' => ['required', 'string', 'max:5000'],
+        ]);
+
+        if (blank($this->lead->email)) {
+            $this->addError('reply_body', 'Este lead no tiene correo registrado.');
+
+            return;
+        }
+
+        $company = $this->lead->ownerCompany();
+        $fromName = $company?->name ?? config('app.name', 'CRM');
+        $mailbox = config('services.leads_mailbox.address');
+        $fromEmail = $mailbox ?: ($company?->mailFromAddress() ?? config('mail.from.address'));
+
+        $replyTo = null;
+        if ($mailbox && str_contains($mailbox, '@')) {
+            [$local, $domain] = explode('@', $mailbox, 2);
+            $token = $this->lead->ensureReplyToken();
+            $replyTo = new Address($local.'+'.$token.'@'.$domain, $fromName);
+        }
+
+        $subject = trim($data['reply_subject']) ?: 'Re: '.($this->lead->leadForm?->name ?? 'tu mensaje');
+
+        try {
+            Mail::to($this->lead->email)->send(new LeadReplyMail(
+                $subject,
+                $data['reply_body'],
+                new Address($fromEmail, $fromName),
+                $replyTo,
+                $company,
+            ));
+        } catch (\Throwable $e) {
+            $this->addError('reply_body', 'No se pudo enviar el correo: '.$e->getMessage());
+
+            return;
+        }
+
+        $this->lead->messages()->create([
+            'company_id' => $this->lead->company_id,
+            'user_id' => Auth::id(),
+            'direction' => 'out',
+            'from_name' => $fromName,
+            'from_email' => $fromEmail,
+            'to_email' => $this->lead->email,
+            'subject' => $subject,
+            'body' => $data['reply_body'],
+        ]);
+
+        $this->lead->recordTimeline('email_out', 'Correo enviado al lead', [
+            'asunto' => $subject,
+            'por' => Auth::user()->name,
+        ]);
+
+        unset($this->thread);
+        $this->reset('reply_subject', 'reply_body');
+        session()->flash('activity_status', 'Correo enviado a '.$this->lead->email);
     }
 
     /**
@@ -401,8 +483,56 @@ new #[Layout('layouts.app')] class extends Component
                 @endcan
             </div>
 
-            {{-- Columna derecha: actividad + línea de tiempo --}}
+            {{-- Columna derecha: conversación + actividad + línea de tiempo --}}
             <div class="lg:col-span-2 space-y-6">
+                {{-- Conversación por correo --}}
+                <div class="card p-5">
+                    <div class="mb-1 flex items-center justify-between">
+                        <h3 class="text-sm font-semibold text-slate-800 dark:text-slate-100">Conversación por correo</h3>
+                        @if ($lead->email)
+                            <span class="truncate text-xs text-slate-400 dark:text-slate-500">{{ $lead->email }}</span>
+                        @endif
+                    </div>
+
+                    @if ($this->thread->isNotEmpty())
+                        <div class="mt-3 max-h-96 space-y-3 overflow-y-auto pr-1">
+                            @foreach ($this->thread as $msg)
+                                <div class="flex {{ $msg->isOutbound() ? 'justify-end' : 'justify-start' }}">
+                                    <div class="max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm {{ $msg->isOutbound() ? 'rounded-br-sm bg-brand-600 text-white' : 'rounded-bl-sm bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-100' }}">
+                                        @if ($msg->subject)
+                                            <p class="mb-0.5 text-xs font-semibold opacity-80">{{ $msg->subject }}</p>
+                                        @endif
+                                        <p class="whitespace-pre-line leading-relaxed">{{ \Illuminate\Support\Str::limit($msg->body, 1500) }}</p>
+                                        <p class="mt-1 text-[10px] {{ $msg->isOutbound() ? 'text-white/70' : 'text-slate-400 dark:text-slate-500' }}">
+                                            {{ $msg->isOutbound() ? ($msg->user?->name ?? 'Equipo') : 'Lead' }} · {{ $msg->created_at->format('d/m/Y H:i') }}
+                                        </p>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <p class="mt-3 text-sm text-muted">Aún no hay correos con este lead.</p>
+                    @endif
+
+                    @can('manage', $lead)
+                        @if ($lead->email)
+                            <form wire:submit="sendReply" class="mt-4 space-y-2 border-t border-slate-100 pt-4 dark:border-slate-800">
+                                <input type="text" wire:model="reply_subject" class="input text-sm" placeholder="Asunto (opcional) — por defecto «Re: …»">
+                                <textarea wire:model="reply_body" rows="3" class="input text-sm" placeholder="Escribe tu respuesta al lead…"></textarea>
+                                @error('reply_body') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                                <div class="flex justify-end">
+                                    <button type="submit" class="btn-primary btn-sm">
+                                        <span wire:loading.remove wire:target="sendReply">Enviar correo</span>
+                                        <span wire:loading wire:target="sendReply">Enviando…</span>
+                                    </button>
+                                </div>
+                            </form>
+                        @else
+                            <p class="mt-3 text-xs text-amber-600 dark:text-amber-400">Este lead no tiene correo registrado.</p>
+                        @endif
+                    @endcan
+                </div>
+
                 {{-- Registrar actividad (§6) --}}
                 @can('manage', $lead)
                     <div class="card p-5">

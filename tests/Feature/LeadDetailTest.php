@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Mail\LeadReplyMail;
 use App\Models\DiscardReason;
 use App\Models\Lead;
 use App\Models\LeadNotification;
@@ -11,6 +12,7 @@ use Database\Seeders\CatalogSeeder;
 use Database\Seeders\RolePermissionSeeder;
 use Database\Seeders\StatusSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Volt\Volt;
 use Tests\TestCase;
 
@@ -41,6 +43,59 @@ class LeadDetailTest extends TestCase
             'vendor_id' => $vendor->id,
             'status_id' => Status::where('order', 2)->value('id'), // Asignado
         ]);
+    }
+
+    public function test_user_can_reply_to_lead_by_email(): void
+    {
+        Mail::fake();
+        $admin = $this->userWithRole('administrador');
+        $lead = Lead::factory()->create(['email' => 'cliente@example.com']);
+
+        Volt::actingAs($admin)
+            ->test('leads.show', ['lead' => $lead])
+            ->set('reply_body', 'Hola, gracias por tu interés.')
+            ->call('sendReply')
+            ->assertHasNoErrors();
+
+        Mail::assertSent(LeadReplyMail::class, fn ($m) => $m->hasTo('cliente@example.com'));
+        $this->assertDatabaseHas('lead_messages', [
+            'lead_id' => $lead->id,
+            'direction' => 'out',
+            'to_email' => 'cliente@example.com',
+        ]);
+    }
+
+    public function test_reply_uses_tokenized_reply_to_when_mailbox_configured(): void
+    {
+        config(['services.leads_mailbox.address' => 'leads@proyectopublicitario.com.mx']);
+        Mail::fake();
+        $admin = $this->userWithRole('administrador');
+        $lead = Lead::factory()->create(['email' => 'cliente@example.com']);
+
+        Volt::actingAs($admin)
+            ->test('leads.show', ['lead' => $lead])
+            ->set('reply_body', 'Hola')
+            ->call('sendReply')
+            ->assertHasNoErrors();
+
+        $lead->refresh();
+        $this->assertNotNull($lead->reply_token);
+        Mail::assertSent(LeadReplyMail::class, function ($m) use ($lead) {
+            return $m->replyToAddress
+                && $m->replyToAddress->address === 'leads+'.$lead->reply_token.'@proyectopublicitario.com.mx';
+        });
+    }
+
+    public function test_reply_requires_body(): void
+    {
+        $admin = $this->userWithRole('administrador');
+        $lead = Lead::factory()->create(['email' => 'cliente@example.com']);
+
+        Volt::actingAs($admin)
+            ->test('leads.show', ['lead' => $lead])
+            ->set('reply_body', '')
+            ->call('sendReply')
+            ->assertHasErrors('reply_body');
     }
 
     public function test_registering_a_contact_marks_first_contact_and_advances_status(): void

@@ -42,4 +42,17 @@ return [
         'secret_key' => env('TURNSTILE_SECRET_KEY'),
     ],
 
+    // Buzón de conversación con leads (responder por correo + leer respuestas por IMAP).
+    // Si 'address' está vacío, las respuestas salen desde el remitente de la empresa
+    // y no se tokeniza el Reply-To (las entrantes se casan solo por correo del lead).
+    'leads_mailbox' => [
+        'address' => env('LEADS_MAILBOX_ADDRESS'),            // p. ej. leads@proyectopublicitario.com.mx
+        'imap_host' => env('LEADS_IMAP_HOST', 'localhost'),
+        'imap_port' => (int) env('LEADS_IMAP_PORT', 993),
+        'imap_username' => env('LEADS_IMAP_USERNAME'),        // normalmente = address
+        'imap_password' => env('LEADS_IMAP_PASSWORD'),
+        'imap_encryption' => env('LEADS_IMAP_ENCRYPTION', 'ssl'),
+        'imap_folder' => env('LEADS_IMAP_FOLDER', 'INBOX'),
+    ],
+
 ];
