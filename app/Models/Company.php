@@ -20,6 +20,10 @@ class Company extends Model
     {
         return [
             'active' => 'boolean',
+            'conversations_enabled' => 'boolean',
+            'imap_validate_cert' => 'boolean',
+            'imap_port' => 'integer',
+            'imap_password' => 'encrypted', // cifrada en reposo (APP_KEY)
         ];
     }
 
@@ -56,6 +60,45 @@ class Company extends Model
     public function mailFromName(): string
     {
         return $this->name ?: (string) config('mail.from.name');
+    }
+
+    /**
+     * Dirección desde la que se responde a los leads (buzón de conversación).
+     * Propia de la empresa; si no, el global; si no, el remitente de la empresa.
+     */
+    public function replyFromAddress(): string
+    {
+        return $this->reply_from_email
+            ?: (config('services.leads_mailbox.address') ?: $this->mailFromAddress());
+    }
+
+    /**
+     * ¿La empresa tiene lista la lectura de respuestas (IMAP)?
+     */
+    public function conversationsReady(): bool
+    {
+        return $this->conversations_enabled
+            && filled($this->imap_host)
+            && filled($this->imap_username)
+            && filled($this->imap_password);
+    }
+
+    /**
+     * Config IMAP para webklex, a partir de los datos de la empresa.
+     *
+     * @return array<string, mixed>
+     */
+    public function imapConfig(): array
+    {
+        return [
+            'host' => $this->imap_host,
+            'port' => $this->imap_port ?: 993,
+            'encryption' => $this->imap_encryption ?: 'ssl',
+            'validate_cert' => (bool) $this->imap_validate_cert,
+            'username' => $this->imap_username,
+            'password' => $this->imap_password,
+            'protocol' => 'imap',
+        ];
     }
 
     public function users(): HasMany
