@@ -90,7 +90,7 @@ new class extends Component
 
             @can('catalogs.manage')
                 <p class="px-3 pb-1 pt-4 text-[10px] font-semibold uppercase tracking-wider text-slate-500">Ajustes</p>
-                <a href="{{ route('catalogs.index') }}" wire:navigate class="nav-link {{ request()->routeIs('catalogs.*') || request()->routeIs('users.*') || request()->routeIs('company.settings') ? 'nav-link-active' : '' }}">
+                <a href="{{ route('catalogs.index') }}" wire:navigate class="nav-link {{ request()->routeIs('catalogs.*') || request()->routeIs('users.*') || request()->routeIs('company.settings') || request()->routeIs('channels.settings') ? 'nav-link-active' : '' }}">
                     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M10.3 4.3a2 2 0 013.4 0l.3.6a2 2 0 002.3 1l.7-.2a2 2 0 012.4 2.4l-.2.7a2 2 0 001 2.3l.6.3a2 2 0 010 3.4l-.6.3a2 2 0 00-1 2.3l.2.7a2 2 0 01-2.4 2.4l-.7-.2a2 2 0 00-2.3 1l-.3.6a2 2 0 01-3.4 0l-.3-.6a2 2 0 00-2.3-1l-.7.2a2 2 0 01-2.4-2.4l.2-.7a2 2 0 00-1-2.3l-.6-.3a2 2 0 010-3.4l.6-.3a2 2 0 001-2.3l-.2-.7a2 2 0 012.4-2.4l.7.2a2 2 0 002.3-1z"/><circle cx="12" cy="12" r="3"/></svg>
                     Configuración
                 </a>

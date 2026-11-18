@@ -78,6 +78,7 @@ Route::middleware(['auth'])->group(function () {
     Route::middleware('permission:catalogs.manage')->group(function () {
         Volt::route('configuracion', 'catalogs.index')->name('catalogs.index');
         Volt::route('configuracion/empresa', 'catalogs.company')->name('company.settings');
+        Volt::route('configuracion/canales', 'catalogs.channels')->name('channels.settings');
         Volt::route('configuracion/ciudades', 'catalogs.cities')->name('catalogs.cities');
         Volt::route('configuracion/plantillas', 'catalogs.templates')->name('catalogs.templates');
         Volt::route('configuracion/catalogo/{type}', 'catalogs.manage')->name('catalogs.manage');
