@@ -24,6 +24,8 @@ class Company extends Model
             'imap_validate_cert' => 'boolean',
             'imap_port' => 'integer',
             'imap_password' => 'encrypted', // cifrada en reposo (APP_KEY)
+            'whatsapp_enabled' => 'boolean',
+            'whatsapp_token' => 'encrypted',
         ];
     }
 
@@ -81,6 +83,16 @@ class Company extends Model
             && filled($this->imap_host)
             && filled($this->imap_username)
             && filled($this->imap_password);
+    }
+
+    /**
+     * ¿La empresa tiene WhatsApp (Cloud API) listo para enviar?
+     */
+    public function whatsappReady(): bool
+    {
+        return $this->whatsapp_enabled
+            && filled($this->whatsapp_phone_number_id)
+            && filled($this->whatsapp_token);
     }
 
     /**
