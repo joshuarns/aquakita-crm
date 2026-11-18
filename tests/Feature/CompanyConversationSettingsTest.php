@@ -42,14 +42,14 @@ class CompanyConversationSettingsTest extends TestCase
         [$company, $user] = $this->companyAdmin();
 
         Volt::actingAs($user)
-            ->test('catalogs.company')
+            ->test('catalogs.channels')
             ->set('conversations_enabled', true)
             ->set('reply_from_email', 'info@tuempresa.com')
             ->set('imap_host', 'imap.gmail.com')
             ->set('imap_port', 993)
             ->set('imap_username', 'info@tuempresa.com')
             ->set('imap_password', 'secreto-123')
-            ->call('save')
+            ->call('saveEmail')
             ->assertHasNoErrors();
 
         $company->refresh();
@@ -70,15 +70,38 @@ class CompanyConversationSettingsTest extends TestCase
         $company->update(['imap_password' => 'original-pass']);
 
         Volt::actingAs($user)
-            ->test('catalogs.company')
+            ->test('catalogs.channels')
             ->set('conversations_enabled', true)
             ->set('imap_host', 'imap.gmail.com')
             ->set('imap_username', 'info@tuempresa.com')
             ->set('imap_password', '') // no se escribe nueva
-            ->call('save')
+            ->call('saveEmail')
             ->assertHasNoErrors();
 
         $this->assertSame('original-pass', $company->refresh()->imap_password);
+    }
+
+    public function test_admin_can_configure_whatsapp_and_token_is_encrypted(): void
+    {
+        [$company, $user] = $this->companyAdmin();
+
+        Volt::actingAs($user)
+            ->test('catalogs.channels')
+            ->set('tab', 'whatsapp')
+            ->set('whatsapp_enabled', true)
+            ->set('whatsapp_number', '+525512345678')
+            ->set('whatsapp_phone_number_id', 'PNID999')
+            ->set('whatsapp_token', 'wa-token-secreto')
+            ->call('saveWhatsapp')
+            ->assertHasNoErrors();
+
+        $company->refresh();
+        $this->assertTrue($company->whatsapp_enabled);
+        $this->assertTrue($company->whatsappReady());
+        $this->assertSame('wa-token-secreto', $company->whatsapp_token);
+
+        $raw = DB::table('companies')->where('id', $company->id)->value('whatsapp_token');
+        $this->assertStringNotContainsString('wa-token-secreto', (string) $raw);
     }
 
     public function test_reply_from_prefers_company_mailbox(): void

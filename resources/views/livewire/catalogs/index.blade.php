@@ -20,6 +20,7 @@ new #[Layout('layouts.app')] class extends Component
             ['route' => 'catalogs.cities', 'param' => [], 'title' => 'Ciudades', 'desc' => 'Ciudades por país.'],
             ['route' => 'catalogs.templates', 'param' => [], 'title' => 'Plantillas de correo', 'desc' => 'Textos de los avisos por correo.'],
             ['route' => 'company.settings', 'param' => [], 'title' => 'Mi empresa', 'desc' => 'Logo, nombre y color de tu marca.'],
+            ['route' => 'channels.settings', 'param' => [], 'title' => 'Canales de conversación', 'desc' => 'Correo y WhatsApp para responder a tus leads.'],
             ['route' => 'users.index', 'param' => [], 'title' => 'Usuarios', 'desc' => 'Alta, edición y permisos.'],
         ];
     }
