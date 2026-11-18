@@ -123,8 +123,9 @@ new #[Layout('layouts.app')] class extends Component
         }
 
         $company = $this->lead->ownerCompany();
-        $fromName = $company?->name ?? config('app.name', 'CRM');
-        $mailbox = config('services.leads_mailbox.address');
+        $fromName = $company?->mailFromName() ?? config('app.name', 'CRM');
+        // Buzón de conversación: propio de la empresa, si no el global.
+        $mailbox = $company?->reply_from_email ?: config('services.leads_mailbox.address');
         $fromEmail = $mailbox ?: ($company?->mailFromAddress() ?? config('mail.from.address'));
 
         $replyTo = null;

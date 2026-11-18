@@ -25,8 +25,9 @@ class InboundLeadReply
         string $body,
         ?string $messageId = null,
         ?string $inReplyTo = null,
+        ?int $companyId = null,
     ): ?LeadMessage {
-        $lead = $this->matchLead($toAddresses, $fromEmail);
+        $lead = $this->matchLead($toAddresses, $fromEmail, $companyId);
 
         if (! $lead) {
             return null;
@@ -68,8 +69,9 @@ class InboundLeadReply
     /**
      * @param  array<int, string>  $toAddresses
      */
-    protected function matchLead(array $toAddresses, string $fromEmail): ?Lead
+    protected function matchLead(array $toAddresses, string $fromEmail, ?int $companyId = null): ?Lead
     {
+        // 1) Token del Reply-To (único globalmente).
         foreach ($toAddresses as $address) {
             if (preg_match('/\+([a-z0-9]{16})@/i', (string) $address, $m)) {
                 $lead = Lead::where('reply_token', mb_strtolower($m[1]))->first();
@@ -79,9 +81,14 @@ class InboundLeadReply
             }
         }
 
-        // Respaldo: el correo del remitente coincide con el de algún lead.
-        return $fromEmail !== ''
-            ? Lead::where('email', $fromEmail)->latest()->first()
-            : null;
+        // 2) Respaldo: correo del remitente, acotado a la empresa del buzón si se conoce.
+        if ($fromEmail === '') {
+            return null;
+        }
+
+        return Lead::where('email', $fromEmail)
+            ->when($companyId, fn ($q) => $q->where('company_id', $companyId))
+            ->latest()
+            ->first();
     }
 }
