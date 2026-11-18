@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Company;
+use App\Rules\NotFreeEmailProvider;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 
@@ -58,7 +59,7 @@ new #[Layout('layouts.app')] class extends Component
     public function saveEmail(): void
     {
         $this->validate([
-            'reply_from_email' => ['nullable', 'email', 'max:255'],
+            'reply_from_email' => ['nullable', 'email', 'max:255', new NotFreeEmailProvider()],
             'imap_host' => ['nullable', 'string', 'max:255'],
             'imap_port' => ['nullable', 'integer', 'min:1', 'max:65535'],
             'imap_username' => ['nullable', 'string', 'max:255'],

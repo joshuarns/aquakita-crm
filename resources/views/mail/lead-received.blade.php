@@ -1,4 +1,3 @@
-@php($logo = $message->embedData(optional($company)->logoBytes() ?? \App\Support\BrandLogo::bytes(), 'logo.png', 'image/png'))
 @php($rows = array_filter([
     'Nombre' => $lead->full_name,
     // OJO: `company` es también el nombre de la relación tenant company(). En un
@@ -24,7 +23,7 @@
                 <table role="presentation" width="560" cellpadding="0" cellspacing="0" style="width:100%;max-width:560px;">
                     <tr>
                         <td align="center" style="padding:10px 0 22px;">
-                            <img src="{{ $logo }}" alt="Aquakita" width="150" style="display:block;width:150px;max-width:150px;height:auto;">
+                            @include('mail.partials.brand-header')
                         </td>
                     </tr>
                     <tr>
