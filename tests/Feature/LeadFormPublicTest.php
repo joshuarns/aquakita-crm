@@ -11,6 +11,7 @@ use App\Models\Source;
 use App\Models\Status;
 use App\Models\User;
 use App\Support\LeadNotifier;
+use App\Support\Tenancy;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Crypt;
@@ -265,6 +266,38 @@ class LeadFormPublicTest extends TestCase
         ])->assertOk();
 
         $this->assertDatabaseHas('leads', ['email' => 'ana@example.com']);
+    }
+
+    public function test_new_lead_email_does_not_dump_company_model(): void
+    {
+        // Regresión: un lead recién creado sin columna `company` hacía que
+        // $lead->company cayera en la relación tenant y volcara el modelo como JSON.
+        $statusId = Status::where('order', 1)->value('id');
+        $company = Company::create([
+            'name' => 'MANT ELEK',
+            'slug' => 'mant-elek-'.uniqid(),
+            'brand_color' => '#0e4690',
+            'timezone' => 'America/Mexico_City',
+            'locale' => 'es',
+            'active' => true,
+        ]);
+
+        app(Tenancy::class)->set($company->id);
+        $lead = Lead::create([
+            'first_name' => 'Arnulfo',
+            'last_name' => 'Saldaña',
+            'email' => 'arnulfo@example.com',
+            'phone' => '8112859793',
+            'status_id' => $statusId,
+            'company_id' => $company->id,
+        ]);
+        app(Tenancy::class)->set(null);
+
+        $html = (new LeadReceivedMail($lead))->render();
+
+        $this->assertStringContainsString('Arnulfo Saldaña', $html);
+        $this->assertStringNotContainsString('brand_color', $html);
+        $this->assertStringNotContainsString('"slug"', $html);
     }
 
     public function test_confirmation_email_sends_when_lead_has_client_company(): void
