@@ -144,6 +144,7 @@ new #[Layout('layouts.app')] class extends Component
 @php
     $avatarPalette = ['bg-brand-600', 'bg-indigo-500', 'bg-emerald-500', 'bg-amber-500', 'bg-rose-500', 'bg-sky-500'];
     $statusBadge = fn ($s) => $s?->is_won ? 'badge-success' : ($s?->is_final ? 'badge-neutral' : 'badge-brand');
+    $tz = auth()->user()->company?->timezone ?: config('app.timezone', 'UTC');
 @endphp
 
 <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -192,6 +193,7 @@ new #[Layout('layouts.app')] class extends Component
                         <th class="px-4 py-3">{{ __('Prospecto') }}</th>
                         <th class="px-4 py-3">{{ __('Empresa') }}</th>
                         <th class="px-4 py-3">{{ __('País / Fuente') }}</th>
+                        <th class="px-4 py-3">{{ __('Recibido') }}</th>
                         <th class="px-4 py-3">{{ __('Estatus') }}</th>
                         <th class="px-4 py-3">{{ __('Vendedor') }}</th>
                         @can('leads.assign')
@@ -235,6 +237,11 @@ new #[Layout('layouts.app')] class extends Component
                                     {{ $medio['label'] }}
                                 </span>
                             </td>
+                            @php($recibido = $lead->created_at?->copy()->setTimezone($tz))
+                            <td class="px-4 py-3 text-slate-700 dark:text-slate-300" title="{{ $recibido?->translatedFormat('d/m/Y H:i') }} · {{ $lead->created_at?->diffForHumans() }}">
+                                <div class="text-sm">{{ $recibido?->translatedFormat('d M Y') }}</div>
+                                <div class="text-xs text-slate-500 dark:text-slate-400">{{ $recibido?->format('H:i') }}</div>
+                            </td>
                             <td class="px-4 py-3">
                                 <span class="{{ $statusBadge($lead->status) }}">{{ $lead->status?->name }}</span>
                             </td>
@@ -263,7 +270,7 @@ new #[Layout('layouts.app')] class extends Component
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-4 py-16 text-center">
+                            <td colspan="8" class="px-4 py-16 text-center">
                                 <svg class="mx-auto h-10 w-10 text-slate-300 dark:text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2h7M16 3v4M8 3v4M4 11h16"/></svg>
                                 <p class="mt-3 text-sm text-muted">{{ __('No hay leads que coincidan.') }}</p>
                             </td>
