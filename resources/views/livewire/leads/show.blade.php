@@ -5,6 +5,7 @@ use App\Models\Activity;
 use App\Models\DiscardReason;
 use App\Models\Lead;
 use App\Models\Status;
+use App\Support\WhatsApp\WhatsAppGateway;
 use Illuminate\Mail\Mailables\Address;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -38,6 +39,9 @@ new #[Layout('layouts.app')] class extends Component
     // --- Conversación por correo ---
     public string $reply_subject = '';
     public string $reply_body = '';
+
+    // --- Conversación por WhatsApp ---
+    public string $wa_body = '';
 
     /**
      * Al abrir la ficha se registra la apertura del vendedor asignado (§4.3, §5).
@@ -99,7 +103,19 @@ new #[Layout('layouts.app')] class extends Component
     #[Computed]
     public function thread()
     {
-        return $this->lead->messages()->with('user')->orderBy('created_at')->get();
+        return $this->lead->messages()->where('channel', 'email')->with('user')->orderBy('created_at')->get();
+    }
+
+    #[Computed]
+    public function whatsappThread()
+    {
+        return $this->lead->messages()->where('channel', 'whatsapp')->with('user')->orderBy('created_at')->get();
+    }
+
+    #[Computed]
+    public function company()
+    {
+        return $this->lead->ownerCompany();
     }
 
     /**
@@ -170,6 +186,59 @@ new #[Layout('layouts.app')] class extends Component
         unset($this->thread);
         $this->reset('reply_subject', 'reply_body');
         session()->flash('activity_status', 'Correo enviado a '.$this->lead->email);
+    }
+
+    /**
+     * Envía un mensaje de WhatsApp al lead (Cloud API) y lo guarda en el hilo.
+     */
+    public function sendWhatsApp(WhatsAppGateway $gateway): void
+    {
+        $this->authorize('manage', $this->lead);
+
+        $data = $this->validate(['wa_body' => ['required', 'string', 'max:4000']]);
+
+        $company = $this->lead->ownerCompany();
+
+        if (! $company?->whatsappReady()) {
+            $this->addError('wa_body', 'WhatsApp no está configurado para tu empresa.');
+
+            return;
+        }
+
+        if (blank($this->lead->phone)) {
+            $this->addError('wa_body', 'Este lead no tiene teléfono registrado.');
+
+            return;
+        }
+
+        try {
+            $waId = $gateway->sendText($company, $this->lead->phone, $data['wa_body']);
+        } catch (\Throwable $e) {
+            $this->addError('wa_body', 'No se pudo enviar: '.$e->getMessage());
+
+            return;
+        }
+
+        $this->lead->messages()->create([
+            'company_id' => $this->lead->company_id,
+            'user_id' => Auth::id(),
+            'direction' => 'out',
+            'channel' => 'whatsapp',
+            'from_name' => $company->name,
+            'from_email' => (string) $company->whatsapp_number,
+            'to_email' => $this->lead->phone,
+            'subject' => null,
+            'body' => $data['wa_body'],
+            'message_id' => $waId,
+        ]);
+
+        $this->lead->recordTimeline('whatsapp_out', 'WhatsApp enviado al lead', [
+            'por' => Auth::user()->name,
+        ]);
+
+        unset($this->whatsappThread);
+        $this->reset('wa_body');
+        session()->flash('activity_status', 'WhatsApp enviado a '.$this->lead->phone);
     }
 
     /**
@@ -533,6 +602,56 @@ new #[Layout('layouts.app')] class extends Component
                         @endif
                     @endcan
                 </div>
+
+                {{-- Conversación por WhatsApp --}}
+                @if ($this->company?->whatsappReady())
+                    <div class="card p-5">
+                        <div class="mb-1 flex items-center justify-between">
+                            <h3 class="flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-100">
+                                <svg class="h-4 w-4 text-emerald-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.46 0-9.9 4.44-9.9 9.9 0 1.75.46 3.45 1.32 4.95L2 22l5.3-1.38a9.87 9.87 0 0 0 4.73 1.2h.01c5.46 0 9.9-4.44 9.9-9.9 0-2.64-1.03-5.13-2.9-7A9.82 9.82 0 0 0 12.04 2Zm5.8 14.17c-.25.69-1.44 1.32-1.98 1.37-.53.05-1.02.24-3.45-.72-2.9-1.15-4.76-4.12-4.9-4.31-.14-.19-1.18-1.57-1.18-3s.75-2.13 1.02-2.42c.27-.29.58-.36.78-.36l.56.01c.18.01.42-.07.66.5.25.6.84 2.06.91 2.2.07.14.12.31.02.5-.1.19-.15.31-.29.48-.14.17-.3.38-.43.5-.14.14-.29.29-.12.57.17.29.74 1.22 1.59 1.98 1.09.97 2.01 1.27 2.3 1.42.29.14.46.12.63-.07.17-.19.72-.84.91-1.13.19-.29.39-.24.66-.14.27.1 1.7.8 1.99.95.29.14.48.21.55.33.07.12.07.69-.18 1.37Z"/></svg>
+                                WhatsApp
+                            </h3>
+                            @if ($lead->phone)
+                                <span class="truncate text-xs text-slate-400 dark:text-slate-500">{{ $lead->phone }}</span>
+                            @endif
+                        </div>
+
+                        @if ($this->whatsappThread->isNotEmpty())
+                            <div class="mt-3 max-h-96 space-y-3 overflow-y-auto pr-1">
+                                @foreach ($this->whatsappThread as $msg)
+                                    <div class="flex {{ $msg->isOutbound() ? 'justify-end' : 'justify-start' }}">
+                                        <div class="max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm {{ $msg->isOutbound() ? 'rounded-br-sm bg-emerald-600 text-white' : 'rounded-bl-sm bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-100' }}">
+                                            <p class="whitespace-pre-line leading-relaxed">{{ \Illuminate\Support\Str::limit($msg->body, 1500) }}</p>
+                                            <p class="mt-1 text-[10px] {{ $msg->isOutbound() ? 'text-white/70' : 'text-slate-400 dark:text-slate-500' }}">
+                                                {{ $msg->isOutbound() ? ($msg->user?->name ?? 'Equipo') : 'Lead' }} · {{ $msg->created_at->format('d/m/Y H:i') }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <p class="mt-3 text-sm text-muted">Aún no hay mensajes de WhatsApp con este lead.</p>
+                        @endif
+
+                        @can('manage', $lead)
+                            @if ($lead->phone)
+                                <form wire:submit="sendWhatsApp" class="mt-4 space-y-2 border-t border-slate-100 pt-4 dark:border-slate-800">
+                                    <textarea wire:model="wa_body" rows="2" class="input text-sm" placeholder="Escribe un mensaje de WhatsApp…"></textarea>
+                                    @error('wa_body') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span class="text-[11px] text-muted">Solo texto libre dentro de las 24 h desde el último mensaje del cliente.</span>
+                                        <button type="submit" class="btn-primary btn-sm shrink-0">
+                                            <span wire:loading.remove wire:target="sendWhatsApp">Enviar</span>
+                                            <span wire:loading wire:target="sendWhatsApp">Enviando…</span>
+                                        </button>
+                                    </div>
+                                </form>
+                            @else
+                                <p class="mt-3 text-xs text-amber-600 dark:text-amber-400">Este lead no tiene teléfono registrado.</p>
+                            @endif
+                        @endcan
+                    </div>
+                @endif
 
                 {{-- Registrar actividad (§6) --}}
                 @can('manage', $lead)

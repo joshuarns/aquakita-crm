@@ -30,6 +30,15 @@ new #[Layout('layouts.app')] class extends Component
     public bool $has_imap_password = false;
     public ?array $imapTest = null;
 
+    // WhatsApp (Cloud API)
+    public bool $whatsapp_enabled = false;
+    public string $whatsapp_number = '';
+    public string $whatsapp_phone_number_id = '';
+    public string $whatsapp_business_id = '';
+    public string $whatsapp_token = ''; // solo escritura
+    public string $whatsapp_verify_token = '';
+    public bool $has_whatsapp_token = false;
+
     public $logoFile = null;
 
     public function mount(): void
@@ -52,6 +61,13 @@ new #[Layout('layouts.app')] class extends Component
         $this->imap_folder = $this->company->imap_folder ?: 'INBOX';
         $this->imap_validate_cert = (bool) $this->company->imap_validate_cert;
         $this->has_imap_password = filled($this->company->imap_password);
+
+        $this->whatsapp_enabled = (bool) $this->company->whatsapp_enabled;
+        $this->whatsapp_number = (string) $this->company->whatsapp_number;
+        $this->whatsapp_phone_number_id = (string) $this->company->whatsapp_phone_number_id;
+        $this->whatsapp_business_id = (string) $this->company->whatsapp_business_id;
+        $this->whatsapp_verify_token = $this->company->whatsapp_verify_token ?: \Illuminate\Support\Str::random(20);
+        $this->has_whatsapp_token = filled($this->company->whatsapp_token);
     }
 
     /**
@@ -102,6 +118,11 @@ new #[Layout('layouts.app')] class extends Component
             'imap_password' => ['nullable', 'string', 'max:255'],
             'imap_encryption' => ['nullable', 'in:ssl,tls,starttls,none'],
             'imap_folder' => ['nullable', 'string', 'max:100'],
+            'whatsapp_number' => ['nullable', 'string', 'max:30'],
+            'whatsapp_phone_number_id' => ['nullable', 'string', 'max:64'],
+            'whatsapp_business_id' => ['nullable', 'string', 'max:64'],
+            'whatsapp_token' => ['nullable', 'string', 'max:1024'],
+            'whatsapp_verify_token' => ['nullable', 'string', 'max:64'],
             'logoFile' => ['nullable', 'image', 'max:1024'], // 1 MB
         ]);
 
@@ -119,11 +140,19 @@ new #[Layout('layouts.app')] class extends Component
             'imap_encryption' => $this->imap_encryption ?: 'ssl',
             'imap_folder' => $this->imap_folder ?: 'INBOX',
             'imap_validate_cert' => $this->imap_validate_cert,
+            'whatsapp_enabled' => $this->whatsapp_enabled,
+            'whatsapp_number' => $this->whatsapp_number ?: null,
+            'whatsapp_phone_number_id' => $this->whatsapp_phone_number_id ?: null,
+            'whatsapp_business_id' => $this->whatsapp_business_id ?: null,
+            'whatsapp_verify_token' => $this->whatsapp_verify_token ?: null,
         ];
 
-        // La contraseña solo se actualiza si se escribió una nueva (campo de solo escritura).
+        // Las credenciales solo se actualizan si se escribió una nueva (campos de solo escritura).
         if (filled($this->imap_password)) {
             $data['imap_password'] = $this->imap_password;
+        }
+        if (filled($this->whatsapp_token)) {
+            $data['whatsapp_token'] = $this->whatsapp_token;
         }
 
         if ($this->logoFile) {
@@ -133,7 +162,10 @@ new #[Layout('layouts.app')] class extends Component
         $this->company->update($data);
         $this->logoFile = null;
         $this->imap_password = '';
-        $this->has_imap_password = filled($this->company->fresh()->imap_password);
+        $this->whatsapp_token = '';
+        $fresh = $this->company->fresh();
+        $this->has_imap_password = filled($fresh->imap_password);
+        $this->has_whatsapp_token = filled($fresh->whatsapp_token);
 
         session()->flash('status', 'Datos de la empresa guardados.');
     }
@@ -283,6 +315,60 @@ new #[Layout('layouts.app')] class extends Component
                         </div>
 
                         <p class="text-xs text-muted">Guarda primero los datos; luego el cron <code>leads:fetch-replies</code> leerá este buzón cada pocos minutos y meterá las respuestas al hilo del lead.</p>
+                    </div>
+                @endif
+            </div>
+
+            {{-- WhatsApp (Cloud API) --}}
+            <div class="border-t border-slate-100 pt-5 dark:border-slate-800">
+                <div class="flex items-center justify-between gap-4">
+                    <div>
+                        <h3 class="flex items-center gap-2 text-sm font-semibold text-slate-800 dark:text-slate-100">
+                            <svg class="h-4 w-4 text-emerald-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.46 0-9.9 4.44-9.9 9.9 0 1.75.46 3.45 1.32 4.95L2 22l5.3-1.38a9.87 9.87 0 0 0 4.73 1.2h.01c5.46 0 9.9-4.44 9.9-9.9 0-2.64-1.03-5.13-2.9-7A9.82 9.82 0 0 0 12.04 2Z"/></svg>
+                            WhatsApp (Cloud API)
+                        </h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Chatea con tus leads por WhatsApp desde el CRM (compatible con Coexistencia).</p>
+                    </div>
+                    <label class="inline-flex shrink-0 items-center gap-2">
+                        <input type="checkbox" wire:model.live="whatsapp_enabled" class="rounded border-slate-300 text-[#0e7490] focus:ring-[#0e7490]">
+                        <span class="text-sm text-slate-700 dark:text-slate-300">Activar</span>
+                    </label>
+                </div>
+
+                @if ($whatsapp_enabled)
+                    <div class="mt-4 space-y-4">
+                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div>
+                                <label class="label">Número (visible)</label>
+                                <input type="text" wire:model="whatsapp_number" placeholder="+52 55 1234 5678" class="input">
+                            </div>
+                            <div>
+                                <label class="label">Phone Number ID</label>
+                                <input type="text" wire:model="whatsapp_phone_number_id" placeholder="de Meta (API Setup)" class="input">
+                            </div>
+                            <div>
+                                <label class="label">
+                                    Token de acceso
+                                    @if ($has_whatsapp_token)<span class="text-xs font-normal text-emerald-600 dark:text-emerald-400">· configurado ✓</span>@endif
+                                </label>
+                                <input type="password" wire:model="whatsapp_token" autocomplete="new-password"
+                                       placeholder="{{ $has_whatsapp_token ? 'Dejar vacío para no cambiarlo' : 'Token permanente de Meta' }}" class="input">
+                            </div>
+                            <div>
+                                <label class="label">WhatsApp Business ID (opcional)</label>
+                                <input type="text" wire:model="whatsapp_business_id" placeholder="WABA ID" class="input">
+                            </div>
+                        </div>
+
+                        <div class="rounded-lg surface-muted p-3 text-xs text-slate-600 dark:text-slate-300">
+                            <p class="font-semibold text-slate-700 dark:text-slate-200">Configura esto en Meta (WhatsApp → Configuration → Webhooks):</p>
+                            <div class="mt-2 space-y-1">
+                                <p><span class="text-muted">Callback URL:</span> <code class="break-all">{{ route('whatsapp.receive') }}</code></p>
+                                <p><span class="text-muted">Verify token:</span> <code class="break-all">{{ $whatsapp_verify_token }}</code></p>
+                            </div>
+                            <p class="mt-2 text-muted">Y suscríbete al campo <strong>messages</strong>. Guarda primero aquí para que el token quede activo.</p>
+                        </div>
+                        <input type="hidden" wire:model="whatsapp_verify_token">
                     </div>
                 @endif
             </div>

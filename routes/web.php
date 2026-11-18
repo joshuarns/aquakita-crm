@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\Public\LeadFormController;
+use App\Http\Controllers\WhatsAppWebhookController;
 use App\Models\Company;
 use App\Support\BrandLogo;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +21,10 @@ Route::get('c/{company}/logo.png', fn (Company $company) => response($company->l
     'Content-Type' => 'image/png',
     'Cache-Control' => 'public, max-age=3600',
 ]))->name('company.logo');
+
+// Webhook de WhatsApp Cloud API (público; se enruta por phone_number_id).
+Route::get('webhooks/whatsapp', [WhatsAppWebhookController::class, 'verify'])->name('whatsapp.verify');
+Route::post('webhooks/whatsapp', [WhatsAppWebhookController::class, 'receive'])->name('whatsapp.receive');
 
 // Formularios web embebibles — endpoints públicos (sin autenticación).
 Route::get('f/{token}.js', [LeadFormController::class, 'script'])->whereAlphaNumeric('token')->name('public.forms.script');
