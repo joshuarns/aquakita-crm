@@ -1,7 +1,10 @@
 @php($logo = $message->embedData(optional($company)->logoBytes() ?? \App\Support\BrandLogo::bytes(), 'logo.png', 'image/png'))
 @php($rows = array_filter([
     'Nombre' => $lead->full_name,
-    'Empresa' => $lead->company,
+    // OJO: `company` es también el nombre de la relación tenant company(). En un
+    // lead recién creado sin esa columna, $lead->company devuelve el MODELO de la
+    // empresa (se volcaba como JSON en el correo). Leemos la columna cruda.
+    'Empresa' => $lead->getRawOriginal('company'),
     'Email' => $lead->email,
     'Teléfono' => $lead->phone,
     'País' => $lead->country?->name,
