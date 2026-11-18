@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Company;
+use App\Rules\NotFreeEmailProvider;
 use Livewire\Attributes\Layout;
 use Livewire\Volt\Component;
 use Livewire\WithFileUploads;
@@ -37,7 +38,7 @@ new #[Layout('layouts.app')] class extends Component
             'brand_color' => ['required', 'string', 'max:20'],
             'timezone' => ['required', 'string', 'max:64'],
             'locale' => ['in:es,en,pt'],
-            'from_email' => ['nullable', 'email', 'max:255'],
+            'from_email' => ['nullable', 'email', 'max:255', new NotFreeEmailProvider()],
             'logoFile' => ['nullable', 'image', 'max:1024'], // 1 MB
         ]);
 
@@ -114,6 +115,7 @@ new #[Layout('layouts.app')] class extends Component
             <p class="mt-1 text-xs text-muted">
                 Los correos salen con el <strong>nombre de tu empresa</strong>. Aquí puedes poner tu propio correo «De».
                 <span class="text-amber-700 dark:text-amber-400">Importante:</span> el dominio debe autorizar este servidor (SPF) o pueden caer en spam.
+                No uses correos de <strong>gmail, hotmail, outlook, yahoo</strong> ni similares: esos proveedores rebotan el correo que sale desde otro servidor.
                 Vacío = usa el correo de la plataforma ({{ config('mail.from.address') }}).
             </p>
         </div>
