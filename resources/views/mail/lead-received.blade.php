@@ -1,7 +1,9 @@
 @php($logo = $message->embedData(optional($company)->logoBytes() ?? \App\Support\BrandLogo::bytes(), 'logo.png', 'image/png'))
 @php($rows = array_filter([
     'Nombre' => $lead->full_name,
-    'Empresa' => $lead->company,
+    // `company` is also the tenant relationship name. Read the actual lead
+    // column so the email never renders the tenant model as JSON.
+    'Empresa' => $lead->getRawOriginal('company'),
     'Email' => $lead->email,
     'Teléfono' => $lead->phone,
     'País' => $lead->country?->name,
