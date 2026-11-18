@@ -54,6 +54,8 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('permission:leads.view.all')
         ->name('team');
 
+    Volt::route('conversaciones', 'conversations.index')->name('conversations.index');
+
     Volt::route('leads', 'leads.index')->name('leads.index');
 
     Volt::route('leads/create', 'leads.create')

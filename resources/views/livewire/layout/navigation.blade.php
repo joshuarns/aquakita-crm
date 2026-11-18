@@ -61,6 +61,11 @@ new class extends Component
                 Leads
             </a>
 
+            <a href="{{ route('conversations.index') }}" wire:navigate class="nav-link {{ request()->routeIs('conversations.index') ? 'nav-link-active' : '' }}">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 12a8 8 0 01-11.6 7.1L3 21l1.9-6.4A8 8 0 1121 12z"/></svg>
+                Conversaciones
+            </a>
+
             @can('leads.export')
                 <a href="{{ route('leads.export') }}" wire:navigate class="nav-link {{ request()->routeIs('leads.export') ? 'nav-link-active' : '' }}">
                     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3v12m0 0l-4-4m4 4l4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
