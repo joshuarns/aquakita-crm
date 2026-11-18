@@ -85,6 +85,48 @@ new #[Layout('layouts.app')] class extends Component
         $company = Company::findOrFail($id);
         $company->update(['active' => ! $company->active]);
     }
+
+    // --- Eliminar empresa (destructivo: borra todo su contenido en cascada) ---
+    public ?int $deletingId = null;
+
+    public string $deleteConfirm = '';
+
+    public function confirmDelete(int $id): void
+    {
+        $this->deletingId = $id;
+        $this->deleteConfirm = '';
+        $this->resetErrorBag('deleteConfirm');
+    }
+
+    public function cancelDelete(): void
+    {
+        $this->reset('deletingId', 'deleteConfirm');
+    }
+
+    public function destroy(): void
+    {
+        $company = Company::findOrFail($this->deletingId);
+
+        if (trim($this->deleteConfirm) !== $company->name) {
+            $this->addError('deleteConfirm', 'El nombre no coincide. Escríbelo exactamente para confirmar.');
+
+            return;
+        }
+
+        $name = $company->name;
+        $company->delete(); // cascada: usuarios, leads, catálogos, formularios, conversaciones…
+
+        $this->reset('deletingId', 'deleteConfirm');
+        session()->flash('status', "Empresa «{$name}» eliminada permanentemente.");
+    }
+
+    /**
+     * Primer usuario (administrador) de la empresa, para mostrar el contacto.
+     */
+    public function adminOf(Company $company): ?User
+    {
+        return User::withoutGlobalScopes()->where('company_id', $company->id)->orderBy('id')->first();
+    }
 }; ?>
 
 <div class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
@@ -189,6 +231,13 @@ new #[Layout('layouts.app')] class extends Component
                         <span class="inline-block h-2.5 w-2.5 shrink-0 rounded-full" style="background: {{ $company->brandColor() }}"></span>
                     </div>
                     <p class="truncate text-xs text-muted">{{ $company->slug }} · creada {{ $company->created_at?->diffForHumans() }}</p>
+                    @php($admin = $this->adminOf($company))
+                    @if ($admin)
+                        <p class="mt-0.5 flex items-center gap-1 truncate text-xs text-slate-500 dark:text-slate-400">
+                            <svg class="h-3 w-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM4 20a7 7 0 0116 0"/></svg>
+                            <span class="truncate">{{ $admin->name }} · {{ $admin->email }}</span>
+                        </p>
+                    @endif
 
                     {{-- Canales configurados --}}
                     <div class="mt-1.5 flex flex-wrap gap-1.5">
@@ -226,6 +275,10 @@ new #[Layout('layouts.app')] class extends Component
                     <span class="h-1.5 w-1.5 rounded-full {{ $company->active ? 'bg-emerald-500' : 'bg-slate-400' }}"></span>
                     {{ $company->active ? 'Activa' : 'Inactiva' }}
                 </button>
+
+                <button wire:click="confirmDelete({{ $company->id }})" class="btn-danger-ghost btn-sm" title="Eliminar empresa">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 7h12M9 7V5a1 1 0 011-1h4a1 1 0 011 1v2m-7 0v12a1 1 0 001 1h6a1 1 0 001-1V7"/></svg>
+                </button>
             </div>
         @empty
             <div class="card p-12 text-center">
@@ -234,4 +287,35 @@ new #[Layout('layouts.app')] class extends Component
             </div>
         @endforelse
     </div>
+
+    {{-- Modal: eliminar empresa (type-to-confirm) --}}
+    @if ($deletingId)
+        @php($del = \App\Models\Company::withCount(['leads', 'users'])->find($deletingId))
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" wire:click="cancelDelete"></div>
+            <div class="relative w-full max-w-md card p-6">
+                <div class="flex items-center gap-3">
+                    <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-red-50 text-red-600 dark:bg-red-950/50 dark:text-red-400">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.3 4.3L2.6 18a1.5 1.5 0 001.3 2.2h16.2a1.5 1.5 0 001.3-2.2L13.7 4.3a1.5 1.5 0 00-2.6 0z"/></svg>
+                    </span>
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white">Eliminar empresa</h3>
+                </div>
+                <p class="mt-3 text-sm text-slate-600 dark:text-slate-300">
+                    Vas a eliminar <strong>{{ $del?->name }}</strong> y <strong>todo</strong> su contenido:
+                    <strong>{{ $del?->users_count }}</strong> usuarios, <strong>{{ $del?->leads_count }}</strong> leads,
+                    catálogos, formularios y conversaciones.
+                    <span class="font-medium text-red-600 dark:text-red-400">Esta acción no se puede deshacer.</span>
+                </p>
+                <div class="mt-4">
+                    <label class="label">Escribe «{{ $del?->name }}» para confirmar</label>
+                    <input type="text" wire:model="deleteConfirm" class="input" autocomplete="off" wire:keydown.enter="destroy">
+                    @error('deleteConfirm') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                </div>
+                <div class="mt-5 flex justify-end gap-2">
+                    <button type="button" wire:click="cancelDelete" class="btn-secondary">Cancelar</button>
+                    <button type="button" wire:click="destroy" class="btn-danger">Eliminar definitivamente</button>
+                </div>
+            </div>
+        </div>
+    @endif
 </div>
