@@ -37,7 +37,7 @@ new #[Layout('layouts.app')] class extends Component
     {
         $user = Auth::user();
 
-        $query = Lead::query()->with(['status', 'vendor', 'country', 'source']);
+        $query = Lead::query()->with(['status', 'vendor', 'country', 'source', 'leadForm']);
 
         if ($user->can('leads.view.all')) {
             // sin restricción adicional
@@ -222,6 +222,18 @@ new #[Layout('layouts.app')] class extends Component
                             <td class="px-4 py-3 text-slate-700 dark:text-slate-300">
                                 {{ $lead->country?->name ?: '—' }}
                                 <div class="text-xs text-slate-500 dark:text-slate-400">{{ $lead->source?->name }}</div>
+                                @php($medio = $lead->captureMedium())
+                                @php($medioTone = ['widget' => 'bg-emerald-50 text-emerald-700 dark:bg-emerald-500/15 dark:text-emerald-300', 'form' => 'bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-300', 'manual' => 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300', 'other' => 'bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400'][$medio['key']])
+                                <span class="mt-1 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium {{ $medioTone }}">
+                                    @if ($medio['key'] === 'widget')
+                                        <svg class="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 12a8 8 0 01-11.6 7.1L3 21l1.9-6.4A8 8 0 1121 12z"/></svg>
+                                    @elseif ($medio['key'] === 'form')
+                                        <svg class="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6M7 4h10a1 1 0 011 1v14a1 1 0 01-1 1H7a1 1 0 01-1-1V5a1 1 0 011-1z"/></svg>
+                                    @elseif ($medio['key'] === 'manual')
+                                        <svg class="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM4 20a7 7 0 0116 0"/></svg>
+                                    @endif
+                                    {{ $medio['label'] }}
+                                </span>
                             </td>
                             <td class="px-4 py-3">
                                 <span class="{{ $statusBadge($lead->status) }}">{{ $lead->status?->name }}</span>

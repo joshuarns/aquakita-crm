@@ -112,6 +112,24 @@ class Lead extends Model implements Auditable
     }
 
     /**
+     * Medio por el que llegó el lead: widget flotante, formulario web o captura manual.
+     *
+     * @return array{key: string, label: string}
+     */
+    public function captureMedium(): array
+    {
+        if ($this->lead_form_id) {
+            return $this->leadForm?->isFloating()
+                ? ['key' => 'widget', 'label' => 'Widget flotante']
+                : ['key' => 'form', 'label' => 'Formulario web'];
+        }
+
+        return $this->captured_by
+            ? ['key' => 'manual', 'label' => 'Captura manual']
+            : ['key' => 'other', 'label' => 'Otro'];
+    }
+
+    /**
      * Token estable para el Reply-To (casa las respuestas entrantes con el lead).
      * Se genera la primera vez que se necesita.
      */
