@@ -1,6 +1,8 @@
 <?php
 
 use App\Models\Company;
+use App\Models\Lead;
+use App\Models\User;
 use App\Support\CompanyProvisioner;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -23,7 +25,24 @@ new #[Layout('layouts.app')] class extends Component
      */
     public function companies(): Collection
     {
-        return Company::withCount(['users', 'leads'])->latest()->get();
+        return Company::withCount([
+            'users',
+            'leads',
+            'leads as leads_month_count' => fn ($q) => $q->where('created_at', '>=', now()->startOfMonth()),
+        ])->latest()->get();
+    }
+
+    /**
+     * @return array<string, int>
+     */
+    public function stats(): array
+    {
+        return [
+            'total' => Company::count(),
+            'active' => Company::where('active', true)->count(),
+            'users' => User::withoutGlobalScopes()->whereNotNull('company_id')->count(),
+            'leads' => Lead::withoutGlobalScopes()->count(),
+        ];
     }
 
     public function create(): void
@@ -68,80 +87,151 @@ new #[Layout('layouts.app')] class extends Component
     }
 }; ?>
 
-<div class="py-8">
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="mb-6 flex items-center justify-between">
-            <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[#0891b2]">Plataforma</p>
-                <h2 class="text-2xl font-bold text-slate-900 dark:text-slate-100">Empresas</h2>
-                <p class="text-sm text-slate-500 dark:text-slate-400">Cada empresa tiene sus propios leads, usuarios y catálogos.</p>
-            </div>
-            <button wire:click="$toggle('showForm')"
-                    class="rounded-lg bg-[#0e7490] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#155e75]">
-                {{ $showForm ? 'Cancelar' : '+ Nueva empresa' }}
-            </button>
+<div class="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+    <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+        <div>
+            <p class="eyebrow">Plataforma</p>
+            <h2 class="mt-1 text-2xl font-bold text-slate-900 dark:text-white">Empresas</h2>
+            <p class="text-sm text-muted">Cada empresa tiene sus propios leads, usuarios y catálogos.</p>
         </div>
+        <button wire:click="$toggle('showForm')" class="{{ $showForm ? 'btn-secondary' : 'btn-primary' }}">
+            @if (! $showForm)
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+            @endif
+            {{ $showForm ? 'Cancelar' : 'Nueva empresa' }}
+        </button>
+    </div>
 
-        @if (session('status'))
-            <div class="mb-4 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-800">{{ session('status') }}</div>
-        @endif
-
-        @if ($showForm)
-            <form wire:submit="create" class="mb-6 card p-6 shadow-sm">
-                <h3 class="font-semibold text-slate-800 dark:text-slate-100">Nueva empresa</h3>
-                <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+    {{-- KPIs de la plataforma --}}
+    @php($stats = $this->stats())
+    <div class="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        @foreach ([
+            ['label' => 'Empresas', 'value' => $stats['total'], 'tone' => 'bg-brand-700/10 text-brand-700 dark:bg-brand-500/15 dark:text-brand-300', 'icon' => 'M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M9 13h.01M15 9h.01M15 13h.01'],
+            ['label' => 'Activas', 'value' => $stats['active'], 'tone' => 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/15 dark:text-emerald-300', 'icon' => 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z'],
+            ['label' => 'Usuarios', 'value' => $stats['users'], 'tone' => 'bg-indigo-50 text-indigo-600 dark:bg-indigo-500/15 dark:text-indigo-300', 'icon' => 'M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 10-4-4 4 4 0 004 4z'],
+            ['label' => 'Leads', 'value' => $stats['leads'], 'tone' => 'bg-amber-50 text-amber-600 dark:bg-amber-500/15 dark:text-amber-300', 'icon' => 'M4 19V5m0 14h16M8 15l3-3 2 2 4-5'],
+        ] as $kpi)
+            <div class="card card-pad">
+                <div class="flex items-center gap-3">
+                    <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl {{ $kpi['tone'] }}">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="{{ $kpi['icon'] }}"/></svg>
+                    </span>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Nombre de la empresa</label>
-                        <input type="text" wire:model="name" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
-                        @error('name') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Color de marca</label>
-                        <input type="color" wire:model="brand_color" class="mt-1 h-10 w-16 rounded border-gray-300">
+                        <p class="text-2xl font-bold leading-none text-slate-900 dark:text-white">{{ number_format($kpi['value']) }}</p>
+                        <p class="mt-1 text-xs font-medium text-muted">{{ $kpi['label'] }}</p>
                     </div>
                 </div>
-                <h4 class="mt-6 text-sm font-semibold text-slate-700 dark:text-slate-300">Administrador de la empresa</h4>
-                <div class="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-4">
+            </div>
+        @endforeach
+    </div>
+
+    @if (session('status'))
+        <div class="mb-4 flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300">
+            <svg class="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+            {{ session('status') }}
+        </div>
+    @endif
+
+    @if ($showForm)
+        <form wire:submit="create" class="card mb-6 space-y-5 p-6">
+            <h3 class="font-semibold text-slate-800 dark:text-slate-100">Nueva empresa</h3>
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div class="sm:col-span-2">
+                    <label class="label">Nombre de la empresa</label>
+                    <input type="text" wire:model="name" class="input">
+                    @error('name') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                </div>
+                <div>
+                    <label class="label">Color de marca</label>
+                    <input type="color" wire:model="brand_color" class="mt-1 h-10 w-16 rounded border-slate-300 dark:border-slate-700">
+                </div>
+            </div>
+            <div class="border-t border-slate-100 pt-4 dark:border-slate-800">
+                <h4 class="text-sm font-semibold text-slate-700 dark:text-slate-300">Administrador de la empresa</h4>
+                <div class="mt-2 grid grid-cols-1 gap-4 sm:grid-cols-3">
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Nombre</label>
-                        <input type="text" wire:model="admin_name" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
+                        <label class="label">Nombre</label>
+                        <input type="text" wire:model="admin_name" class="input">
                         @error('admin_name') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Correo</label>
-                        <input type="email" wire:model="admin_email" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
+                        <label class="label">Correo</label>
+                        <input type="email" wire:model="admin_email" class="input">
                         @error('admin_email') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Contraseña</label>
-                        <input type="text" wire:model="admin_password" class="mt-1 block w-full rounded-lg border-gray-300 focus:border-[#0e7490] focus:ring-[#0e7490]">
+                        <label class="label">Contraseña</label>
+                        <input type="text" wire:model="admin_password" class="input">
                         @error('admin_password') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
                     </div>
                 </div>
-                <button type="submit" class="mt-5 rounded-lg bg-[#0e7490] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#155e75]">
-                    Crear empresa
-                </button>
-            </form>
-        @endif
+            </div>
+            <button type="submit" class="btn-primary">Crear empresa</button>
+        </form>
+    @endif
 
-        <div class="card shadow-sm overflow-hidden">
-            @forelse ($this->companies() as $company)
-                <div class="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 px-5 py-4 last:border-0">
-                    <div class="flex items-center gap-3">
-                        <span class="h-8 w-8 rounded-lg" style="background: {{ $company->brand_color }}"></span>
-                        <div>
-                            <p class="font-medium text-slate-900 dark:text-slate-100">{{ $company->name }}</p>
-                            <p class="text-sm text-slate-500 dark:text-slate-400">{{ $company->users_count }} usuarios · {{ $company->leads_count }} leads</p>
-                        </div>
+    <div class="space-y-3">
+        @forelse ($this->companies() as $company)
+            <div class="card flex flex-wrap items-center gap-4 p-4 transition hover:shadow-card-hover">
+                {{-- Logo / marca --}}
+                @if ($company->logo)
+                    <img src="{{ $company->logoUrl() }}" alt="" class="h-12 w-12 shrink-0 rounded-xl border border-slate-100 object-contain surface-muted dark:border-slate-800">
+                @else
+                    <span class="grid h-12 w-12 shrink-0 place-items-center rounded-xl text-lg font-bold text-white" style="background: {{ $company->brandColor() }}">
+                        {{ Str::upper(Str::substr($company->name, 0, 1)) }}
+                    </span>
+                @endif
+
+                {{-- Identidad --}}
+                <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2">
+                        <p class="truncate font-semibold text-slate-900 dark:text-slate-100">{{ $company->name }}</p>
+                        <span class="inline-block h-2.5 w-2.5 shrink-0 rounded-full" style="background: {{ $company->brandColor() }}"></span>
                     </div>
-                    <button wire:click="toggle({{ $company->id }})"
-                            class="rounded-full px-3 py-1 text-xs font-medium {{ $company->active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-slate-500 dark:text-slate-400' }}">
-                        {{ $company->active ? 'Activa' : 'Inactiva' }}
-                    </button>
+                    <p class="truncate text-xs text-muted">{{ $company->slug }} · creada {{ $company->created_at?->diffForHumans() }}</p>
+
+                    {{-- Canales configurados --}}
+                    <div class="mt-1.5 flex flex-wrap gap-1.5">
+                        @if ($company->conversations_enabled)
+                            <span class="badge-brand text-[10px]">Correo</span>
+                        @endif
+                        @if ($company->whatsapp_enabled)
+                            <span class="badge-success text-[10px]">WhatsApp</span>
+                        @endif
+                        @if (! $company->conversations_enabled && ! $company->whatsapp_enabled)
+                            <span class="badge-neutral text-[10px]">Sin canales</span>
+                        @endif
+                    </div>
                 </div>
-            @empty
-                <div class="px-5 py-12 text-center text-slate-500 dark:text-slate-400">Aún no hay empresas.</div>
-            @endforelse
-        </div>
+
+                {{-- Métricas --}}
+                <div class="flex items-center gap-5 text-center">
+                    <div>
+                        <p class="text-lg font-bold text-slate-900 dark:text-slate-100">{{ $company->users_count }}</p>
+                        <p class="text-[11px] text-muted">usuarios</p>
+                    </div>
+                    <div>
+                        <p class="text-lg font-bold text-slate-900 dark:text-slate-100">{{ $company->leads_count }}</p>
+                        <p class="text-[11px] text-muted">leads</p>
+                    </div>
+                    <div>
+                        <p class="text-lg font-bold text-emerald-600 dark:text-emerald-400">+{{ $company->leads_month_count }}</p>
+                        <p class="text-[11px] text-muted">este mes</p>
+                    </div>
+                </div>
+
+                {{-- Estado --}}
+                <button wire:click="toggle({{ $company->id }})"
+                        class="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition {{ $company->active ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 dark:bg-emerald-500/15 dark:text-emerald-300' : 'bg-slate-100 text-slate-500 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-400' }}">
+                    <span class="h-1.5 w-1.5 rounded-full {{ $company->active ? 'bg-emerald-500' : 'bg-slate-400' }}"></span>
+                    {{ $company->active ? 'Activa' : 'Inactiva' }}
+                </button>
+            </div>
+        @empty
+            <div class="card p-12 text-center">
+                <svg class="mx-auto h-10 w-10 text-slate-300 dark:text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 21V7l7-4 7 4v14"/></svg>
+                <p class="mt-3 text-sm text-muted">Aún no hay empresas. Crea la primera con «Nueva empresa».</p>
+            </div>
+        @endforelse
     </div>
 </div>
