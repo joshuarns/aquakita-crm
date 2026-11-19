@@ -161,7 +161,8 @@
             var token = '{{ $form->token }}';
             function reportHeight() {
                 try {
-                    var h = document.body.scrollHeight;
+                    var doc = document.documentElement;
+                    var h = Math.max(document.body.scrollHeight, document.body.offsetHeight, doc.scrollHeight, doc.offsetHeight);
                     window.parent.postMessage({ aquakitaForm: token, height: h }, '*');
                 } catch (e) {}
             }
@@ -170,6 +171,9 @@
             if (window.ResizeObserver) {
                 new ResizeObserver(reportHeight).observe(document.body);
             }
+            // Widgets que cargan tarde (Turnstile, fuentes) crecen la página después
+            // del primer reporte: reenviamos la altura varias veces para no cortar el botón.
+            [100, 400, 900, 1800, 3000].forEach(function (ms) { setTimeout(reportHeight, ms); });
             reportHeight();
         })();
     </script>
