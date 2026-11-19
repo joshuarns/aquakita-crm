@@ -26,6 +26,26 @@ class LeadForm extends Model
             'allowed_domains' => 'array',
             'notify_emails' => 'array',
             'active' => 'boolean',
+            'border_radius' => 'integer',
+            'padding' => 'integer',
+            'field_radius' => 'integer',
+        ];
+    }
+
+    /**
+     * Valores de estilo del formulario, con los valores por defecto aplicados.
+     *
+     * @return array{bg: string, text: string, border: string, radius: int, padding: int, field_radius: int}
+     */
+    public function style(): array
+    {
+        return [
+            'bg' => $this->bg_color ?: '#ffffff',
+            'text' => $this->text_color ?: '#1f2937',
+            'border' => $this->border_color ?: '#e5e7eb',
+            'radius' => $this->border_radius ?? 14,
+            'padding' => $this->padding ?? 24,
+            'field_radius' => $this->field_radius ?? 9,
         ];
     }
 

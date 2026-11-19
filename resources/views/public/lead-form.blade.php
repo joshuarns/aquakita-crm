@@ -16,24 +16,33 @@
         @endif
     @endif
     @php($accent = $form->accent_color ?: '#0e7490')
+    @php($s = $form->style())
     <style>
-        :root { --accent: {{ $accent }}; }
+        :root {
+            --accent: {{ $accent }};
+            --aq-bg: {{ $s['bg'] }};
+            --aq-text: {{ $s['text'] }};
+            --aq-border: {{ $s['border'] }};
+            --aq-radius: {{ $s['radius'] }}px;
+            --aq-padding: {{ $s['padding'] }}px;
+            --aq-field-radius: {{ $s['field_radius'] }}px;
+        }
         * { box-sizing: border-box; }
         html, body { margin: 0; padding: 0; }
         body {
             font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            color: #1f2937; background: transparent; line-height: 1.5;
+            color: var(--aq-text); background: transparent; line-height: 1.5;
         }
         .aq-card {
-            max-width: 520px; margin: 0 auto; padding: 24px;
-            background: #ffffff; border: 1px solid #e5e7eb; border-radius: 14px;
+            max-width: 520px; margin: 0 auto; padding: var(--aq-padding);
+            background: var(--aq-bg); border: 1px solid var(--aq-border); border-radius: var(--aq-radius);
         }
         .aq-field { margin-bottom: 16px; }
         .aq-label { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
         .aq-req { color: #dc2626; }
         .aq-input, .aq-select, .aq-textarea {
             width: 100%; padding: 10px 12px; font-size: 14px; color: #111827;
-            border: 1px solid #d1d5db; border-radius: 9px; background: #fff; transition: border-color .15s, box-shadow .15s;
+            border: 1px solid #d1d5db; border-radius: var(--aq-field-radius); background: #fff; transition: border-color .15s, box-shadow .15s;
         }
         .aq-input:focus, .aq-select:focus, .aq-textarea:focus {
             outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent);
@@ -43,7 +52,7 @@
         .cf-turnstile { margin: 2px 0 4px; }
         .aq-btn {
             width: 100%; padding: 12px 16px; font-size: 14px; font-weight: 600; color: #fff;
-            background: var(--accent); border: 0; border-radius: 9px; cursor: pointer; transition: filter .15s;
+            background: var(--accent); border: 0; border-radius: var(--aq-field-radius); cursor: pointer; transition: filter .15s;
         }
         .aq-btn:hover { filter: brightness(0.93); }
         .aq-alert { padding: 12px 14px; border-radius: 9px; font-size: 14px; margin-bottom: 16px; }

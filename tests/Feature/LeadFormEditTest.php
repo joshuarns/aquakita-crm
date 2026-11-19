@@ -77,6 +77,47 @@ class LeadFormEditTest extends TestCase
         ]);
     }
 
+    public function test_admin_can_customize_form_style(): void
+    {
+        $form = LeadForm::factory()->create();
+
+        Volt::actingAs($this->admin())
+            ->test('catalogs.form-edit', ['form' => $form])
+            ->set('bg_color', '#101828')
+            ->set('text_color', '#ffffff')
+            ->set('border_color', '#334155')
+            ->set('border_radius', 24)
+            ->set('padding', 40)
+            ->set('field_radius', 4)
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('lead_forms', [
+            'id' => $form->id,
+            'bg_color' => '#101828',
+            'text_color' => '#ffffff',
+            'border_color' => '#334155',
+            'border_radius' => 24,
+            'padding' => 40,
+            'field_radius' => 4,
+        ]);
+
+        $style = $form->fresh()->style();
+        $this->assertSame('#101828', $style['bg']);
+        $this->assertSame(24, $style['radius']);
+    }
+
+    public function test_style_rejects_out_of_range_values(): void
+    {
+        $form = LeadForm::factory()->create();
+
+        Volt::actingAs($this->admin())
+            ->test('catalogs.form-edit', ['form' => $form])
+            ->set('border_radius', 999)
+            ->call('save')
+            ->assertHasErrors('border_radius');
+    }
+
     public function test_admin_can_set_whatsapp_button(): void
     {
         $form = LeadForm::factory()->create();
