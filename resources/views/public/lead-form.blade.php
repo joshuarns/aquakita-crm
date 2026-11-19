@@ -29,7 +29,7 @@
             background: #ffffff; border: 1px solid #e5e7eb; border-radius: 14px;
         }
         .aq-field { margin-bottom: 16px; }
-        .aq-label { display: block; font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 6px; }
+        .aq-label { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
         .aq-req { color: #dc2626; }
         .aq-input, .aq-select, .aq-textarea {
             width: 100%; padding: 10px 12px; font-size: 14px; color: #111827;
@@ -121,23 +121,24 @@
                 @foreach ($fields as $field)
                     @php($key = $field['key'])
                     @php($value = $old[$key] ?? '')
+                    @php($placeholder = $field['label'].($field['required'] ? ' *' : ''))
                     <div class="aq-field">
                         <label class="aq-label" for="aq-{{ $key }}">
                             {{ $field['label'] }}@if ($field['required'])<span class="aq-req"> *</span>@endif
                         </label>
 
                         @if ($field['type'] === 'textarea')
-                            <textarea id="aq-{{ $key }}" name="{{ $key }}" class="aq-textarea" @if ($field['required']) required @endif>{{ $value }}</textarea>
+                            <textarea id="aq-{{ $key }}" name="{{ $key }}" class="aq-textarea" placeholder="{{ $placeholder }}" @if ($field['required']) required @endif>{{ $value }}</textarea>
                         @elseif ($field['type'] === 'select')
                             <select id="aq-{{ $key }}" name="{{ $key }}" class="aq-select" @if ($field['required']) required @endif>
-                                <option value="">{{ $t['select'] }}</option>
+                                <option value="">{{ $placeholder }}</option>
                                 @foreach (($options[$key] ?? []) as $option)
                                     <option value="{{ $option->id }}" @selected((string) $value === (string) $option->id)>{{ $option->name }}</option>
                                 @endforeach
                             </select>
                         @else
                             <input id="aq-{{ $key }}" name="{{ $key }}" type="{{ $field['type'] }}" class="aq-input"
-                                   value="{{ $value }}" @if ($field['required']) required @endif>
+                                   value="{{ $value }}" placeholder="{{ $placeholder }}" @if ($field['required']) required @endif>
                         @endif
 
                         @if (! empty($fieldErrors[$key]))
