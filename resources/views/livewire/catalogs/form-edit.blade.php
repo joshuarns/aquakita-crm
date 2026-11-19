@@ -21,6 +21,15 @@ new #[Layout('layouts.app')] class extends Component
     public string $notify_emails = '';
     public string $analytics_id = '';
     public string $accent_color = '#0e7490';
+
+    // Estilo del formulario (fondo, borde, radios, padding).
+    public string $bg_color = '#ffffff';
+    public string $text_color = '#1f2937';
+    public string $border_color = '#e5e7eb';
+    public int $border_radius = 14;
+    public int $padding = 24;
+    public int $field_radius = 9;
+
     public string $submit_label = '';
     public string $confirmation_subject = '';
     public string $confirmation_body = '';
@@ -54,6 +63,15 @@ new #[Layout('layouts.app')] class extends Component
         $this->notify_emails = collect($form->notify_emails ?: [])->implode("\n");
         $this->analytics_id = (string) $form->analytics_id;
         $this->accent_color = $form->accent_color ?: '#0e7490';
+
+        $style = $form->style();
+        $this->bg_color = $style['bg'];
+        $this->text_color = $style['text'];
+        $this->border_color = $style['border'];
+        $this->border_radius = $style['radius'];
+        $this->padding = $style['padding'];
+        $this->field_radius = $style['field_radius'];
+
         $this->submit_label = (string) $form->submit_label;
         $this->confirmation_subject = (string) $form->confirmation_subject;
         $this->confirmation_body = (string) $form->confirmation_body;
@@ -112,6 +130,12 @@ new #[Layout('layouts.app')] class extends Component
             'redirect_url' => ['nullable', 'url', 'max:255'],
             'analytics_id' => ['nullable', 'string', 'max:40', 'regex:/^(G-|GT-|GTM-|AW-|UA-)[A-Z0-9-]+$/i'],
             'accent_color' => ['required', 'string', 'max:20'],
+            'bg_color' => ['required', 'string', 'max:20'],
+            'text_color' => ['required', 'string', 'max:20'],
+            'border_color' => ['required', 'string', 'max:20'],
+            'border_radius' => ['integer', 'min:0', 'max:60'],
+            'padding' => ['integer', 'min:0', 'max:80'],
+            'field_radius' => ['integer', 'min:0', 'max:40'],
             'submit_label' => ['nullable', 'string', 'max:60'],
             'confirmation_subject' => ['nullable', 'string', 'max:255'],
             'confirmation_body' => ['nullable', 'string', 'max:2000'],
@@ -169,6 +193,12 @@ new #[Layout('layouts.app')] class extends Component
             'notify_emails' => $emails ?: null,
             'analytics_id' => trim($this->analytics_id) ?: null,
             'accent_color' => $this->accent_color,
+            'bg_color' => $this->bg_color,
+            'text_color' => $this->text_color,
+            'border_color' => $this->border_color,
+            'border_radius' => $this->border_radius,
+            'padding' => $this->padding,
+            'field_radius' => $this->field_radius,
             'submit_label' => $this->submit_label ?: null,
             'confirmation_subject' => $this->confirmation_subject ?: null,
             'confirmation_body' => $this->confirmation_body ?: null,
@@ -344,13 +374,73 @@ new #[Layout('layouts.app')] class extends Component
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Color</label>
-                            <input type="color" wire:model="accent_color" class="mt-1 h-10 w-16 rounded border-gray-300">
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Color principal (botón y foco)</label>
+                            <input type="color" wire:model.live="accent_color" class="mt-1 h-10 w-16 rounded border-gray-300">
                         </div>
                         <label class="flex items-center gap-2 mt-6">
                             <input type="checkbox" wire:model="active" class="rounded border-gray-300 text-[#0e7490] focus:ring-[#0e7490]">
                             <span class="text-sm text-slate-700 dark:text-slate-300">Formulario activo</span>
                         </label>
+                    </div>
+                </div>
+
+                {{-- Estilo del formulario --}}
+                <div class="card p-6 space-y-4">
+                    <div>
+                        <h3 class="font-semibold text-slate-800 dark:text-slate-100">Estilo del formulario</h3>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Fondo, borde, redondeo y espaciado. Los cambios se ven al instante en la vista previa.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Fondo</label>
+                            <input type="color" wire:model.live="bg_color" class="mt-1 h-10 w-16 rounded border-gray-300">
+                            @error('bg_color') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Texto</label>
+                            <input type="color" wire:model.live="text_color" class="mt-1 h-10 w-16 rounded border-gray-300">
+                            @error('text_color') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Borde</label>
+                            <input type="color" wire:model.live="border_color" class="mt-1 h-10 w-16 rounded border-gray-300">
+                            @error('border_color') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Redondeo del borde <span class="text-slate-400">({{ $border_radius }}px)</span></label>
+                            <input type="range" min="0" max="40" wire:model.live="border_radius" class="mt-2 block w-full accent-[#0e7490]">
+                            @error('border_radius') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Espaciado interno <span class="text-slate-400">({{ $padding }}px)</span></label>
+                            <input type="range" min="0" max="64" wire:model.live="padding" class="mt-2 block w-full accent-[#0e7490]">
+                            @error('padding') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-700 dark:text-slate-300">Redondeo de campos <span class="text-slate-400">({{ $field_radius }}px)</span></label>
+                            <input type="range" min="0" max="30" wire:model.live="field_radius" class="mt-2 block w-full accent-[#0e7490]">
+                            @error('field_radius') <p class="mt-1 text-xs text-red-600">{{ $message }}</p> @enderror
+                        </div>
+                    </div>
+
+                    {{-- Vista previa en vivo --}}
+                    <div>
+                        <p class="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">Vista previa</p>
+                        <div class="rounded-lg p-5" style="background:#f1f5f9;background-image:linear-gradient(45deg,#e2e8f0 25%,transparent 25%),linear-gradient(-45deg,#e2e8f0 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e2e8f0 75%),linear-gradient(-45deg,transparent 75%,#e2e8f0 75%);background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0;">
+                            <div style="max-width:360px;margin:0 auto;background:{{ $bg_color }};color:{{ $text_color }};border:1px solid {{ $border_color }};border-radius:{{ $border_radius }}px;padding:{{ $padding }}px;">
+                                <input type="text" placeholder="Nombre *" readonly
+                                       style="width:100%;padding:10px 12px;font-size:14px;border:1px solid #d1d5db;border-radius:{{ $field_radius }}px;background:#fff;color:#111827;margin-bottom:12px;box-sizing:border-box;">
+                                <input type="text" placeholder="Correo electrónico *" readonly
+                                       style="width:100%;padding:10px 12px;font-size:14px;border:1px solid #d1d5db;border-radius:{{ $field_radius }}px;background:#fff;color:#111827;margin-bottom:12px;box-sizing:border-box;">
+                                <button type="button" style="width:100%;padding:12px 16px;font-size:14px;font-weight:600;color:#fff;background:{{ $accent_color }};border:0;border-radius:{{ $field_radius }}px;cursor:default;">
+                                    {{ $submit_label ?: \App\Models\LeadForm::strings($locale)['submit'] }}
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
