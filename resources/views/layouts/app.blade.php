@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ auth()->user()?->company?->name ?? config('app.name', 'Laravel') }}</title>
+        <title>{{ auth()->user()?->company?->name ?? \App\Support\Branding::name() }}</title>
 
         {{-- Evita el parpadeo de tema: aplica el modo guardado antes de pintar --}}
         <script>
@@ -46,7 +46,7 @@
                         <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
                     </button>
                     <img src="{{ auth()->user()?->company?->logoUrl() ?? route('brand.logo') }}" alt="" class="h-8 w-auto">
-                    <span class="font-semibold text-slate-800 dark:text-white">{{ auth()->user()?->company?->name ?? config('app.name') }}</span>
+                    <span class="font-semibold text-slate-800 dark:text-white">{{ auth()->user()?->company?->name ?? \App\Support\Branding::name() }}</span>
                 </header>
 
                 <main class="animate-fade-in">

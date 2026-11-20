@@ -4,16 +4,16 @@ use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\Public\LeadFormController;
 use App\Http\Controllers\WhatsAppWebhookController;
 use App\Models\Company;
-use App\Support\BrandLogo;
+use App\Support\Branding;
 use Illuminate\Support\Facades\Route;
 use Livewire\Volt\Volt;
 
 Route::redirect('/', 'dashboard');
 
-// Logo de marca servido desde el código (evita problemas de archivos estáticos en el hosting).
-Route::get('brand/logo.png', fn () => response(BrandLogo::bytes(), 200, [
+// Logo de marca de la plataforma (el que configura el super-admin, o el de Aquakita por defecto).
+Route::get('brand/logo.png', fn () => response(Branding::logoBytes(), 200, [
     'Content-Type' => 'image/png',
-    'Cache-Control' => 'public, max-age=31536000, immutable',
+    'Cache-Control' => 'public, max-age=300',
 ]))->name('brand.logo');
 
 // Logo por empresa (propio o el de la plataforma por defecto).
@@ -45,6 +45,11 @@ Route::view('profile', 'profile')
 Volt::route('superadmin/empresas', 'superadmin.companies')
     ->middleware(['auth', 'super_admin'])
     ->name('superadmin.companies');
+
+// Plataforma (super-admin): marca de la instalación (logo/nombre del login y panel).
+Volt::route('superadmin/marca', 'superadmin.branding')
+    ->middleware(['auth', 'super_admin'])
+    ->name('superadmin.branding');
 
 Route::middleware(['auth'])->group(function () {
     Volt::route('panel', 'panel')->name('panel');
