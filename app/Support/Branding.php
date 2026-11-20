@@ -77,6 +77,14 @@ class Branding
     }
 
     /**
+     * SVG del placeholder neutro «sin imagen», reutilizable (p. ej. empresas sin logo).
+     */
+    public static function placeholderSvg(): string
+    {
+        return self::PLACEHOLDER_SVG;
+    }
+
+    /**
      * Placeholder neutro «sin imagen» (icono gris sobre fondo claro).
      */
     private const PLACEHOLDER_SVG = <<<'SVG'

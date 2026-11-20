@@ -16,10 +16,10 @@ Route::get('brand/logo.png', fn () => response(Branding::logoBytes(), 200, [
     'Cache-Control' => 'public, max-age=300',
 ]))->name('brand.logo');
 
-// Logo por empresa (propio o el de la plataforma por defecto).
+// Logo por empresa (el propio, o un placeholder «sin imagen» si no tiene).
 Route::get('c/{company}/logo.png', fn (Company $company) => response($company->logoBytes(), 200, [
-    'Content-Type' => 'image/png',
-    'Cache-Control' => 'public, max-age=3600',
+    'Content-Type' => $company->logoContentType(),
+    'Cache-Control' => 'public, max-age=300',
 ]))->name('company.logo');
 
 // Webhook de WhatsApp Cloud API (público; se enruta por phone_number_id).
