@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Support\BrandLogo;
+use App\Support\Branding;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -34,7 +34,15 @@ class Company extends Model
      */
     public function logoBytes(): string
     {
-        return $this->logo ? base64_decode($this->logo) : BrandLogo::bytes();
+        return $this->logo ? base64_decode($this->logo) : Branding::placeholderSvg();
+    }
+
+    /**
+     * Tipo de contenido para servir el logo: el subido (PNG) o el placeholder (SVG).
+     */
+    public function logoContentType(): string
+    {
+        return $this->logo ? 'image/png' : 'image/svg+xml';
     }
 
     public function logoUrl(): string
