@@ -71,6 +71,17 @@ class SuperAdminBrandingTest extends TestCase
             ->assertHeader('Content-Type', 'image/png');
     }
 
+    public function test_branding_route_serves_neutral_placeholder_without_logo(): void
+    {
+        Branding::flush();
+
+        $response = $this->get(route('brand.logo'))->assertOk();
+
+        $this->assertStringContainsString('image/svg+xml', $response->headers->get('Content-Type'));
+        $this->assertStringContainsString('<svg', $response->getContent());
+        $this->assertFalse(Branding::hasLogo());
+    }
+
     public function test_non_super_admin_cannot_open_branding(): void
     {
         $user = User::factory()->create(['is_super_admin' => false]);

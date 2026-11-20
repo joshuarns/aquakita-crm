@@ -10,9 +10,9 @@ use Livewire\Volt\Volt;
 
 Route::redirect('/', 'dashboard');
 
-// Logo de marca de la plataforma (el que configura el super-admin, o el de Aquakita por defecto).
+// Logo de marca de la plataforma (el que configura el super-admin, o un placeholder «sin imagen»).
 Route::get('brand/logo.png', fn () => response(Branding::logoBytes(), 200, [
-    'Content-Type' => 'image/png',
+    'Content-Type' => Branding::logoContentType(),
     'Cache-Control' => 'public, max-age=300',
 ]))->name('brand.logo');
 

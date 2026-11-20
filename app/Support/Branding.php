@@ -58,14 +58,34 @@ class Branding
     }
 
     /**
-     * Bytes del logo de la plataforma (el configurado o el de Aquakita por defecto).
+     * Bytes del logo de la plataforma. Si no se configuró ninguno, devuelve un
+     * placeholder neutro de «sin imagen» (nunca el logo de otra marca).
      */
     public static function logoBytes(): string
     {
         $logo = self::get('brand_logo');
 
-        return $logo ? base64_decode($logo) : BrandLogo::bytes();
+        return $logo ? base64_decode($logo) : self::PLACEHOLDER_SVG;
     }
+
+    /**
+     * Tipo de contenido para servir el logo: el subido (PNG) o el placeholder (SVG).
+     */
+    public static function logoContentType(): string
+    {
+        return self::hasLogo() ? 'image/png' : 'image/svg+xml';
+    }
+
+    /**
+     * Placeholder neutro «sin imagen» (icono gris sobre fondo claro).
+     */
+    private const PLACEHOLDER_SVG = <<<'SVG'
+        <svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 24 24" fill="none" role="img" aria-label="Sin logo">
+            <rect width="24" height="24" rx="5" fill="#e2e8f0"/>
+            <path d="M3.5 16.5l4.2-4.2a1 1 0 0 1 1.4 0l2.6 2.6 3.2-3.8a1 1 0 0 1 1.5 0l4.1 4.6" stroke="#94a3b8" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="8.6" cy="8.4" r="1.7" fill="#94a3b8"/>
+        </svg>
+        SVG;
 
     public static function name(): string
     {
