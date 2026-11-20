@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Laravel') }}</title>
+        <title>{{ \App\Support\Branding::name() }}</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
@@ -25,7 +25,7 @@
 
                 {{-- Logo --}}
                 <a href="/" wire:navigate class="relative z-10 inline-block">
-                    <img src="{{ route('brand.logo') }}" alt="Aquakita" class="h-20 w-auto drop-shadow-lg">
+                    <img src="{{ route('brand.logo') }}" alt="{{ \App\Support\Branding::name() }}" class="h-20 w-auto drop-shadow-lg">
                 </a>
 
                 {{-- Tagline --}}
@@ -43,7 +43,7 @@
                 </div>
 
                 {{-- Footer --}}
-                <p class="relative z-10 text-sm text-white/50">Sistema comercial AQUAKITA</p>
+                <p class="relative z-10 text-sm text-white/50">{{ \App\Support\Branding::tagline() }}</p>
             </div>
 
             {{-- Form area --}}
@@ -51,7 +51,7 @@
                 <div class="w-full max-w-md">
                     {{-- Mobile logo --}}
                     <a href="/" wire:navigate class="mb-8 inline-block lg:hidden">
-                        <img src="{{ route('brand.logo') }}" alt="Aquakita" class="h-16 w-auto">
+                        <img src="{{ route('brand.logo') }}" alt="{{ \App\Support\Branding::name() }}" class="h-16 w-auto">
                     </a>
 
                     {{ $slot }}
